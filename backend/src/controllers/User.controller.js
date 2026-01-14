@@ -9,4 +9,6 @@ const UserController = {
     async registerUser(req,res) {
 
     }
-}
+};
+
+module.exports = UserController;
