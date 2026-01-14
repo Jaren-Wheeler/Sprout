@@ -3,12 +3,20 @@ const express = require('express');
 const router = express.Router();
 const UserController = require('../controllers/User.controller');
 
-// set up scaffolding for future development //
+// This file should be for user profile functionality AFTER login. Login functionality handled by auth controller //
 
-// Route for getting user login information
-router.get("/user/login", UserController.loginUser);
+/**
+ * @route GET api/user/:id
+ * @desc Get logged-in user information
+ * @access Private
+ */
+router.get("/users/:id", UserController.getUser);
 
-// Route for creating an account
-router.post("/user/register", UserController.registerUser);
+/**
+ * @route GET api/scheduler/items/:id
+ * @desc Get an item from the schedule by ID
+ * @access Private
+ */
+router.post("/users/register", UserController.registerUser);
 
 module.exports = router;

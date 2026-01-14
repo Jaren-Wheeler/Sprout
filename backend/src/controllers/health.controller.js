@@ -29,6 +29,10 @@ const HealthController = {
 
     },
 
+    async createWorkoutItem(req,res) {
+
+    },
+    
     async createDiet(req,res) {
 
     },
