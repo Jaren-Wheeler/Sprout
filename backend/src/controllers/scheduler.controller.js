@@ -1,7 +1,7 @@
 
 const SchedulerController = {
 
-    async addScheduleItem(req, res) {
+    async createScheduleItem(req, res) {
 
     },
 
@@ -11,6 +11,10 @@ const SchedulerController = {
 
     async deleteScheduleItem(req,res) {
 
+    },
+
+    async getScheduleItem(req,res) {
+        
     }
 };
 

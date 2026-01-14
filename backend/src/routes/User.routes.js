@@ -11,4 +11,4 @@ router.get("/user/login", UserController.loginUser);
 // Route for creating an account
 router.post("/user/register", UserController.registerUser);
 
-module.exports
+module.exports = router;

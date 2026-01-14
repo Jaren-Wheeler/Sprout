@@ -2,12 +2,16 @@
 
 const UserController = {
 
-    async loginUser(req, res) {
+    async getProfile(req,res) {
 
     },
 
-    async registerUser(req,res) {
+    async deleteProfile(req,res) {
 
+    },
+
+    async editProfile(req,res) {
+        
     }
 };
 
