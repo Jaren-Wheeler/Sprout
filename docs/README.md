@@ -61,3 +61,38 @@ To avoid needless work, the following changes should **not** require documentati
 
 > Code is the source of truth.  
 > Documentation explains **intent**, not implementation.
+
+## Local Database Setup
+
+Sprout uses PostgreSQL with Prisma for database management.
+
+### Docker Setup
+
+Docker provides a simple way to run PostgreSQL locally without installing it directly.
+
+**Requirements**
+- Docker Desktop (https://www.docker.com/products/docker-desktop)
+
+**Start the database**
+```bash
+docker compose up -d
+```
+**Stop the database**
+```bash
+docker compose down
+```
+
+## Local database credentials
+
+- Host: localhost
+- Port: 5432
+- Database: sprout
+- User: sprout
+- Password: sprout
+  
+  Create a local `.env` file from `.env.example`, then run migrations:
+
+ ```bash
+cd backend
+npx prisma migrate dev
+```
