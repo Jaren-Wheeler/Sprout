@@ -1,0 +1,224 @@
+// =====================================================
+// Prisma Schema
+// =====================================================
+//
+// This schema represents the data contracts
+// for the Sprout application.
+//
+// - Logical ownership is defined here
+// - Physical table creation happens via migrations
+// - Snake_case is used at the database level
+// - camelCase is used at the application level
+//
+// =====================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =====================================================
+// Users
+// =====================================================
+// Central identity table.
+// Owns all user-scoped data across the system.
+// =====================================================
+
+model User {
+  id            String   @id @default(uuid()) @map("id")
+  email         String   @unique @map("email")
+  passwordHash  String   @map("password_hash")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  budgets         Budget[]
+  expenses        Expense[]
+  notes           Note[]
+  calendarEvents  CalendarEvent[]
+  fitnessInfo     FitnessInfo?
+  workouts        Workout[]
+  diets           Diet[]
+  chatbotMessages ChatbotMessage[]
+
+  @@map("users")
+}
+
+// =====================================================
+// Budgets
+// =====================================================
+// Logical grouping for expenses.
+// A user may own multiple budgets.
+// =====================================================
+
+model Budget {
+  id           String   @id @default(uuid()) @map("id")
+  name         String   @map("name")
+  limitAmount  Decimal  @map("limit_amount")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  expenses Expense[]
+
+  @@map("budgets")
+}
+
+// =====================================================
+// Expenses
+// =====================================================
+// Individual financial transactions.
+// Each expense belongs to a budget and a user.
+// =====================================================
+
+model Expense {
+  id           String   @id @default(uuid()) @map("id")
+  amount       Decimal  @map("amount")
+  category     String   @map("category")
+  description  String?  @map("description")
+  expenseDate  DateTime @map("expense_date")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  userId   String @map("user_id")
+  user     User   @relation(fields: [userId], references: [id])
+
+  budgetId String @map("budget_id")
+  budget   Budget @relation(fields: [budgetId], references: [id])
+
+  @@map("expenses")
+}
+
+// =====================================================
+// Notes
+// =====================================================
+// Lightweight personal notes.
+// Search and organization handled at application level.
+// =====================================================
+
+model Note {
+  id        String   @id @default(uuid()) @map("id")
+  title     String   @map("title")
+  content   String   @map("content")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("notes")
+}
+
+// =====================================================
+// Calendar Events
+// =====================================================
+// Scheduled events used for planning and reminders.
+// =====================================================
+
+model CalendarEvent {
+  id          String   @id @default(uuid()) @map("id")
+  title       String   @map("title")
+  description String?  @map("description")
+  startTime   DateTime @map("start_time")
+  endTime     DateTime @map("end_time")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("calendar_events")
+}
+
+// =====================================================
+// Fitness Info
+// =====================================================
+// One-to-one extension of User.
+// Stores high-level fitness metrics only.
+// =====================================================
+
+model FitnessInfo {
+  id            String   @id @default(uuid()) @map("id")
+  currentWeight Decimal? @map("current_weight")
+  goalWeight    Decimal? @map("goal_weight")
+  calorieGoal   Int?     @map("calorie_goal")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  userId String @unique @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("fitness_info")
+}
+
+// =====================================================
+// Workouts
+// =====================================================
+// Reusable workout templates.
+// Performance tracking added in later iterations.
+// =====================================================
+
+model Workout {
+  id        String   @id @default(uuid()) @map("id")
+  name      String   @map("name")
+  notes     String?  @map("notes")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("workouts")
+}
+
+// =====================================================
+// Diets
+// =====================================================
+// High-level diet or nutrition templates.
+// Detailed nutrition added later.
+// =====================================================
+
+model Diet {
+  id          String   @id @default(uuid()) @map("id")
+  name        String   @map("name")
+  description String?  @map("description")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("diets")
+}
+
+// =====================================================
+// Chatbot Messages
+// =====================================================
+// Stores AI interaction history.
+// Used for conversational context and future improvements.
+// =====================================================
+
+model ChatbotMessage {
+  id        String   @id @default(uuid()) @map("id")
+  sender    Sender   @map("sender")
+  message   String   @map("message")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("chatbot_messages")
+}
+
+// =====================================================
+// Enums
+// =====================================================
+
+enum Sender {
+  user
+  bot
+}
