@@ -1,3 +1,16 @@
+## Status
+
+This document represents the original logical database design for Sprout.
+
+The current implemented database schema is defined in:
+- `backend/prisma/schema.prisma`
+- `backend/prisma/migrations/`
+
+This document is retained to:
+- Capture original design intent
+- Explain scope decisions
+- Provide context for future expansion
+
 # Sprout – Initial Database Table Drafts
 
 This document contains early logical table drafts for the Sprout application.
@@ -8,13 +21,12 @@ Purpose:
 - Serve as a reference before repository and migrations are finalized
 - Based on the ERD from the final report
 
-## Implementation Notes (Preliminary)
+## Implementation Notes 
 
 - Database: PostgreSQL
-- Schema defined at a logical level only
-- Table creation will be implemented using a migration tool once the backend stack is finalized
-- Migration tool (e.g. Prisma, Knex, Flyway, etc.) will be selected after repository setup
-- Primary Key Strategy: UUIDs
+- Schema implemented using Prisma ORM
+- Logical design documented here
+- Physical schema defined in Prisma migrations
 
 # Database Schema Draft
 
