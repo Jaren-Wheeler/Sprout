@@ -6,7 +6,7 @@
   --signup-bg: #6015d1a5;
   --login-bg: #8ad9efac;
 
-  background-image: url("/src/assets/bg-light.png");
+  background-image: url("/public/assets/bg-light.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -19,7 +19,7 @@
   --signup-bg: #380b7cba;
   --login-bg: #12128aac;
 
-  background-image: url("/src/assets/bg-dark.png");
+  background-image: url("/public/assets/bg-dark.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -299,19 +299,43 @@
 }
 
 
+/* Auth forms */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 90%;
+  max-width: 360px;
+}
+
+.auth-form input {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: none;
+  font-size: 1rem;
+}
+
+.auth-link {
+  font-size: 0.95rem;
+}
+
+.auth-link span {
+  color: var(--signup-bg);
+  font-weight: bold;
+  cursor: pointer;
+}
+
 
 @media (max-width: 800px) {
-    .actions-row {
-      .actions-row {
-      position: static;
-      flex-direction: column;
-      gap: 2.5rem;
-    }
+  .actions-row {
+    position: static;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
 
-    .actions-row .signup,
-    .actions-row .login {
-      position: static;
-    }
+  .actions-row .signup,
+  .actions-row .login {
+    position: static;
   }
 }
 
