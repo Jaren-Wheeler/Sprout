@@ -43,7 +43,7 @@ export default function Home() {
       <div className={`actions-row pop ${show ? "show delay-2" : ""}`}>
         <button
           className="btn signup"
-          onClick={() => navigate("./components/Signup.jsx")}
+          onClick={() => navigate("/signup")}
         >
           Sign Up
         </button>
@@ -65,7 +65,7 @@ export default function Home() {
 
         <button
           className="btn login"
-          onClick={() => navigate("./components/Login.jsx")}
+          onClick={() => navigate("/login")} 
         >
           Log In
         </button>
