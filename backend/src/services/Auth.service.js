@@ -1,5 +1,5 @@
-import bcrypt from "bcrypt";
-import prisma from "../clients/prisma.client.js";
+const bcrypt = require("bcrypt");
+const prisma = require("../clients/prisma.client");
 
 // =====================================================
 // Authentication Service
@@ -15,7 +15,7 @@ import prisma from "../clients/prisma.client.js";
  * @param {string} password
  * @returns {Object} Safe user data
  */
-export const registerUser = async (email, password) => {
+const registerUser = async (email, password) => {
 
   // Checks if the email already exists
   const existingUser = await prisma.user.findUnique({
@@ -51,7 +51,7 @@ export const registerUser = async (email, password) => {
  * @param {string} password
  * @returns {Object} Safe user data
  */
-export const loginUser = async (email, password) => {
+const loginUser = async (email, password) => {
 
   // Find user by email
   const user = await prisma.user.findUnique({
@@ -74,4 +74,9 @@ export const loginUser = async (email, password) => {
     email: user.email,
     createdAt: user.createdAt
   };
+};
+
+module.exports = {
+  registerUser,
+  loginUser
 };

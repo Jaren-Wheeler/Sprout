@@ -1,8 +1,12 @@
+const { PrismaClient } = require("@prisma/client");
+
+// =====================================================
+// Prisma Client
+// =====================================================
 // Centralized Prisma client instance used across
 // the backend for all database operations.
-
-import { PrismaClient } from "@prisma/client";
+// =====================================================
 
 const prisma = new PrismaClient();
 
-export default prisma;
+module.exports = prisma;

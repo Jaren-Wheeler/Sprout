@@ -11,7 +11,7 @@ if (process.env.OPENAI_API_KEY) {
     apiKey: process.env.OPENAI_API_KEY
   });
 } else {
-  console.warn(" OPenAI client disalbed (missing OPEN_API_KEY");
+  console.warn(" OPenAI client disalbed (missing OPEN_API_KEY)");
 }
 
 export default openaiClient;
