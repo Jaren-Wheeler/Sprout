@@ -5,48 +5,82 @@ import Field from "../../components/Field.jsx";
 import Button from "../../components/Button.jsx";
 import { useStore } from "../../state/store.jsx";
 import { requiredText } from "../../lib/validators.js";
+import { loginUser } from "../../api/auth";
 
 export default function Login() {
-  const { state, dispatch } = useStore();
-  const [email, setEmail] = useState("demo@sprout.local");
+  const { dispatch } = useStore();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
   const nav = useNavigate();
   const loc = useLocation();
-  const goTo = useMemo(() => (loc.state?.from ? String(loc.state.from) : "/"), [loc.state]);
 
-  const onSubmit = (e) => {
-    e.preventDefault();
-    setError(null);
+  const goTo = useMemo(
+    () => (loc.state?.from ? String(loc.state.from) : "/"),
+    [loc.state]
+  );
 
-    const err = requiredText("Email", email);
-    if (err) return setError(err);
+  const onSubmit = async (e) => {
+  e.preventDefault();
+  setError(null);
 
-    const exists = state.users.some((u) => u.email.toLowerCase() === email.toLowerCase());
-    if (!exists) return setError("No user found for that email (prototype stub). Try demo@sprout.local");
+  const err = requiredText("Email", email);
+  if (err) return setError(err);
 
-    dispatch({ type: "auth/login", payload: { email } });
+  if (!password) {
+    return setError("Password is required");
+  }
+
+  try {
+    const user = await loginUser(email, password);
+
+    // ✅ log success response from backend
+    console.log("Login success:", user);
+
+    dispatch({ type: "auth/login", payload: user });
+
     nav(goTo, { replace: true });
-  };
+
+  } catch (err) {
+    // ❌ log error from backend
+    console.log("Login error:", err.message);
+
+    setError(err.message);
+  }
+};
 
   return (
     <div className="container" style={{ maxWidth: 560, paddingTop: 40 }}>
-      <Card title="Login" subtitle="Stubbed auth (no real password/JWT).">
+      <Card title="Login">
         <form onSubmit={onSubmit}>
+
           <Field label="Email" error={error}>
-            <input className="input" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <input
+              className="input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </Field>
+
+          <Field label="Password" error={error}>
+            <input
+              type="password"
+              className="input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </Field>
 
           <div className="row">
             <Button type="submit">Login</Button>
             <div className="spacer" />
-            <Link className="muted" to="/register">Need an account? Register</Link>
+            <Link className="muted" to="/register">
+              Need an account? Register
+            </Link>
           </div>
 
-          <div className="hr" />
-          <div className="muted" style={{ fontSize: 13 }}>
-            Tip: use <span className="kbd">demo@sprout.local</span>
-          </div>
         </form>
       </Card>
     </div>

@@ -38,7 +38,7 @@ const AuthController = {
       res.json(user);
 
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      res.status(401).json({ error: error.message });
     }
   }
 };

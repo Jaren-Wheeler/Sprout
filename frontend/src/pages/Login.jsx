@@ -1,17 +1,64 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { loginUser } from "../api/auth"; // adjust path if needed
 
 export default function Login() {
   const [theme, setTheme] = useState("light");
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+
   const navigate = useNavigate();
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+
+    if (!email) return setError("Email required");
+    if (!password) return setError("Password required");
+
+    try {
+      const user = await loginUser(email, password);
+
+      console.log("Login success:", user);
+
+      // Navigate after login (adjust route if needed)
+      navigate("/");
+
+    } catch (err) {
+      console.log("Login error:", err.message);
+      setError(err.message);
+    }
+  };
 
   return (
     <div className={`home ${theme}`}>
       <h1 className="pop show">Log In</h1>
 
-      <form className="auth-form pop show delay-1">
-        <input type="email" placeholder="Email" />
-        <input type="password" placeholder="Password" />
+      <form
+        className="auth-form pop show delay-1"
+        onSubmit={onSubmit}
+      >
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        {error && (
+          <div style={{ color: "red", marginBottom: 10 }}>
+            {error}
+          </div>
+        )}
 
         <button className="btn login" type="submit">
           Log In
