@@ -1,61 +1,51 @@
-const express = require('express');
-const FinanceController = require('../controllers/finance.controller');
+const express = require("express");
 const router = express.Router();
 
-/**
- * @route GET api/finances/budgets/:id
- * @desc Get existing budgets by ID
- * @access Private
- */
-router.get("/budgets/:id", FinanceController.getBudget);
+const {
+  // Budgets
+  createBudget,
+  getBudgets,
+  updateBudget,
+  deleteBudget,
 
-/**
- * @route POST api/finances/budgets
- * @desc Create new budget
- * @access Private
- */
-router.post("/budgets", FinanceController.createBudget);
+  // Expenses
+  createExpense,
+  getExpenses,
+  updateExpense,
+  deleteExpense,
 
-/**
- * @route DELETE api/finances/budgets/:id
- * @desc Delete existing budgets by ID
- * @access Private
- */
-router.delete("/budget/:id", FinanceController.deleteBudget);
+  // Analytics
+  getCategoryTotals
+} = require("../controllers/finance.controller");
 
-/**
- * @route UPDATE api/finances/budgets/:id
- * @desc Edit existing budgets by ID
- * @access Private
- */
-router.put("/budget/:id", FinanceController.editBudget);
+const auth = require("../middleware/auth");
 
-/**
- * @route GET api/finances/expenses/:id
- * @desc  Get existing expenses by ID
- * @access Private
- */
-router.get("/expenses/:id", FinanceController.getExpenseItem);
 
-/**
- * @route POST api/finances/expenses
- * @desc Create new expense item
- * @access Private
- */
-router.post("/expenses", FinanceController.createExpenseItem);
+// =====================================================
+// Budget Routes
+// =====================================================
 
-/**
- * @route DELETE api/finances/expenses/:id
- * @desc Delete existing expense item by ID
- * @access Private
- */
-router.delete("/expenses/:id", FinanceController.deleteExpenseItem);
+router.post("/budgets", auth, createBudget);
+router.get("/budgets", auth, getBudgets);
+router.put("/budgets/:id", auth, updateBudget);
+router.delete("/budgets/:id", auth, deleteBudget);
 
-/**
- * @route UPDATE api/finances/expenses/:id
- * @desc Edit existing expense item by ID
- * @access Private
- */
-router.put("/expenses/:id", FinanceController.editExpenseItem);
+
+// =====================================================
+// Expense Routes
+// =====================================================
+
+router.post("/expenses", auth, createExpense);
+router.get("/expenses", auth, getExpenses);
+router.put("/expenses/:id", auth, updateExpense);
+router.delete("/expenses/:id", auth, deleteExpense);
+
+
+// =====================================================
+// Analytics Routes
+// =====================================================
+
+router.get("/analytics/categories", auth, getCategoryTotals);
+
 
 module.exports = router;

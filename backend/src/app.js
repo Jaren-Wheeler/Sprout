@@ -37,7 +37,7 @@ app.use("/api/health", healthRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/scheduler", schedulerRoutes);
 app.use("/api/notes", notesRoutes);
-app.use("/api/finances", financeRoutes);
+app.use("/api/finance", financeRoutes);
 app.use("/api/chatbot", chatbotRoutes);
 
 module.exports = app;
