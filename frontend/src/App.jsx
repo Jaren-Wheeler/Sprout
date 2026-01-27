@@ -13,8 +13,8 @@ import Chatbot from "./pages/chatbot/Chatbot";
 function App() {
   return (
     <Routes>
-      {/*<Route path="/" element={<Home />} /> */}
-      <Route path="/" element={<Dashboard />} />
+      <Route path="/" element={<Home />} /> 
+      <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/budget-detail" element={<BudgetDetail/>} />
