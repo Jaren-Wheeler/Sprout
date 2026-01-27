@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function Nav() {
+export default function Dashboard() {
   const navigate = useNavigate();
 
   const goto = (path) => () => navigate(`/${path}`);
@@ -9,7 +9,7 @@ export default function Nav() {
   return (
     <div
       style={{
-        backgroundImage: "url(/assets/forest.png)",
+        backgroundImage: "url(src/assets/forest.png)",
         backgroundSize: "cover",
         backgroundPosition: "center",
         width: "100vw",
@@ -18,49 +18,49 @@ export default function Nav() {
       }}
     >
       <img
-        src="/assets/settings.png"
+        src="src/assets/settings.png"
         alt="settings"
         style={{ position: "absolute", left: 180, top: 150, cursor: "pointer", width: 180 }}
         onClick={goto("settings")}
       />
 
       <img
-        src="/assets/scheduler.png"
+        src="src/assets/scheduler.png"
         alt="scheduler"
         style={{ position: "absolute", left: 100, top: 430, cursor: "pointer", width: 900 }}
         onClick={goto("scheduler")}
       />
 
       <img
-        src="/assets/expenses.png"
+        src="src/assets/expenses.png"
         alt="expenses"
         style={{ position: "absolute", left: 900, top: 550, cursor: "pointer", width: 180 }}
         onClick={goto("expenses")}
       />
 
       <img
-        src="/assets/notes.png"
+        src="src/assets/notes.png"
         alt="notes"
         style={{ position: "absolute", right: 300, top: 500, cursor: "pointer", width: 550 }}
         onClick={goto("notes")}
       />
 
       <img
-        src="/assets/fitness.png"
+        src="src/assets/fitness.png"
         alt="fitness"
         style={{ position: "absolute", right: 320, top: 180, cursor: "pointer", width: 200 }}
         onClick={goto("fitness")}
       />
 
       <img
-        src="/assets/askmeanything.png"
+        src="src/assets/askmeanything.png"
         alt="askmeanything"
         style={{ position: "absolute", right: 50, bottom: 50, cursor: "pointer", width: 200 }}
         onClick={goto("askmeanything")}
       />
 
       <img
-        src="/assets/lightdark.png"
+        src="src/assets/lightdark.png"
         alt="lightdark"
         style={{ position: "absolute", left: "50%", top: 20, transform: "translateX(-50%)", cursor: "pointer", width: 200 }}
         onClick={() => console.log("toggle theme")}
