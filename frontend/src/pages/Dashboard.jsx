@@ -1,11 +1,11 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link , useNavigate } from "react-router-dom";
 import Card from "../components/Card.jsx";
 import Button from "../components/Button.jsx";
 
 
 export default function Dashboard() {
- 
+  const navigate = useNavigate();
   return (
     <div
       style={{
@@ -21,42 +21,42 @@ export default function Dashboard() {
         src="src/assets/settings.png"
         alt="settings"
         style={{ position: "absolute", left: 180, top: 150, cursor: "pointer", width: 180 }}
-        onClick={goto("settings")}
+        onClick={() => navigate("/settings")}
       />
 
       <img
         src="src/assets/scheduler.png"
         alt="scheduler"
         style={{ position: "absolute", left: 100, top: 430, cursor: "pointer", width: 900 }}
-        onClick={goto("scheduler")}
+        onClick={() => navigate("/scheduler")}
       />
 
       <img
         src="src/assets/expenses.png"
         alt="expenses"
         style={{ position: "absolute", left: 900, top: 550, cursor: "pointer", width: 180 }}
-        onClick={goto("expenses")}
+        onClick={() => navigate("expenses")}
       />
 
       <img
         src="src/assets/notes.png"
         alt="notes"
         style={{ position: "absolute", right: 300, top: 500, cursor: "pointer", width: 550 }}
-        onClick={goto("notes")}
+        onClick={() => navigate("notes")}
       />
 
       <img
         src="src/assets/fitness.png"
         alt="fitness"
         style={{ position: "absolute", right: 320, top: 180, cursor: "pointer", width: 200 }}
-        onClick={goto("fitness")}
+        onClick={() => navigate("/fitness")}
       />
 
       <img
         src="src/assets/askmeanything.png"
         alt="askmeanything"
         style={{ position: "absolute", right: 50, bottom: 50, cursor: "pointer", width: 200 }}
-        onClick={goto("askmeanything")}
+        onClick={() => navigate("/chatbot")}
       />
 
       <img
