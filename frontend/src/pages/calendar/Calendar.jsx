@@ -1,21 +1,47 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import axios from "axios";
 import Card from "../../components/Card.jsx";
 import Field from "../../components/Field.jsx";
 import Button from "../../components/Button.jsx";
 import Modal from "../../components/Modal.jsx";
-import { useStore } from "../../state/store.jsx";
-import { endAfterStart, requiredText } from "../../lib/validators.js";
-import { fromDatetimeLocalValue, isPastDatetimeLocal, toDatetimeLocalValue } from "../../lib/datetime.js";
+import {
+  fromDatetimeLocalValue,
+  isPastDatetimeLocal,
+  toDatetimeLocalValue,
+} from "../../lib/datetime.js";
+
+/* Replacement for nowForDatetimeInput */
+const nowForDatetimeInput = () =>
+  new Date().toISOString().slice(0, 16);
 
 export default function Calendar() {
-  const { state, dispatch, currentUser, nowForDatetimeInput } = useStore();
-  const user = currentUser();
+  /* ------------------ DATA ------------------ */
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const events = useMemo(
-    () => state.calendar_events.filter((e) => e.user_id === user?.user_id).sort((a, b) => (a.start_time < b.start_time ? 1 : -1)),
-    [state.calendar_events, user]
+  /* ------------------ LOAD EVENTS ------------------ */
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await axios.get("/api/calendar");
+        setEvents(res.data);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  /* ------------------ SORTED EVENTS ------------------ */
+  const sortedEvents = useMemo(
+    () =>
+      [...events].sort((a, b) =>
+        a.start_time < b.start_time ? 1 : -1
+      ),
+    [events]
   );
 
+  /* ------------------ CREATE MODAL ------------------ */
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [details, setDetails] = useState("");
@@ -23,28 +49,32 @@ export default function Calendar() {
   const [endTime, setEndTime] = useState("");
   const [error, setError] = useState(null);
 
-  const createEvent = () => {
+  const createEvent = async () => {
     setError(null);
 
-    const err1 = requiredText("Title", title);
-    if (err1) return setError(err1);
+    if (!title.trim()) {
+      setError("Title is required");
+      return;
+    }
 
-    if (isPastDatetimeLocal(startTime)) return setError("Start time cannot be in the past.");
+    if (isPastDatetimeLocal(startTime)) {
+      setError("Start time cannot be in the past.");
+      return;
+    }
 
-    const err2 = endAfterStart("End time", startTime, endTime);
-    if (err2) return setError(err2);
+    if (endTime && endTime <= startTime) {
+      setError("End time must be after the start time.");
+      return;
+    }
 
-    dispatch({
-      type: "calendar/create",
-      payload: {
-        user_id: user.user_id,
-        title: title.trim(),
-        details: details || null,
-        start_time: fromDatetimeLocalValue(startTime),
-        end_time: endTime ? fromDatetimeLocalValue(endTime) : null,
-      },
+    const res = await axios.post("/api/calendar", {
+      title: title.trim(),
+      details: details || null,
+      start_time: fromDatetimeLocalValue(startTime),
+      end_time: endTime ? fromDatetimeLocalValue(endTime) : null,
     });
 
+    setEvents((e) => [res.data, ...e]);
     setOpen(false);
     setTitle("");
     setDetails("");
@@ -52,24 +82,35 @@ export default function Calendar() {
     setEndTime("");
   };
 
-  const deleteEvent = (calendar_event_id) => {
+  const deleteEvent = async (calendar_event_id) => {
     if (!confirm("Delete this event?")) return;
-    dispatch({ type: "calendar/delete", payload: { calendar_event_id } });
+    await axios.delete(`/api/calendar/${calendar_event_id}`);
+    setEvents((e) =>
+      e.filter((x) => x.calendar_event_id !== calendar_event_id)
+    );
   };
 
+  /* ------------------ STATES ------------------ */
+  if (loading) {
+    return <div className="muted">Loading…</div>;
+  }
+
+  /* ------------------ RENDER ------------------ */
   return (
     <div style={{ display: "grid", gap: 12 }}>
       <div className="row">
         <div>
           <h1 className="h1">Calendar</h1>
-          <div className="muted">Create, edit, delete events (prototype includes basic validation).</div>
+          <div className="muted">
+            Create, edit, delete events (basic validation included).
+          </div>
         </div>
         <div className="spacer" />
         <Button onClick={() => setOpen(true)}>+ New event</Button>
       </div>
 
-      <Card title="Events" subtitle="Events include date/time, title, and optional details.">
-        {events.length === 0 ? (
+      <Card title="Events" subtitle="Date/time, title, and optional details.">
+        {sortedEvents.length === 0 ? (
           <div className="muted">No events yet.</div>
         ) : (
           <table className="table">
@@ -83,14 +124,27 @@ export default function Calendar() {
               </tr>
             </thead>
             <tbody>
-              {events.map((e) => (
+              {sortedEvents.map((e) => (
                 <tr key={e.calendar_event_id}>
-                  <td className="muted">{toDatetimeLocalValue(e.start_time)}</td>
-                  <td className="muted">{e.end_time ? toDatetimeLocalValue(e.end_time) : "—"}</td>
+                  <td className="muted">
+                    {toDatetimeLocalValue(e.start_time)}
+                  </td>
+                  <td className="muted">
+                    {e.end_time
+                      ? toDatetimeLocalValue(e.end_time)
+                      : "—"}
+                  </td>
                   <td>{e.title}</td>
                   <td className="muted">{e.details ?? "—"}</td>
                   <td style={{ textAlign: "right" }}>
-                    <Button variant="ghost" onClick={() => deleteEvent(e.calendar_event_id)}>Delete</Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() =>
+                        deleteEvent(e.calendar_event_id)
+                      }
+                    >
+                      Delete
+                    </Button>
                   </td>
                 </tr>
               ))}
@@ -99,31 +153,56 @@ export default function Calendar() {
         )}
       </Card>
 
+      {/* -------- CREATE EVENT MODAL -------- */}
       <Modal
         open={open}
         title="Create event"
         onClose={() => setOpen(false)}
         footer={
           <div className="row" style={{ justifyContent: "flex-end" }}>
-            <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button
+              variant="ghost"
+              onClick={() => setOpen(false)}
+            >
+              Cancel
+            </Button>
             <Button onClick={createEvent}>Create</Button>
           </div>
         }
       >
         <Field label="Title" error={error}>
-          <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} />
+          <input
+            className="input"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
         </Field>
 
         <Field label="Details (optional)">
-          <textarea className="textarea" value={details} onChange={(e) => setDetails(e.target.value)} />
+          <textarea
+            className="textarea"
+            value={details}
+            onChange={(e) => setDetails(e.target.value)}
+          />
         </Field>
 
         <div className="grid2">
           <Field label="Start time">
-            <input className="input" type="datetime-local" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+            <input
+              className="input"
+              type="datetime-local"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+            />
           </Field>
+
           <Field label="End time (optional)">
-            <input className="input" type="datetime-local" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
+            <input
+              className="input"
+              type="datetime-local"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+            />
           </Field>
         </div>
       </Modal>

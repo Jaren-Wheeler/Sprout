@@ -1,44 +1,85 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import axios from "axios";
 import Card from "../../components/Card.jsx";
 import Button from "../../components/Button.jsx";
 import NoteEditor from "./NoteEditor.jsx";
-import { useStore } from "../../state/store.jsx";
 
 export default function Notes() {
-  const { state, dispatch, currentUser } = useStore();
-  const user = currentUser();
+  /* ------------------ DATA ------------------ */
+  const [notes, setNotes] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  /* ------------------ LOAD NOTES ------------------ */
+  useEffect(() => {
+    const load = async () => {
+      const res = await axios.get("/api/notes");
+      setNotes(res.data);
+      setLoading(false);
+    };
+    load();
+  }, []);
+
+  /* ------------------ SORTED NOTES ------------------ */
   const myNotes = useMemo(
-    () => state.notes.filter((n) => n.user_id === user?.user_id).sort((a, b) => (a.updated_at < b.updated_at ? 1 : -1)),
-    [state.notes, user]
+    () =>
+      [...notes].sort((a, b) =>
+        a.updated_at < b.updated_at ? 1 : -1
+      ),
+    [notes]
   );
 
-  const [selectedId, setSelectedId] = useState(myNotes[0]?.note_id ?? null);
+  /* ------------------ SELECTION ------------------ */
+  const [selectedId, setSelectedId] = useState(null);
 
-  const selected = myNotes.find((n) => n.note_id === selectedId) || null;
+  useEffect(() => {
+    if (myNotes.length > 0 && selectedId == null) {
+      setSelectedId(myNotes[0].note_id);
+    }
+  }, [myNotes, selectedId]);
 
-  const createNote = () => {
+  const selected =
+    myNotes.find((n) => n.note_id === selectedId) || null;
+
+  /* ------------------ CREATE NOTE ------------------ */
+  const createNote = async () => {
     const title = prompt("New note title:");
     if (!title) return;
-    dispatch({ type: "notes/create", payload: { user_id: user.user_id, title, content: "" } });
-    setTimeout(() => {
-      const newest = [...state.notes].sort((a, b) => b.note_id - a.note_id)[0];
-      if (newest) setSelectedId(newest.note_id);
-    }, 0);
+
+    const res = await axios.post("/api/notes", {
+      title,
+      content: "",
+    });
+
+    setNotes((n) => [res.data, ...n]);
+    setSelectedId(res.data.note_id);
   };
 
-  const deleteNote = (note_id) => {
+  /* ------------------ DELETE NOTE ------------------ */
+  const deleteNote = async (note_id) => {
     if (!confirm("Delete this note?")) return;
-    dispatch({ type: "notes/delete", payload: { note_id } });
-    if (selectedId === note_id) setSelectedId(null);
+
+    await axios.delete(`/api/notes/${note_id}`);
+    setNotes((n) => n.filter((x) => x.note_id !== note_id));
+
+    if (selectedId === note_id) {
+      setSelectedId(null);
+    }
   };
 
+  /* ------------------ STATES ------------------ */
+  if (loading) {
+    return <div className="muted">Loading…</div>;
+  }
+
+  /* ------------------ RENDER ------------------ */
   return (
     <div style={{ display: "grid", gap: 12 }}>
       <div className="row">
         <div>
           <h1 className="h1">Notes</h1>
-          <div className="muted">Create, edit, delete notes. Autosave is enabled in the editor.</div>
+          <div className="muted">
+            Create, edit, delete notes. Autosave is enabled in the editor.
+          </div>
         </div>
         <div className="spacer" />
         <Button onClick={createNote}>+ New note</Button>
@@ -58,13 +99,23 @@ export default function Notes() {
                     padding: 10,
                     borderRadius: 12,
                     border: "1px solid var(--border)",
-                    background: selectedId === n.note_id ? "rgba(122,162,255,0.10)" : "transparent",
+                    background:
+                      selectedId === n.note_id
+                        ? "rgba(122,162,255,0.10)"
+                        : "transparent",
                     cursor: "pointer",
                   }}
                   onClick={() => setSelectedId(n.note_id)}
                 >
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    <div
+                      style={{
+                        fontWeight: 700,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
                       {n.title}
                     </div>
                     <div className="muted" style={{ fontSize: 12 }}>
@@ -72,7 +123,13 @@ export default function Notes() {
                     </div>
                   </div>
                   <div className="spacer" />
-                  <Button variant="ghost" onClick={(e) => { e.stopPropagation(); deleteNote(n.note_id); }}>
+                  <Button
+                    variant="ghost"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteNote(n.note_id);
+                    }}
+                  >
                     Delete
                   </Button>
                 </div>

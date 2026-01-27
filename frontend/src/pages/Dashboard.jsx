@@ -1,11 +1,11 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import Card from "../components/Card.jsx";
+import Button from "../components/Button.jsx";
+
 
 export default function Dashboard() {
-  const navigate = useNavigate();
-
-  const goto = (path) => () => navigate(`/${path}`);
-
+ 
   return (
     <div
       style={{
