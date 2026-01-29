@@ -86,6 +86,42 @@ async function deleteBudget(budgetId) {
   });
 }
 
+/**
+ * Retrieves a single budget by ID for a user and calculates
+ * total spending and remaining balance.
+ * @param {string} budgetId
+ * @param {string} userId
+ * @returns {Object|null} Budget with totals or null if not found
+ */
+async function getBudgetById(budgetId, userId) {
+
+  const budget = await prisma.budget.findFirst({
+    where: {
+      id: budgetId,
+      userId
+    },
+    include: {
+      expenses: true
+    }
+  });
+
+  if (!budget) return null;
+
+  const totalSpent = budget.expenses.reduce(
+    (sum, e) => sum + Number(e.amount),
+    0
+  );
+
+  return {
+    id: budget.id,
+    name: budget.name,
+    limitAmount: budget.limitAmount,
+    totalSpent,
+    remaining: Number(budget.limitAmount) - totalSpent,
+    expenses: budget.expenses
+  };
+}
+
 
 // =====================================================
 // Expense Services
@@ -222,6 +258,7 @@ module.exports = {
   // Budgets
   createBudget,
   getBudgets,
+  getBudgetById,
   updateBudget,
   deleteBudget,
 

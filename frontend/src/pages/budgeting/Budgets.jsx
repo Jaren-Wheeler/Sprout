@@ -1,48 +1,68 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+
+import {
+  getBudgets,
+  createBudget,
+  deleteBudget,
+  getCategoryTotals
+} from "../../api/finance";
+
 import Card from "../../components/Card.jsx";
 import Field from "../../components/Field.jsx";
 import Button from "../../components/Button.jsx";
 import Modal from "../../components/Modal.jsx";
 
 export default function Budgets() {
+
   const nav = useNavigate();
 
-  /* ------------------ DATA ------------------ */
+  // =====================================================
+  // Data
+  // =====================================================
+
   const [budgets, setBudgets] = useState([]);
-  const [expenses, setExpenses] = useState([]);
+  const [analytics, setAnalytics] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  /* ------------------ LOAD DATA ------------------ */
+  // =====================================================
+  // Load Data
+  // =====================================================
+
   useEffect(() => {
-    const load = async () => {
-      const [bRes, eRes] = await Promise.all([
-        axios.get("/api/budgets"),
-        axios.get("/api/expenses"),
-      ]);
-      setBudgets(bRes.data);
-      setExpenses(eRes.data);
-      setLoading(false);
-    };
-    load();
+    loadData();
   }, []);
 
-  /* ------------------ DERIVED DATA ------------------ */
-  const totalsForBudget = (budget_id) => {
-    const list = expenses.filter((e) => e.budget_id === budget_id);
-    return list.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+  const loadData = async () => {
+    try {
+      const [budgetData, analyticsData] = await Promise.all([
+        getBudgets(),
+        getCategoryTotals()
+      ]);
+
+      setBudgets(budgetData);
+      setAnalytics(analyticsData);
+
+    } finally {
+      setLoading(false);
+    }
   };
 
-  /* ------------------ CREATE MODAL ------------------ */
+  // =====================================================
+  // Create Modal State
+  // =====================================================
+
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
-  const [limitAmount, setLimitAmount] = useState("0");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [limitAmount, setLimitAmount] = useState("");
   const [error, setError] = useState(null);
 
+  // =====================================================
+  // Create Budget
+  // =====================================================
+
   const onCreate = async () => {
+
     setError(null);
 
     if (!name.trim()) {
@@ -55,177 +75,244 @@ export default function Budgets() {
       return;
     }
 
-    const res = await axios.post("/api/budgets", {
-      name: name.trim(),
-      limit_amount: Number(limitAmount),
-      start_date: startDate || null,
-      end_date: endDate || null,
-    });
+    try {
 
-    setBudgets((b) => [...b, res.data]);
-    setOpen(false);
-    setName("");
-    setLimitAmount("0");
-    setStartDate("");
-    setEndDate("");
+      await createBudget({
+        name: name.trim(),
+        limitAmount: Number(limitAmount)
+      });
+
+      setOpen(false);
+      setName("");
+      setLimitAmount("");
+
+      loadData();
+
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
-  const onDelete = async (budget_id) => {
-    if (
-      !confirm(
-        "Delete this budget? (Expenses under it will also be removed.)"
-      )
-    )
-      return;
+  // =====================================================
+  // Delete Budget
+  // =====================================================
 
-    await axios.delete(`/api/budgets/${budget_id}`);
-    setBudgets((b) => b.filter((x) => x.budget_id !== budget_id));
-    setExpenses((e) => e.filter((x) => x.budget_id !== budget_id));
+  const onDelete = async (id) => {
+
+    if (!confirm("Delete this budget?")) return;
+
+    try {
+      await deleteBudget(id);
+      loadData();
+    } catch (err) {
+      alert(err.message);
+    }
   };
 
-  /* ------------------ STATES ------------------ */
+  // =====================================================
+  // States
+  // =====================================================
+
   if (loading) {
     return <div className="muted">Loading…</div>;
   }
 
-  /* ------------------ RENDER ------------------ */
+  // =====================================================
+  // Render
+  // =====================================================
+
   return (
-    <div style={{ display: "grid", gap: 12 }}>
+    <div style={{ display: "grid", gap: 16 }}>
+
       <div className="row">
         <div>
           <h1 className="h1">Budgeting</h1>
           <div className="muted">
-            Create budgets, add expenses, and track remaining balance.
+            Create budgets and track spending progress.
           </div>
         </div>
         <div className="spacer" />
         <Button onClick={() => setOpen(true)}>+ New budget</Button>
       </div>
 
-      <Card title="Your budgets" subtitle="Click a budget to manage expenses.">
-        {budgets.length === 0 ? (
-          <div className="muted">No budgets yet.</div>
+      {/* ================= Analytics ================= */}
+
+      <Card title="Spending by category">
+
+        {analytics.length === 0 ? (
+
+          <div className="muted">No expense data yet.</div>
+
         ) : (
+
           <table className="table">
+            <tbody>
+
+              {analytics.map(a => (
+
+                <tr key={a.category}>
+                  <td>{a.category}</td>
+                  <td style={{ textAlign: "right" }}>
+                    ${Number(a.total).toFixed(2)}
+                  </td>
+                </tr>
+
+              ))}
+
+            </tbody>
+          </table>
+
+        )}
+
+      </Card>
+
+      {/* ================= Budgets ================= */}
+
+      <Card title="Your budgets">
+
+        {budgets.length === 0 ? (
+
+          <div className="muted">No budgets yet.</div>
+
+        ) : (
+
+          <table className="table">
+
             <thead>
               <tr>
                 <th>Name</th>
                 <th>Limit</th>
-                <th>Total expenses</th>
-                <th>Remaining</th>
+                <th>Spent</th>
+                <th>Progress</th>
                 <th></th>
               </tr>
             </thead>
-            <tbody>
-              {budgets.map((b) => {
-                const total = totalsForBudget(b.budget_id);
-                const remaining = Number(b.limit_amount) - total;
 
-                return (
-                  <tr key={b.budget_id}>
-                    <td>
-                      <Link
-                        to={`/budgets/${b.budget_id}`}
-                        className="badge"
+            <tbody>
+
+              {budgets.map(b => (
+
+                <tr key={b.id} style={{ verticalAlign: "middle" }}>
+
+                  <td>
+                    <Link to={`/budgets/${b.id}`} className="badge">
+                      {b.name}
+                    </Link>
+                  </td>
+
+                  <td>${Number(b.limitAmount).toFixed(2)}</td>
+
+                  <td>${Number(b.totalSpent).toFixed(2)}</td>
+
+                  <td>
+
+                    <div style={{ display: "grid", gap: 4 }}>
+
+                      <div
+                        style={{
+                          height: 8,
+                          background: "var(--border)",
+                          borderRadius: 6,
+                          overflow: "hidden"
+                        }}
                       >
-                        {b.name}
-                      </Link>
-                    </td>
-                    <td>{Number(b.limit_amount).toFixed(2)}</td>
-                    <td>{total.toFixed(2)}</td>
-                    <td
-                      style={{
-                        color:
-                          remaining < 0
-                            ? "var(--danger)"
-                            : "var(--text)",
-                      }}
+                        <div
+                          style={{
+                            width: `${Math.min(
+                              (b.totalSpent / b.limitAmount) * 100,
+                              100
+                            )}%`,
+                            height: "100%",
+                            background:
+                              b.remaining < 0
+                                ? "var(--danger)"
+                                : "var(--accent)"
+                          }}
+                        />
+                      </div>
+
+                      <span
+                        style={{
+                          fontSize: 12,
+                          color:
+                            b.remaining < 0
+                              ? "var(--danger)"
+                              : "var(--muted)"
+                        }}
+                      >
+                        Remaining: ${Number(b.remaining).toFixed(2)}
+                      </span>
+
+                    </div>
+
+                  </td>
+
+                  <td style={{ textAlign: "right", display: "flex", gap: 6 }}>
+
+                    <Button
+                      variant="ghost"
+                      onClick={() => nav(`/budgets/${b.id}`)}
                     >
-                      {remaining.toFixed(2)}
-                    </td>
-                    <td style={{ textAlign: "right" }}>
-                      <Button
-                        variant="ghost"
-                        onClick={() =>
-                          nav(`/budgets/${b.budget_id}`)
-                        }
-                      >
-                        Open
-                      </Button>{" "}
-                      <Button
-                        variant="ghost"
-                        onClick={() =>
-                          onDelete(b.budget_id)
-                        }
-                      >
-                        Delete
-                      </Button>
-                    </td>
-                  </tr>
-                );
-              })}
+                      Open
+                    </Button>
+
+                    <Button
+                      variant="ghost"
+                      onClick={() => onDelete(b.id)}
+                    >
+                      Delete
+                    </Button>
+
+                  </td>
+
+                </tr>
+
+              ))}
+
             </tbody>
+
           </table>
+
         )}
+
       </Card>
 
-      {/* -------- CREATE BUDGET MODAL -------- */}
+      {/* ================= Create Budget Modal ================= */}
+
       <Modal
         open={open}
         title="Create budget"
         onClose={() => setOpen(false)}
         footer={
           <div className="row" style={{ justifyContent: "flex-end" }}>
-            <Button
-              variant="ghost"
-              onClick={() => setOpen(false)}
-            >
+            <Button variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
             <Button onClick={onCreate}>Create</Button>
           </div>
         }
       >
+
         <Field label="Budget name" error={error}>
           <input
             className="input"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={e => setName(e.target.value)}
           />
         </Field>
 
-        <div className="grid2">
-          <Field label="Limit amount">
-            <input
-              className="input"
-              type="number"
-              step="0.01"
-              value={limitAmount}
-              onChange={(e) => setLimitAmount(e.target.value)}
-            />
-          </Field>
+        <Field label="Limit amount">
+          <input
+            className="input"
+            type="number"
+            step="0.01"
+            value={limitAmount}
+            onChange={e => setLimitAmount(e.target.value)}
+          />
+        </Field>
 
-          <div />
-
-          <Field label="Start date (optional)">
-            <input
-              className="input"
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
-          </Field>
-
-          <Field label="End date (optional)">
-            <input
-              className="input"
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
-          </Field>
-        </div>
       </Modal>
+
     </div>
   );
 }

@@ -1,88 +1,48 @@
 import React from "react";
-import { Link , useNavigate } from "react-router-dom";
-import Card from "../components/Card.jsx";
-import Button from "../components/Button.jsx";
+import { useNavigate } from "react-router-dom";
+import "../styles/dashboard.css";
 
+// Assets (correct Vite imports)
+import forest from "../assets/forest.png";
+import settings from "../assets/settings.png";
+import scheduler from "../assets/scheduler.png";
+import expenses from "../assets/expenses.png";
+import notes from "../assets/notes.png";
+import fitness from "../assets/fitness.png";
+import askmeanything from "../assets/askmeanything.png";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+
+  const items = [
+    { src: settings, route: "/settings" },
+    { src: scheduler, route: "/calendar" },
+    { src: expenses, route: "/budgets" },
+    { src: notes, route: "/notes" },
+    { src: fitness, route: "/fitness" },
+    { src: askmeanything, route: "/chatbot" },
+  ];
+
   return (
     <div
-      style={{
-        backgroundImage: "url(src/assets/forest.png)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        width: "100vw",
-        height: "100vh",
-        position: "relative",
-      }}
+      className="dashboard-bg"
+      style={{ backgroundImage: `url(${forest})` }}
     >
-      <img
-        src="src/assets/settings.png"
-        alt="settings"
-        style={{ position: "absolute", left: 180, top: 150, cursor: "pointer", width: 180 }}
-        onClick={() => navigate("/settings")}
-      />
-
-      <img
-        src="src/assets/scheduler.png"
-        alt="scheduler"
-        style={{ position: "absolute", left: 100, top: 430, cursor: "pointer", width: 900 }}
-        onClick={() => navigate("/scheduler")}
-      />
-
-      <img
-        src="src/assets/expenses.png"
-        alt="expenses"
-        style={{ position: "absolute", left: 900, top: 550, cursor: "pointer", width: 180 }}
-        onClick={() => navigate("expenses")}
-      />
-
-      <img
-        src="src/assets/notes.png"
-        alt="notes"
-        style={{ position: "absolute", right: 300, top: 500, cursor: "pointer", width: 550 }}
-        onClick={() => navigate("notes")}
-      />
-
-      <img
-        src="src/assets/fitness.png"
-        alt="fitness"
-        style={{ position: "absolute", right: 320, top: 180, cursor: "pointer", width: 200 }}
-        onClick={() => navigate("/fitness")}
-      />
-
-      <img
-        src="src/assets/askmeanything.png"
-        alt="askmeanything"
-        style={{ position: "absolute", right: 50, bottom: 50, cursor: "pointer", width: 200 }}
-        onClick={() => navigate("/chatbot")}
-      />
-
-      <img
-        src="src/assets/lightdark.png"
-        alt="lightdark"
-        style={{ position: "absolute", left: "50%", top: 20, transform: "translateX(-50%)", cursor: "pointer", width: 200 }}
-        onClick={() => console.log("toggle theme")}
-      />
-
-      <div
-        style={{
-          position: "absolute",
-          bottom: 0,
-          width: "100%",
-          height: 80,
-          background: "#4a2929",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          fontSize: 24,
-          fontWeight: "bold",
-          color: "yellow",
-        }}
-      >
-        FOOTER HERE
+      <div className="dashboard-grid">
+        {items.map((item, i) => (
+          <img
+            key={i}
+            src={item.src}
+            alt=""
+            className="dashboard-item"
+            onClick={() => navigate(item.route)}
+          />
+        ))}
       </div>
+
+      <footer className="dashboard-footer">
+        FOOTER HERE
+      </footer>
     </div>
   );
 }

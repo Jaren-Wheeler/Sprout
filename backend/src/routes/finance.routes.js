@@ -5,6 +5,7 @@ const {
   // Budgets
   createBudget,
   getBudgets,
+  getBudgetById,
   updateBudget,
   deleteBudget,
 
@@ -27,6 +28,7 @@ const auth = require("../middleware/auth");
 
 router.post("/budgets", auth, createBudget);
 router.get("/budgets", auth, getBudgets);
+router.get("/budgets/:id", auth, getBudgetById);
 router.put("/budgets/:id", auth, updateBudget);
 router.delete("/budgets/:id", auth, deleteBudget);
 

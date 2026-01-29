@@ -23,9 +23,6 @@ export default function Login() {
 
       console.log("Login success:", user);
 
-      // Navigate after login (adjust route if needed)
-      navigate("/");
-
     } catch (err) {
       console.log("Login error:", err.message);
       setError(err.message);

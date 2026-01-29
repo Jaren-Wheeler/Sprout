@@ -21,8 +21,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-
 // =====================================================
 // Users
 // =====================================================
@@ -33,6 +31,7 @@ datasource db {
 model User {
   id            String   @id @default(uuid()) @map("id")
   email         String   @unique @map("email")
+  fullName      String?   @map("full_name")
   passwordHash  String   @map("password_hash")
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
@@ -49,6 +48,7 @@ model User {
   @@map("users")
 }
 
+
 // =====================================================
 // Budgets
 // =====================================================
@@ -57,11 +57,11 @@ model User {
 // =====================================================
 
 model Budget {
-  id           String   @id @default(uuid()) @map("id")
-  name         String   @map("name")
-  limitAmount  Decimal  @map("limit_amount")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id          String   @id @default(uuid()) @map("id")
+  name        String   @map("name")
+  limitAmount Decimal  @map("limit_amount")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   userId String @map("user_id")
   user   User   @relation(fields: [userId], references: [id])
@@ -79,19 +79,19 @@ model Budget {
 // =====================================================
 
 model Expense {
-  id           String   @id @default(uuid()) @map("id")
-  amount       Decimal  @map("amount")
-  category     String   @map("category")
-  description  String?  @map("description")
-  expenseDate  DateTime @map("expense_date")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id          String   @id @default(uuid()) @map("id")
+  amount      Decimal  @map("amount")
+  category    String   @map("category")
+  description String?  @map("description")
+  expenseDate DateTime @map("expense_date")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
-  userId   String @map("user_id")
-  user     User   @relation(fields: [userId], references: [id])
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
 
   budgetId String @map("budget_id")
-  budget   Budget @relation(fields: [budgetId], references: [id])
+  budget   Budget @relation(fields: [budgetId], references: [id], onDelete: Cascade)
 
   @@map("expenses")
 }

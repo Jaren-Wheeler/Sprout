@@ -95,6 +95,30 @@ async function deleteBudget(req, res) {
   }
 }
 
+/**
+ * Retrieves a single budget by ID including totals and expenses.
+ * @route GET /api/finance/budgets/:id
+ * @access Protected
+ */
+async function getBudgetById(req, res) {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    const budget = await financeService.getBudgetById(id, userId);
+
+    if (!budget) {
+      return res.status(404).json({ error: "Budget not found" });
+    }
+
+    res.json(budget);
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
 
 // =====================================================
 // Expense Controllers
@@ -205,6 +229,7 @@ module.exports = {
   // Budgets
   createBudget,
   getBudgets,
+  getBudgetById,
   updateBudget,
   deleteBudget,
 

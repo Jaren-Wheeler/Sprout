@@ -12,6 +12,13 @@
   background-repeat: no-repeat;
 }
 
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
 
 .home.dark {
   --bg-gradient: linear-gradient(135deg, #1e1e2f, #2c3e50, #000000);
@@ -42,7 +49,6 @@
   align-items: center;
   justify-content: center;
   gap: 2rem;
-  overflow: hidden;
   position: relative;
 
   transition: background 0.6s ease, color 0.4s ease;
