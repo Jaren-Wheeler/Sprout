@@ -1,0 +1,26 @@
+.home.light {
+  --text-color: #222;
+  --signup-bg: #6015d1a5;
+  --login-bg: #8ad9efac;
+
+  background-image: url("/src/assets/bg-light.png");
+  background-size: cover;
+  background-position: center;
+}
+
+.home.dark {
+  --text-color: #000;
+  --signup-bg: #380b7cba;
+  --login-bg: #12128aac;
+
+  background-image: url("/src/assets/bg-dark.png");
+  background-size: cover;
+  background-position: center;
+}
+
+.home {
+  transition:
+    background-image 0.6s ease,
+    background-color 0.6s ease,
+    color 0.4s ease;
+}

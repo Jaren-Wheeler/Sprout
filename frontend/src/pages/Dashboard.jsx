@@ -1,8 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/dashboard.css";
+import "../styles/layout/dashboard.css";
 
-// Assets (correct Vite imports)
+// Assets 
 import forest from "../assets/forest.png";
 import settings from "../assets/settings.png";
 import scheduler from "../assets/scheduler.png";
