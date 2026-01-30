@@ -9,6 +9,8 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(null);
+  const [fullName, setFullName] = useState("");
+
 
   const navigate = useNavigate();
 
@@ -24,7 +26,7 @@ export default function Signup() {
     }
 
     try {
-      const user = await registerUser(email, password);
+      const user = await registerUser(fullName, email, password);
 
       console.log("Register success:", user);
 
@@ -52,8 +54,10 @@ export default function Signup() {
           <input
             type="text"
             placeholder="Full Name"
-            disabled
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
           />
+
 
           <input
             type="email"

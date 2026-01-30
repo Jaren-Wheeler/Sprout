@@ -15,7 +15,7 @@ const prisma = require("../clients/prisma.client");
  * @param {string} password
  * @returns {Object} Safe user data
  */
-const registerUser = async (email, password) => {
+const registerUser = async (fullName, email, password) => {
 
   // Checks if the email already exists
   const existingUser = await prisma.user.findUnique({
@@ -32,6 +32,7 @@ const registerUser = async (email, password) => {
   // Create user record
   const user = await prisma.user.create({
     data: {
+      fullName,
       email,
       passwordHash
     }

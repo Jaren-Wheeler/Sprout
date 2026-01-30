@@ -8,7 +8,7 @@ async function auth(req, res, next) {
   }
 
   try {
-    // Optionally load full user (nice for later)
+    // Optionally load full user 
     const user = await prisma.user.findUnique({
       where: { id: req.session.userId }
     });
