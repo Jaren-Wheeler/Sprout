@@ -11,20 +11,20 @@ const authService = require("../services/auth.service");
 const AuthController = {
 
   async registerUser(req, res) {
-    try {
-      const { email, password } = req.body;
+  try {
+    const { fullName, email, password } = req.body;
 
-      const user = await authService.registerUser(email, password);
+    const user = await authService.registerUser(fullName, email, password);
 
-      // Create session for web authentication
-      req.session.userId = user.id;
+    req.session.userId = user.id;
 
-      res.status(201).json(user);
+    res.status(201).json(user);
 
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  },
+  } catch (error) {
+    console.log("REGISTER ERROR:", error.message);
+    res.status(400).json({ error: error.message });
+  }
+},
 
   async loginUser(req, res) {
     try {

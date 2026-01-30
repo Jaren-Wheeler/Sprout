@@ -15,9 +15,10 @@ const authRoutes = require("./routes/auth.routes");
 const { chatRateLimiter } = require("./middleware/rateLimits");
 
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: true,
   credentials: true
 }));
+
 
 app.use(express.json());
 
