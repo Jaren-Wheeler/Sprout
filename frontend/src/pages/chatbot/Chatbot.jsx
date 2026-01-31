@@ -20,22 +20,33 @@ export default function Chatbot() {
       return;
     }
 
+    const newMessages = [
+      ...messages.flatMap(m => ([
+        { role: "user", content: m.user_message },
+        { role: "assistant", content: m.ai_response }
+      ])),
+      { role: "user", content: text.trim() }
+    ];
+
     try {
       const res = await axios.post("/api/chat", {
-        message: text.trim()
+        message: newMessages
       });
-      setMessages((prev) => [...prev, res.data]);
-      setText("");
+      setMessages(prev => [
+        ...prev,
+        {
+          user_message: text.trim(),
+          ai_response: res.data.content
+        }
+      ]);
 
-      setTimeout(
-        () => endRef.current?.scrollIntoView({behaviour: "smooth"}),
-        0
-      );
+      setText("");
+      setTimeout(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), 0);
     } catch {
-      setError("Failed to send message. Please try again.")
+      setError("Failed to send message. Please try again.");
     }
   };
-
+  
   return (
     <div style={{ display: "grid", gap: 12 }}>
       <div className="row">
