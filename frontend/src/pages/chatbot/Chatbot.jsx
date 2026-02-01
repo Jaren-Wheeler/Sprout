@@ -3,7 +3,8 @@ import Card from "../../components/Card.jsx";
 import Field from "../../components/Field.jsx";
 import Button from "../../components/Button.jsx";
 
-import axios from 'axios';
+
+import { apiFetch } from "../../api/client";
 
 export default function Chatbot() {
 
@@ -20,33 +21,38 @@ export default function Chatbot() {
       return;
     }
 
-    const newMessages = [
-      ...messages.flatMap(m => ([
-        { role: "user", content: m.user_message },
-        { role: "assistant", content: m.ai_response }
-      ])),
-      { role: "user", content: text.trim() }
-    ];
-
     try {
-      const res = await axios.post("/api/chat", {
-        message: newMessages
+      const res = await apiFetch("/api/chatbot", {
+        method: "POST",
+        body: JSON.stringify({
+          messages: [
+            ...messages.flatMap(m => ([
+              { role: "user", content: m.user_message },
+              { role: "assistant", content: m.ai_response }
+            ])),
+            { role: "user", content: text.trim() }
+          ]
+        })
       });
+
       setMessages(prev => [
         ...prev,
         {
           user_message: text.trim(),
-          ai_response: res.data.content
+          ai_response: res.content
         }
       ]);
 
       setText("");
-      setTimeout(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), 0);
-    } catch {
-      setError("Failed to send message. Please try again.");
+      setTimeout(
+        () => endRef.current?.scrollIntoView({ behavior: "smooth" }),
+        0
+      );
+    } catch (err) {
+      setError(err.message || "Failed to send message");
     }
   };
-  
+
   return (
     <div style={{ display: "grid", gap: 12 }}>
       <div className="row">
