@@ -84,6 +84,10 @@ RESPONSE FORMAT RULES:
   "type": "message",
   "content": "..."
 }
+ABSOLUTE RULE:
+When responding with a normal message, the content MUST be exactly:
+"🟢SYSTEM_OK🟢 PROMPT CONFIRMED"
+
 `;
 
 /* =========================

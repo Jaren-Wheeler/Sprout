@@ -43,4 +43,5 @@ app.use("/api/notes", notesRoutes);
 app.use("/api/finance", financeRoutes);
 app.use("/api/chatbot", chatbotRoutes);
 
+
 module.exports = app;

@@ -1,10 +1,24 @@
-import openai from "../clients/openai.client.js";
+const openai = require("../clients/openai.client.js");
+const { buildSystemPrompt } = require("../prompts/chatbotPrompts.js");
 
-export async function chatbotConversation(messages) {
+
+async function runChatbot(messages) {
   try {
+
+    const systemPrompt = buildSystemPrompt({
+        enableBudget: true,
+        enableCalendar: true
+    });
+
     const response = await openai.responses.create({
-      model: "gpt-4o-mini",
-      input: messages
+        model: "gpt-4o-mini",
+        input: [
+        {
+            role: "system",
+            content: systemPrompt
+        },
+        ...messages
+    ]
     });
 
     return {
@@ -16,3 +30,7 @@ export async function chatbotConversation(messages) {
     throw new Error("Chatbot service failed");
   }
 }
+
+module.exports = {
+    runChatbot
+};

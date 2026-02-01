@@ -1,6 +1,7 @@
-import { chatbotConversation as runChatbot } from "../services/chatbot.service.js";
 
-export async function chatbotConversation(req, res) {
+const { runChatbot } = require("../services/chatbot.service.js");
+
+async function chatbotConversation(req, res) {
   try {
     const { messages } = req.body;
 
@@ -15,4 +16,8 @@ export async function chatbotConversation(req, res) {
     console.error(err);
     res.status(500).json({ error: "Chat failed" });
   }
+}
+
+module.exports = {
+    chatbotConversation
 }
