@@ -1,113 +1,66 @@
-export const PROMPT_VERSION = "v1";
 
-/* =========================
-   BASE PROMPT
-   ========================= */
-const BASE_PROMPT = `
-You are an assistant embedded inside an application.
-You help users perform actions through natural language.
-You must follow all rules exactly.
-`;
+/*
+This file is the prompt sent to OpenAI, defining the rules and constraints that the chatbot can have. This includes behaviour and rules for what type of actions it
+can or cannot perform, and in what conditions.
+*/
 
-/* =========================
-   SAFETY RULES
-   ========================= */
-const SAFETY_PROMPT = `
-SAFETY RULES:
-- Never modify data unless explicitly requested by the user.
-- Never guess missing values.
-- If required information is missing, ask the user to clarify.
-- Never perform destructive actions without confirmation.
-`;
-
-/* =========================
-   BUDGET ACTIONS
-   ========================= */
-const BUDGET_PROMPT = `
+// Actions allowed for budget creation
+const BUDGET_ACTIONS = `
 BUDGET ACTIONS:
 
-Allowed actions:
-1. create_budget
-2. delete_budget
+  1. create_budget
+  Params:
+  {
+    "name": string,
+    "limitAmount": number
+  }
 
-create_budget format:
+  2. list_budgets
+  Params: {}
+
+  3. delete_budget
+  Params:
+  {
+    "budgetId": string
+  }`;
+
+// the overall prompt sent to OpenAI
+function buildSystemPrompt({ enableBudget = false, enableCalendar = false }) {
+  return `
+You are an assistant embedded inside a personal finance application.
+
+Your job is to understand user intent and return structured JSON so the
+application can perform actions.
+
+GENERAL RULES:
+- Never guess missing information.
+- If required information is missing, ask the user a question.
+- Never include text outside JSON.
+- Do NOT explain actions in prose outside JSON.
+
+RESPONSE FORMAT:
+
+If the user is NOT requesting an action, respond with:
+
+{
+  "type": "message",
+  "content": "Your reply to the user"
+}
+
+If the user is requesting an action, action responses MUST use this exact format:
+
 {
   "type": "action",
   "name": "create_budget",
-  "params": {
-    "category": string,
-    "amount": number,
-    "period": "monthly" | "weekly" | "yearly"
-  }
+  "params": { ... }
 }
 
-delete_budget format:
-{
-  "type": "action",
-  "name": "delete_budget",
-  "params": {
-    "budgetId": string
-  }
+----------------------------------
+${enableBudget ? BUDGET_ACTIONS : ""}
+----------------------------------
+`;
 }
-`;
 
-/* =========================
-   CALENDAR ACTIONS
-   ========================= */
-const CALENDAR_PROMPT = `
-CALENDAR ACTIONS:
-
-Allowed actions:
-1. add_calendar_item
-
-add_calendar_item format:
-{
-  "type": "action",
-  "name": "add_calendar_item",
-  "params": {
-    "title": string,
-    "date": string,
-    "time": string
-  }
-}
-`;
-
-/* =========================
-   RESPONSE RULES
-   ========================= */
-const RESPONSE_RULES = `
-RESPONSE FORMAT RULES:
-- If performing an action, respond ONLY with valid JSON.
-- Never include text outside JSON.
-- If not performing an action, respond with:
-{
-  "type": "message",
-  "content": "..."
-}
-ABSOLUTE RULE:
-When responding with a normal message, the content MUST be exactly:
-"🟢SYSTEM_OK🟢 PROMPT CONFIRMED"
-
-`;
-
-/* =========================
-   PROMPT BUILDER
-   ========================= */
-export function buildSystemPrompt(options = {}) {
-  const {
-    enableBudget = false,
-    enableCalendar = false
-  } = options;
-
-  return `
-${BASE_PROMPT}
-
-${SAFETY_PROMPT}
-
-${enableBudget ? BUDGET_PROMPT : ""}
-
-${enableCalendar ? CALENDAR_PROMPT : ""}
-
-${RESPONSE_RULES}
-`;
+module.exports = {
+  buildSystemPrompt
 }

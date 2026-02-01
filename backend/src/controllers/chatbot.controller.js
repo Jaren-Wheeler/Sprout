@@ -9,7 +9,7 @@ async function chatbotConversation(req, res) {
       return res.status(400).json({ error: "messages must be an array" });
     }
 
-    const reply = await runChatbot(messages);
+    const reply = await runChatbot(messages, req.user);
 
     res.status(200).json(reply);
   } catch (err) {
