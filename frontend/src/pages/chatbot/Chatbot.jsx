@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState , useEffect} from "react";
 import Card from "../../components/Card.jsx";
 import Field from "../../components/Field.jsx";
 import Button from "../../components/Button.jsx";
@@ -13,6 +13,10 @@ export default function Chatbot() {
   const [error, setError] = useState(null);
   const endRef = useRef(null);
 
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+  
   const send = async () => {
     setError(null);
 
@@ -44,10 +48,7 @@ export default function Chatbot() {
       ]);
 
       setText("");
-      setTimeout(
-        () => endRef.current?.scrollIntoView({ behavior: "smooth" }),
-        0
-      );
+      
     } catch (err) {
       setError(err.message || "Failed to send message");
     }
