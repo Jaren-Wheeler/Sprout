@@ -1,14 +1,16 @@
+// frontend/src/components/Nav.jsx
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { useStore } from "../state/store.jsx";
 import Button from "./Button.jsx";
 
-function NavItem({ to, children }) {
+function NavItem({ to, children, end = false }) {
   return (
     <NavLink
       to={to}
-      className={({ isActive }) => ["nav__item", isActive ? "nav__item--active" : ""].join(" ")}
-      end
+      end={end}
+      className={({ isActive }) =>
+        ["nav__item", isActive ? "nav__item--active" : ""].join(" ")
+      }
     >
       {children}
     </NavLink>
@@ -16,12 +18,34 @@ function NavItem({ to, children }) {
 }
 
 export default function Nav() {
-  const { currentUser, dispatch } = useStore();
   const nav = useNavigate();
-  const user = currentUser();
 
-  const logout = () => {
-    dispatch({ type: "auth/logout" });
+  // Best-effort display only (optional)
+  let email = "—";
+  try {
+    const raw = localStorage.getItem("sprout_user");
+    if (raw) email = JSON.parse(raw)?.email ?? "—";
+  } catch {
+    // ignore
+  }
+
+  const logout = async () => {
+    // Backend may not have logout; best-effort call, then clear local state.
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch {
+      // ignore
+    }
+
+    try {
+      localStorage.removeItem("sprout_user");
+    } catch {
+      // ignore
+    }
+
     nav("/login");
   };
 
@@ -36,7 +60,9 @@ export default function Nav() {
       </div>
 
       <div className="nav__links">
-        <NavItem to="/">Dashboard</NavItem>
+        <NavItem to="/dashboard" end>
+          Dashboard
+        </NavItem>
         <NavItem to="/budgets">Budgeting</NavItem>
         <NavItem to="/fitness">Fitness & Diet</NavItem>
         <NavItem to="/calendar">Calendar</NavItem>
@@ -46,9 +72,11 @@ export default function Nav() {
 
       <div className="nav__footer">
         <div className="muted" style={{ fontSize: 13 }}>
-          Signed in as <span className="badge">{user?.email ?? "—"}</span>
+          Signed in as <span className="badge">{email}</span>
         </div>
-        <Button variant="ghost" onClick={logout}>Logout</Button>
+        <Button variant="ghost" onClick={logout}>
+          Logout
+        </Button>
       </div>
     </div>
   );
