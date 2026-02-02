@@ -20,7 +20,7 @@ async function runChatbot(messages, user) {
       ]
     });
 
-    // 3Extract raw AI output
+    // Extract raw AI output
     const raw = extractAiOutput(response);
 
     // Attempt to parse JSON
@@ -68,7 +68,7 @@ async function executeAction(ai, user) {
     case "create_budget": {
       const { name, limitAmount } = ai.params || {};
 
-      if (!name || typeof limitAmount !== "number" || limitAmount <= 0) {
+      if (!name || !Number.isFinite(limitAmount) || limitAmount <= 0) {
         return {
           role: "assistant",
           content: "I need a valid budget name and amount."
@@ -147,6 +147,50 @@ async function executeAction(ai, user) {
         };
     
     }
+
+    case "add_expense": {
+        const { expenseName, amount , category , description, budgetName} = ai.params || {};
+
+      
+
+        if (!budgetName) {
+            return {
+            role: "assistant",
+            content: "Which budget should this expense go into?"
+            };
+        }
+
+        if (!expenseName || !Number.isFinite(amount) || !category) {
+            return {
+                role: "assistant",
+                content: "I need a valid expense name, amount, and category."
+            };
+        }
+
+        const budgets = await financeService.getBudgets(user.id); // grab the budget object
+        const budget = budgets.filter(
+            b => b.name.toLowerCase() === budgetName.toLowerCase()
+        );
+
+        if (!budget) {
+            return {
+                role: "assistant",
+                content: `I couldn't find a budget named ${budgetName}.`
+            }
+        }
+        await financeService.createExpense(user.id, {
+            expenseName,
+            amount,
+            category,
+            description,
+            budgetId: budget.id
+        });
+
+        return {
+            role: "assistant",
+            content: `Got it. I’ve added the expense "${expenseName}" of ${amount} to the budget ${budget.name}.`
+        };
+     }
 
     default:
         return {
