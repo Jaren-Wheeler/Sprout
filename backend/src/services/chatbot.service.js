@@ -87,42 +87,73 @@ async function executeAction(ai, user) {
       };
     }
 
-    case "delete_budget": {
-      await financeService.deleteBudget(ai.params.budgetId);
+   case "delete_budget": {
+        const { budgetId, name } = ai.params || {};
 
-      return {
-        role: "assistant",
-        content: "The budget has been deleted."
-      };
-    }
+        let idToDelete = budgetId;
 
-    case "list_budgets": {
-      const budgets = await financeService.getBudgets(user.id);
+        // Resolve by name if ID not provided
+        if (!idToDelete && name) {
+            const budgets = await financeService.getBudgets(user.id);
 
-      if (!budgets.length) {
+            const matches = budgets.filter(
+            b => b.name.toLowerCase() === name.toLowerCase()
+            );
+
+            // No match
+            if (matches.length === 0) {
+            return {
+                role: "assistant",
+                content: `I couldn’t find a budget named "${name}".`
+            };
+            }
+
+            // Multiple matches
+            if (matches.length > 1) {
+            return {
+                role: "assistant",
+                content: `I found multiple budgets named "${name}". Please rename them or be more specific.`
+            };
+            }
+
+            // Exactly one match
+            idToDelete = matches[0].id;
+        }
+
+        // Still no ID? Ask user
+        if (!idToDelete) {
+            return {
+            role: "assistant",
+            content: "Which budget would you like to delete?"
+            };
+        }
+
+        // Safe delete (scoped to user)
+        const deleted = await financeService.deleteBudget(
+            idToDelete,
+            user.id
+        );
+
+        if (!deleted) {
+            return {
+            role: "assistant",
+            content: "That budget no longer exists or was already deleted."
+            };
+        }
+
         return {
-          role: "assistant",
-          content: "You don’t have any budgets yet."
+            role: "assistant",
+            content: `The budget "${deleted.name}" has been deleted.`
         };
-      }
-
-      return {
-        role: "assistant",
-        content: budgets
-          .map(
-            b =>
-              `• ${b.name}: $${b.totalSpent} spent of $${b.limitAmount} (remaining $${b.remaining})`
-          )
-          .join("\n")
-      };
+    
     }
 
     default:
-      return {
-        role: "assistant",
-        content: "I don’t know how to do that yet."
-      };
-  }
+        return {
+            role: "assistant",
+            content: "I don’t know how to do that yet."
+        };
+    } 
 }
 
 module.exports = {
