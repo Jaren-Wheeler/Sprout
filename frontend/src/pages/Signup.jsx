@@ -11,6 +11,7 @@ export default function Signup() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
 
   const navigate = useNavigate();
 
@@ -19,8 +20,16 @@ export default function Signup() {
 
     const newErrors = {};
 
-    if (!fullName) newErrors.fullName = "Full name is required";
-    if (!email) newErrors.email = "Email is required";
+    const fullNameTrimmed = fullName.trim();
+    const emailTrimmed = email.trim();
+
+    if (!fullNameTrimmed) newErrors.fullName = "Full name is required";
+
+    if (!emailTrimmed) {
+      newErrors.email = "Email is required";
+    } else if (!/^\S+@\S+\.\S+$/.test(emailTrimmed)) {
+      newErrors.email = "Please enter a valid email";
+    }
 
     if (!password) {
       newErrors.password = "Password is required";
@@ -28,7 +37,9 @@ export default function Signup() {
       newErrors.password = "Password must be at least 8 characters";
     }
 
-    if (password !== confirmPassword) {
+    if (!confirmPassword) {
+      newErrors.confirmPassword = "Please confirm your password";
+    } else if (password !== confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match";
     }
 
@@ -38,27 +49,28 @@ export default function Signup() {
     }
 
     try {
+      setSubmitting(true);
       setErrors({});
 
-      await registerUser(fullName, email, password);
+      // Backend expects: { fullName, email, password }
+      await registerUser(fullNameTrimmed, emailTrimmed, password);
 
-      navigate("/login");
+      // Since backend sets a session cookie, we can go straight in:
+      navigate("/dashboard");
+      // If you prefer: navigate("/login");
     } catch (err) {
       setErrors({ form: err.message });
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
     <div className={`home ${theme}`}>
       <div className="auth-container pop show">
-
         <h1 className="pop show">Sign Up</h1>
 
-        <form
-          className="auth-form pop show delay-1"
-          onSubmit={onSubmit}
-        >
-
+        <form className="auth-form pop show delay-1" onSubmit={onSubmit}>
           {/* Full Name */}
           <input
             type="text"
@@ -66,9 +78,7 @@ export default function Signup() {
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
           />
-          <div className="field-error">
-            {errors.fullName || ""}
-          </div>
+          <div className="field-error">{errors.fullName || ""}</div>
 
           {/* Email */}
           <input
@@ -77,9 +87,7 @@ export default function Signup() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <div className="field-error">
-            {errors.email || ""}
-          </div>
+          <div className="field-error">{errors.email || ""}</div>
 
           {/* Password */}
           <input
@@ -88,9 +96,7 @@ export default function Signup() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <div className="field-error">
-            {errors.password || ""}
-          </div>
+          <div className="field-error">{errors.password || ""}</div>
 
           {/* Confirm Password */}
           <input
@@ -99,20 +105,13 @@ export default function Signup() {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
-          <div className="field-error">
-            {errors.confirmPassword || ""}
-          </div>
+          <div className="field-error">{errors.confirmPassword || ""}</div>
 
           {/* Backend / form error */}
-          {errors.form && (
-            <div className="error-box">
-             {errors.form}
-            </div>
-          )}
+          {errors.form && <div className="error-box">{errors.form}</div>}
 
-
-          <button className="btn signup" type="submit">
-            Create Account
+          <button className="btn signup" type="submit" disabled={submitting}>
+            {submitting ? "Creating..." : "Create Account"}
           </button>
         </form>
 
