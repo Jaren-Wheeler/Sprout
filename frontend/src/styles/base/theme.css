@@ -24,3 +24,58 @@
     background-color 0.6s ease,
     color 0.4s ease;
 }
+
+/* ====== Global readable text colors ====== */
+:root {
+  --text: #0b1220;
+  --muted: rgba(11, 18, 32, 0.70);
+  --border: rgba(11, 18, 32, 0.15);
+
+  /* surfaces for glass panels/cards */
+  --surface: rgba(255, 255, 255, 0.70);
+  --surface-2: rgba(255, 255, 255, 0.55);
+}
+
+body {
+  color: var(--text);
+}
+
+/* Make sure headings + common text inherit theme color */
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3,
+p, li, label, th, td, small, span, div {
+  color: inherit;
+}
+
+.muted {
+  color: var(--muted) !important;
+}
+
+/* ====== Theme Overrides ====== */
+body.light {
+  color-scheme: light;
+  --text: #0b1220;
+  --muted: rgba(11, 18, 32, 0.70);
+  --border: rgba(11, 18, 32, 0.15);
+
+  --surface: rgba(255, 255, 255, 0.72);
+  --surface-2: rgba(255, 255, 255, 0.58);
+}
+
+body.dark {
+  color-scheme: dark;
+
+  /* ✅ THIS is the key fix: lighter text in dark mode */
+  --text: rgba(255, 255, 255, 0.92);
+  --muted: rgba(255, 255, 255, 0.70);
+  --border: rgba(255, 255, 255, 0.16);
+
+  /* darker glass surfaces so text stays readable */
+  --surface: rgba(0, 0, 0, 0.45);
+  --surface-2: rgba(0, 0, 0, 0.30);
+}
+
+/* Optional: links readable in dark */
+a {
+  color: var(--text);
+}
