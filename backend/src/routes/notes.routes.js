@@ -1,34 +1,35 @@
-const express = require('express');
-const NotesController = require('../controllers/notes.controller');
-
+const express = require("express");
 const router = express.Router();
 
-/**
- * @route GET api/notes/:id
- * @desc Get existing notes by ID
- * @access Private
- */
-router.get("/:id", NotesController.getNote);
+const auth = require("../middleware/auth");
+const {
+  createNote,
+  getNotes,
+  getNote,
+  updateNote,
+  deleteNote
+} = require("../controllers/notes.controller");
 
-/**
- * @route POST api/notes
- * @desc Create new note
- * @access Private
- */
-router.post("/", NotesController.addNote);
+// =====================================================
+// Notes Routes
+// =====================================================
+// API endpoints for user notes.
+// All routes are protected and require authentication.
+// =====================================================
 
-/**
- * @route DELETE api/notes/:id
- * @desc Delete note by ID
- * @access Private
- */
-router.delete("/:id", NotesController.deleteNote);
+// Create a new note
+router.post("/", auth, createNote);
 
-/**
- * @route UPDATE api/user/:id
- * @desc Edit an existing note by ID
- * @access Private
- */
-router.put("/:id", NotesController.editNote);
+// Retrieve all notes for user
+router.get("/", auth, getNotes);
+
+// Retrieve a single note by ID
+router.get("/:id", auth, getNote);
+
+// Update a note
+router.put("/:id", auth, updateNote);
+
+// Delete a note
+router.delete("/:id", auth, deleteNote);
 
 module.exports = router;
