@@ -23,19 +23,20 @@ const BUDGET_ACTIONS = `
   3. add_expense
     Params:
     {
-      "name": string,
+      "expenseName": string,
       "amount": number,
       "category": string,    
       "description": string,
+      "expenseDate": string (ISO date, e.g. "2026-01-15")
       "budgetName": string
     }
 
   4. delete_expense
     Params:
     {
-      "name": string
+      "expenseName": string
     }
-      
+
   `;
 
 function buildSystemPrompt({ enableBudget = false, enableCalendar = false }) {

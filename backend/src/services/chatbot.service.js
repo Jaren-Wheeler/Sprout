@@ -149,9 +149,7 @@ async function executeAction(ai, user) {
     }
 
     case "add_expense": {
-        const { expenseName, amount , category , description, budgetName} = ai.params || {};
-
-      
+        const { expenseName, amount , category , description, budgetName, expenseDate} = ai.params || {};
 
         if (!budgetName) {
             return {
@@ -160,15 +158,16 @@ async function executeAction(ai, user) {
             };
         }
 
-        if (!expenseName || !Number.isFinite(amount) || !category) {
+        if (!expenseName || !Number.isFinite(amount) || !category || !expenseDate) {
+            console.log(expenseName, amount, category, expenseDate);
             return {
                 role: "assistant",
-                content: "I need a valid expense name, amount, and category."
+                content: "I need a valid expense name, amount, and category, and date."
             };
         }
 
         const budgets = await financeService.getBudgets(user.id); // grab the budget object
-        const budget = budgets.filter(
+        const budget = budgets.find(
             b => b.name.toLowerCase() === budgetName.toLowerCase()
         );
 
@@ -183,7 +182,8 @@ async function executeAction(ai, user) {
             amount,
             category,
             description,
-            budgetId: budget.id
+            expenseDate,
+            budgetId: budget.id,
         });
 
         return {
