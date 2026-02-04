@@ -11,7 +11,9 @@ async function chatbotConversation(req, res) {
 
     const reply = await runChatbot(messages, req.user);
 
-    res.status(200).json(reply);
+    res.status(200).json({
+      reply: reply?.content || "No reply received."
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Chat failed" });
