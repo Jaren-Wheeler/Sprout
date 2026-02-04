@@ -42,13 +42,21 @@ export default function Chatbot() {
     setInput("");
 
     try {
-      const res = await api.post(CHAT_ENDPOINT, { message: text });
+      const normalizedMessages = [
+        ...messages.map(m => ({
+          role: m.role,
+          content: m.text   // convert text → content
+        })),
+        { role: "user", content: text }
+      ];
+      
+      const res = await api.post(CHAT_ENDPOINT,  {
+        messages: normalizedMessages
+      });
+   
+      const reply = res?.data?.reply ?? "";
 
-      const reply =
-        res?.data?.reply ??
-        res?.data?.message ??
-        res?.data?.text ??
-        (typeof res?.data === "string" ? res.data : "");
+
 
       setMessages((m) => [
         ...m,

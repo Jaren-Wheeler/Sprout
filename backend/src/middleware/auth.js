@@ -1,7 +1,8 @@
 const prisma = require("../clients/prisma.client");
 
-async function auth(req, res, next) {
 
+async function auth(req, res, next) {
+  
   // If no session user
   if (!req.session || !req.session.userId) {
     return res.status(401).json({ error: "Not authenticated" });

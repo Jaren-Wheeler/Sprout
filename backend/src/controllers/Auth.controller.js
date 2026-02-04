@@ -32,6 +32,8 @@ const AuthController = {
       req.session.userId = user.id;
 
       res.json(user);
+      console.log("SESSION AFTER LOGIN:", req.session);
+
     } catch (error) {
       next(error);
     }

@@ -149,8 +149,12 @@ async function createExpense(userId, data) {
       category: data.category,
       description: data.description,
       expenseDate: new Date(data.expenseDate),
-      budgetId: data.budgetId,
-      userId
+      user: {
+        connect: {id: userId}
+      },
+      budget: {
+        connect: {id: data.budgetId}
+      }
     }
   });
 }
