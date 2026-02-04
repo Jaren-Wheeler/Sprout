@@ -1,123 +1,35 @@
 const express = require("express");
-const HealthController = require("../controllers/health.controller");
 const router = express.Router();
 
-//----------------------- WORKOUT ROUTES -----------------------------//
-/**
- * @route GET api/workouts/:workoutId
- * @desc Get existing workouts by ID
- * @access Private
- */
-router.get("/workouts/:workoutId", HealthController.getWorkout);
+const auth = require("../middleware/auth");
 
-/**
- * @route POST api/workouts/
- * @desc Create new workout
- * @access Private
- */
-router.post("/workouts", HealthController.createWorkout);
+const {
+  getFitnessInfo,
+  updateFitnessInfo,
+  createWorkout,
+  getWorkouts,
+  deleteWorkout,
+  createDiet,
+  getDiets,
+  deleteDiet
+} = require("../controllers/health.controller");
 
-/**
- * @route DELETE api/workouts/:workoutId
- * @desc Delete existing workouts by ID
- * @access Private
- */
-router.delete("/workouts/:workoutId", HealthController.deleteWorkout);
+// =====================================================
+// Health Routes (Protected)
+// =====================================================
 
-/**
- * @route UPDATE api/workouts/:workoutId
- * @desc Edit existing workouts by ID
- * @access Private
- */
-router.put("/workouts/:workoutId", HealthController.editWorkout);
+// Fitness info
+router.get("/fitness", auth, getFitnessInfo);
+router.put("/fitness", auth, updateFitnessInfo);
 
+// Workouts
+router.post("/workouts", auth, createWorkout);
+router.get("/workouts", auth, getWorkouts);
+router.delete("/workouts/:id", auth, deleteWorkout);
 
-
-/**
- * @route GET api/health/workouts/:workoutId/items/:itemId
- * @desc  Get existing workouts by ID
- * @access Private
- */
-router.get("/workouts/:workoutId/items/:itemId", HealthController.getWorkoutItem);
-
-/**
- * @route POST api/health/workouts/:workoutId/items
- * @desc Create new workout item
- * @access Private
- */
-router.post("/workouts/:workoutId/items", HealthController.createWorkoutItem);
-
-/**
- * @route DELETE /health/workouts/:workoutId/items/:itemId
- * @desc Delete existing workout item by ID
- * @access Private
- */
-router.delete("/workouts/:workoutId/items/:itemId", HealthController.deleteWorkoutItem);
-
-/**
- * @route UPDATE api/health/workouts/:workoutId/items/:itemId
- * @desc Edit existing workout item by ID
- * @access Private
- */
-router.put("/workouts/:workoutId/items/:itemId", HealthController.editWorkoutItem);
-
-
-//----------------------- DIET ROUTES -----------------------------//
-/**
- * @route GET api/health/diets/:dietId
- * @desc Get existing diets by ID
- * @access Private
- */
-router.get("/diets/:dietId", HealthController.getDiet);
-
-/**
- * @route POST api/health/diets
- * @desc Create new diets
- * @access Private
- */
-router.post("/diets", HealthController.createDiet);
-
-/**
- * @route DELETE api/health/diets/:dietId
- * @desc Delete existing diets by ID
- * @access Private
- */
-router.delete("/diets/:dietId", HealthController.deleteDiet);
-
-/**
- * @route UPDATE api/health/diets/:dietId
- * @desc Edit existing diets by ID
- * @access Private
- */
-router.put("/diets/:dietId", HealthController.editDiet);
-
-
-/**
- * @route GET api/health/diets/:dietId/items/:itemId
- * @desc Get existing diet items by ID
- * @access Private
- */
-router.get("/diets/:dietId/items/:itemId", HealthController.getDietItem);
-
-/**
- * @route POST api/health/diets/:dietId/items
- * @desc Create new diet items
- * @access Private
- */
-router.post("/diets/:dietId/items", HealthController.createDietItem);
-
-/**
- * @route DELETE api/health/diets/:dietId/items/:itemId
- * @desc Delete existing notes by ID
- * @access Private
- */
-router.delete("/diets/:dietId/items/:itemId", HealthController.deleteDietItem);
-
-/**
- * @route UPDATE api/health/diets/:dietId/items/:itemId
- * @desc Edit existing notes by ID
- * @access Private
- */
-router.put("/diets/:dietId/items/:itemId", HealthController.editDietItem);
+// Diets
+router.post("/diets", auth, createDiet);
+router.get("/diets", auth, getDiets);
+router.delete("/diets/:id", auth, deleteDiet);
 
 module.exports = router;

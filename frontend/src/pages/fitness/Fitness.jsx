@@ -1,215 +1,172 @@
-// frontend/src/pages/fitness/Fitness.jsx
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../lib/api.js";
+
+import {
+  getFitnessInfo,
+  updateFitnessInfo,
+  getWorkouts,
+  createWorkout,
+  deleteWorkout,
+  getDiets,
+  createDiet,
+  deleteDiet
+} from "../../api/health";
+
 import Card from "../../components/Card.jsx";
 import Field from "../../components/Field.jsx";
 import Button from "../../components/Button.jsx";
 import Modal from "../../components/Modal.jsx";
-import { fromDatetimeLocalValue } from "../../lib/datetime.js";
 
-// ✅ Shared app-page layout styles (panel + header + responsiveness)
 import "../../styles/layout/appPages.css";
-
-const nowForDatetimeInput = () => new Date().toISOString().slice(0, 16);
 
 export default function Fitness() {
   const nav = useNavigate();
 
-  const [plans, setPlans] = useState([]);
-  const [workouts, setWorkouts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState("");
+  /* ================= State ================= */
 
-  const load = async (signal) => {
+  const [fitness, setFitness] = useState(null);
+  const [workouts, setWorkouts] = useState([]);
+  const [diets, setDiets] = useState([]);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const [openWorkout, setOpenWorkout] = useState(false);
+  const [openDiet, setOpenDiet] = useState(false);
+
+  const [workoutName, setWorkoutName] = useState("");
+  const [workoutNotes, setWorkoutNotes] = useState("");
+
+  const [dietName, setDietName] = useState("");
+  const [dietDesc, setDietDesc] = useState("");
+
+  /* ================= Load ================= */
+
+  const loadAll = async () => {
     setLoading(true);
-    setLoadError("");
+    setError("");
 
     try {
-      const res = await api.get("/api/fitness", signal ? { signal } : undefined);
-      setPlans(Array.isArray(res.data?.plans) ? res.data.plans : []);
-      setWorkouts(Array.isArray(res.data?.workouts) ? res.data.workouts : []);
-    } catch (err) {
-      if (err?.name === "CanceledError" || err?.name === "AbortError") return;
+      const [fi, ws, ds] = await Promise.all([
+        getFitnessInfo(),
+        getWorkouts(),
+        getDiets()
+      ]);
 
-      console.error("Fitness load failed:", err);
-      const msg =
-        err?.response?.data?.error ||
-        err?.response?.data?.message ||
-        err?.message ||
-        "Failed to load fitness data. (Are you logged in? Is the server running?)";
-      setLoadError(msg);
-      setPlans([]);
-      setWorkouts([]);
+      setFitness(fi);
+      setWorkouts(ws || []);
+      setDiets(ds || []);
+
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Failed to load fitness data.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    const controller = new AbortController();
-    load(controller.signal);
-    return () => controller.abort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    loadAll();
   }, []);
 
-  const overview = useMemo(() => {
-    const workoutCount = workouts.length;
-    const totalMinutes = workouts.reduce(
-      (sum, w) => sum + Number(w?.duration_minutes ?? 0),
-      0
-    );
-    const totalCalories = workouts.reduce(
-      (sum, w) => sum + Number(w?.calories_burned ?? 0),
-      0
-    );
-    return { workoutCount, totalMinutes, totalCalories };
-  }, [workouts]);
+  /* ================= Fitness Info ================= */
 
-  const [openPlan, setOpenPlan] = useState(false);
-  const [planName, setPlanName] = useState("");
-  const [planDesc, setPlanDesc] = useState("");
-  const [planError, setPlanError] = useState("");
+  const saveFitness = async () => {
+  try {
+    const updated = await updateFitnessInfo({
+      currentWeight: fitness?.currentWeight
+        ? Number(fitness.currentWeight)
+        : null,
 
-  const createPlan = async () => {
-    setPlanError("");
+      goalWeight: fitness?.goalWeight
+        ? Number(fitness.goalWeight)
+        : null,
 
-    if (!planName.trim()) {
-      setPlanError("Plan name is required.");
-      return;
-    }
+      calorieGoal: fitness?.calorieGoal
+        ? Number(fitness.calorieGoal)
+        : null
+    });
+
+    setFitness(updated);
+
+  } catch (err) {
+    alert(err.message || "Failed to save fitness info.");
+  }
+};
+
+
+  /* ================= Create Workout ================= */
+
+  const addWorkout = async () => {
+    if (!workoutName.trim()) return;
 
     try {
-      const res = await api.post("/api/fitness-plans", {
-        name: planName.trim(),
-        description: planDesc || null,
+      const w = await createWorkout({
+        name: workoutName.trim(),
+        notes: workoutNotes || null
       });
 
-      setPlans((p) => [res.data, ...p]);
-      setOpenPlan(false);
-      setPlanName("");
-      setPlanDesc("");
-    } catch (err) {
-      console.error("Create plan failed:", err);
-      setPlanError(
-        err?.response?.data?.error ||
-          err?.response?.data?.message ||
-          err?.message ||
-          "Failed to create plan."
-      );
-    }
-  };
-
-  const deletePlan = async (id) => {
-    if (!confirm("Delete this plan?")) return;
-
-    try {
-      await api.delete(`/api/fitness-plans/${id}`);
-      setPlans((p) => p.filter((x) => x.fitness_plan_id !== id));
-    } catch (err) {
-      console.error("Delete plan failed:", err);
-      alert(
-        err?.response?.data?.error ||
-          err?.response?.data?.message ||
-          err?.message ||
-          "Failed to delete plan."
-      );
-    }
-  };
-
-  const [openWorkout, setOpenWorkout] = useState(false);
-  const [workoutTitle, setWorkoutTitle] = useState("");
-  const [workoutTime, setWorkoutTime] = useState(nowForDatetimeInput());
-  const [durationMinutes, setDurationMinutes] = useState("");
-  const [caloriesBurned, setCaloriesBurned] = useState("");
-  const [workoutError, setWorkoutError] = useState("");
-
-  const createWorkout = async () => {
-    setWorkoutError("");
-
-    if (!workoutTitle.trim()) {
-      setWorkoutError("Workout title is required.");
-      return;
-    }
-
-    const dur = durationMinutes ? Number(durationMinutes) : null;
-    const cal = caloriesBurned ? Number(caloriesBurned) : null;
-
-    if (dur != null && (Number.isNaN(dur) || dur < 0)) {
-      setWorkoutError("Duration must be a number (0 or higher).");
-      return;
-    }
-
-    if (cal != null && (Number.isNaN(cal) || cal < 0)) {
-      setWorkoutError("Calories must be a number (0 or higher).");
-      return;
-    }
-
-    try {
-      const res = await api.post("/api/workouts", {
-        title: workoutTitle.trim(),
-        workout_time: fromDatetimeLocalValue(workoutTime),
-        duration_minutes: dur,
-        calories_burned: cal,
-      });
-
-      setWorkouts((w) => [res.data, ...w]);
+      setWorkouts((x) => [w, ...x]);
+      setWorkoutName("");
+      setWorkoutNotes("");
       setOpenWorkout(false);
-      setWorkoutTitle("");
-      setWorkoutTime(nowForDatetimeInput());
-      setDurationMinutes("");
-      setCaloriesBurned("");
+
     } catch (err) {
-      console.error("Create workout failed:", err);
-      setWorkoutError(
-        err?.response?.data?.error ||
-          err?.response?.data?.message ||
-          err?.message ||
-          "Failed to save workout."
-      );
+      alert(err.message || "Failed to create workout.");
     }
   };
 
-  const deleteWorkout = async (id) => {
-    if (!confirm("Delete this workout?")) return;
+  /* ================= Create Diet ================= */
+
+  const addDiet = async () => {
+    if (!dietName.trim()) return;
 
     try {
-      await api.delete(`/api/workouts/${id}`);
-      setWorkouts((w) => w.filter((x) => x.workout_id !== id));
+      const d = await createDiet({
+        name: dietName.trim(),
+        description: dietDesc || null
+      });
+
+      setDiets((x) => [d, ...x]);
+      setDietName("");
+      setDietDesc("");
+      setOpenDiet(false);
+
     } catch (err) {
-      console.error("Delete workout failed:", err);
-      alert(
-        err?.response?.data?.error ||
-          err?.response?.data?.message ||
-          err?.message ||
-          "Failed to delete workout."
-      );
+      alert(err.message || "Failed to create diet.");
     }
   };
+
+  /* ================= Loading ================= */
 
   if (loading) return <div className="muted">Loading…</div>;
+
+  /* ================= Render ================= */
 
   return (
     <div className="page">
       <div className="panel">
+
         <div className="pageHeader">
           <div className="pageHeaderText">
             <h1 className="pageTitle">Fitness</h1>
-            <div className="pageSubtitle">Plans and workouts</div>
+            <div className="pageSubtitle">
+              Fitness info, workout templates, and diet templates.
+            </div>
 
-            {loadError ? (
+            {error && (
               <div
                 style={{
                   marginTop: 10,
                   padding: 10,
                   borderRadius: 12,
                   border: "1px solid rgba(255,0,0,0.25)",
-                  background: "rgba(255,0,0,0.08)",
+                  background: "rgba(255,0,0,0.08)"
                 }}
               >
-                {loadError}
+                {error}
               </div>
-            ) : null}
+            )}
           </div>
 
           <div className="pageHeaderRight">
@@ -217,240 +174,183 @@ export default function Fitness() {
               Dashboard
             </Button>
 
-            <Button variant="ghost" onClick={() => load()}>
+            <Button variant="ghost" onClick={loadAll}>
               Refresh
             </Button>
-            <Button onClick={() => setOpenPlan(true)}>+ New plan</Button>
-            <Button onClick={() => setOpenWorkout(true)}>+ Log workout</Button>
+
+            <Button onClick={() => setOpenWorkout(true)}>+ Workout</Button>
+            <Button onClick={() => setOpenDiet(true)}>+ Diet</Button>
           </div>
         </div>
 
         <div className="pageBody" style={{ display: "grid", gap: 16 }}>
-          <div
-            style={{
-              display: "grid",
-              gap: 16,
-              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-              alignItems: "start",
-            }}
-          >
-            <Card title="Overview" subtitle="Quick totals from your logged workouts.">
-              <div style={{ display: "grid", gap: 10 }}>
-                <div className="row">
-                  <div className="muted">Workouts</div>
+
+          {/* -------- Fitness Info -------- */}
+
+          <Card title="Fitness Info" subtitle="Basic goals and metrics.">
+            <div style={{ display: "grid", gap: 12 }}>
+
+              <Field label="Current weight">
+                <input
+                  className="input"
+                  value={fitness?.currentWeight ?? ""}
+                  onChange={(e) =>
+                    setFitness((f) => ({ ...f, currentWeight: e.target.value }))
+                  }
+                />
+              </Field>
+
+              <Field label="Goal weight">
+                <input
+                  className="input"
+                  value={fitness?.goalWeight ?? ""}
+                  onChange={(e) =>
+                    setFitness((f) => ({ ...f, goalWeight: e.target.value }))
+                  }
+                />
+              </Field>
+
+              <Field label="Daily calorie goal">
+                <input
+                  className="input"
+                  value={fitness?.calorieGoal ?? ""}
+                  onChange={(e) =>
+                    setFitness((f) => ({ ...f, calorieGoal: e.target.value }))
+                  }
+                />
+              </Field>
+
+              <Button onClick={saveFitness}>Save</Button>
+            </div>
+          </Card>
+
+          {/* -------- Workouts -------- */}
+
+          <Card title="Workouts" subtitle="Workout templates.">
+
+            {workouts.length === 0 ? (
+              <div className="muted">No workouts yet.</div>
+            ) : (
+              workouts.map((w) => (
+                <div key={w.id} className="row" style={{ marginBottom: 8 }}>
+                  <div>
+                    <strong>{w.name}</strong>
+                    <div className="muted" style={{ fontSize: 12 }}>
+                      {w.notes ?? ""}
+                    </div>
+                  </div>
+
                   <div className="spacer" />
-                  <div style={{ fontWeight: 900 }}>{overview.workoutCount}</div>
-                </div>
 
-                <div className="row">
-                  <div className="muted">Total minutes</div>
+                  <Button
+                    variant="ghost"
+                    onClick={() => deleteWorkout(w.id).then(loadAll)}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              ))
+            )}
+
+          </Card>
+
+          {/* -------- Diets -------- */}
+
+          <Card title="Diets" subtitle="Diet templates.">
+
+            {diets.length === 0 ? (
+              <div className="muted">No diets yet.</div>
+            ) : (
+              diets.map((d) => (
+                <div key={d.id} className="row" style={{ marginBottom: 8 }}>
+                  <div>
+                    <strong>{d.name}</strong>
+                    <div className="muted" style={{ fontSize: 12 }}>
+                      {d.description ?? ""}
+                    </div>
+                  </div>
+
                   <div className="spacer" />
-                  <div style={{ fontWeight: 900 }}>{overview.totalMinutes}</div>
-                </div>
 
-                <div className="row">
-                  <div className="muted">Total calories</div>
-                  <div className="spacer" />
-                  <div style={{ fontWeight: 900 }}>{overview.totalCalories}</div>
+                  <Button
+                    variant="ghost"
+                    onClick={() => deleteDiet(d.id).then(loadAll)}
+                  >
+                    Delete
+                  </Button>
                 </div>
+              ))
+            )}
 
-                <div className="muted" style={{ fontSize: 12 }}>
-                  Tables scroll horizontally on small screens.
-                </div>
-              </div>
-            </Card>
+          </Card>
 
-            <Card title="Fitness plans" subtitle="Your plan list.">
-              {plans.length === 0 ? (
-                <div className="muted">No plans yet.</div>
-              ) : (
-                <div className="tableWrap">
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th style={{ minWidth: 160 }}>Name</th>
-                        <th style={{ minWidth: 220 }}>Description</th>
-                        <th style={{ width: 140 }}></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {plans.map((p) => (
-                        <tr key={p.fitness_plan_id}>
-                          <td>
-                            <span className="badge">{p.name}</span>
-                          </td>
-                          <td className="muted">{p.description ?? "—"}</td>
-                          <td style={{ textAlign: "right" }}>
-                            <Button
-                              variant="ghost"
-                              onClick={() => deletePlan(p.fitness_plan_id)}
-                            >
-                              Delete
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </Card>
-
-            <Card title="Workouts" subtitle="Your logged workouts.">
-              {workouts.length === 0 ? (
-                <div className="muted">No workouts logged yet.</div>
-              ) : (
-                <div className="tableWrap">
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th style={{ minWidth: 180 }}>Title</th>
-                        <th style={{ minWidth: 140 }}>Minutes</th>
-                        <th style={{ minWidth: 140 }}>Calories</th>
-                        <th style={{ width: 140 }}></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {workouts.map((w) => (
-                        <tr key={w.workout_id}>
-                          <td>{w.title}</td>
-                          <td>{w.duration_minutes ?? "—"}</td>
-                          <td>{w.calories_burned ?? "—"}</td>
-                          <td style={{ textAlign: "right" }}>
-                            <Button
-                              variant="ghost"
-                              onClick={() => deleteWorkout(w.workout_id)}
-                            >
-                              Delete
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </Card>
-          </div>
         </div>
       </div>
 
+      {/* ===== Workout Modal ===== */}
+
       <Modal
-        open={openPlan}
-        title="Create fitness plan"
-        onClose={() => setOpenPlan(false)}
+        open={openWorkout}
+        title="Create workout"
+        onClose={() => setOpenWorkout(false)}
         footer={
-          <div className="row" style={{ justifyContent: "flex-end", flexWrap: "wrap", gap: 10 }}>
-            <Button variant="ghost" onClick={() => setOpenPlan(false)}>
+          <div className="row" style={{ justifyContent: "flex-end", gap: 10 }}>
+            <Button variant="ghost" onClick={() => setOpenWorkout(false)}>
               Cancel
             </Button>
-            <Button onClick={createPlan}>Create</Button>
+            <Button onClick={addWorkout}>Create</Button>
           </div>
         }
       >
-        {planError ? (
-          <div
-            style={{
-              marginBottom: 10,
-              padding: 10,
-              borderRadius: 12,
-              border: "1px solid rgba(255,0,0,0.25)",
-              background: "rgba(255,0,0,0.08)",
-              fontSize: 13,
-            }}
-          >
-            {planError}
-          </div>
-        ) : null}
-
-        <Field label="Plan name">
+        <Field label="Workout name">
           <input
             className="input"
-            value={planName}
-            onChange={(e) => setPlanName(e.target.value)}
+            value={workoutName}
+            onChange={(e) => setWorkoutName(e.target.value)}
+          />
+        </Field>
+
+        <Field label="Notes (optional)">
+          <textarea
+            className="textarea"
+            value={workoutNotes}
+            onChange={(e) => setWorkoutNotes(e.target.value)}
+          />
+        </Field>
+      </Modal>
+
+      {/* ===== Diet Modal ===== */}
+
+      <Modal
+        open={openDiet}
+        title="Create diet"
+        onClose={() => setOpenDiet(false)}
+        footer={
+          <div className="row" style={{ justifyContent: "flex-end", gap: 10 }}>
+            <Button variant="ghost" onClick={() => setOpenDiet(false)}>
+              Cancel
+            </Button>
+            <Button onClick={addDiet}>Create</Button>
+          </div>
+        }
+      >
+        <Field label="Diet name">
+          <input
+            className="input"
+            value={dietName}
+            onChange={(e) => setDietName(e.target.value)}
           />
         </Field>
 
         <Field label="Description (optional)">
           <textarea
             className="textarea"
-            value={planDesc}
-            onChange={(e) => setPlanDesc(e.target.value)}
+            value={dietDesc}
+            onChange={(e) => setDietDesc(e.target.value)}
           />
         </Field>
       </Modal>
 
-      <Modal
-        open={openWorkout}
-        title="Log workout"
-        onClose={() => setOpenWorkout(false)}
-        footer={
-          <div className="row" style={{ justifyContent: "flex-end", flexWrap: "wrap", gap: 10 }}>
-            <Button variant="ghost" onClick={() => setOpenWorkout(false)}>
-              Cancel
-            </Button>
-            <Button onClick={createWorkout}>Save</Button>
-          </div>
-        }
-      >
-        {workoutError ? (
-          <div
-            style={{
-              marginBottom: 10,
-              padding: 10,
-              borderRadius: 12,
-              border: "1px solid rgba(255,0,0,0.25)",
-              background: "rgba(255,0,0,0.08)",
-              fontSize: 13,
-            }}
-          >
-            {workoutError}
-          </div>
-        ) : null}
-
-        <Field label="Workout title">
-          <input
-            className="input"
-            value={workoutTitle}
-            onChange={(e) => setWorkoutTitle(e.target.value)}
-          />
-        </Field>
-
-        <Field label="Workout time">
-          <input
-            className="input"
-            type="datetime-local"
-            value={workoutTime}
-            onChange={(e) => setWorkoutTime(e.target.value)}
-          />
-        </Field>
-
-        <div
-          style={{
-            display: "grid",
-            gap: 12,
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          }}
-        >
-          <Field label="Duration minutes (optional)">
-            <input
-              className="input"
-              type="number"
-              value={durationMinutes}
-              onChange={(e) => setDurationMinutes(e.target.value)}
-            />
-          </Field>
-
-          <Field label="Calories burned (optional)">
-            <input
-              className="input"
-              type="number"
-              value={caloriesBurned}
-              onChange={(e) => setCaloriesBurned(e.target.value)}
-            />
-          </Field>
-        </div>
-      </Modal>
     </div>
   );
 }
