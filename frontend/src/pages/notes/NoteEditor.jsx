@@ -1,6 +1,5 @@
-// frontend/src/pages/notes/NoteEditor.jsx
-import React, { useEffect, useRef, useState } from "react";
-import api from "../../lib/api.js";
+import React, { useRef, useState } from "react";
+import { updateNote } from "../../api/notes";
 import Field from "../../components/Field.jsx";
 
 export default function NoteEditor({ note }) {
@@ -12,70 +11,49 @@ export default function NoteEditor({ note }) {
   const timerRef = useRef(null);
   const lastSavedRef = useRef({
     title: note.title ?? "",
-    content: note.content ?? "",
+    content: note.content ?? ""
   });
 
-  // Reset editor when note changes
-  useEffect(() => {
-    setTitle(note.title ?? "");
-    setContent(note.content ?? "");
-    setStatus("Idle");
-    setError("");
-
-    lastSavedRef.current = {
-      title: note.title ?? "",
-      content: note.content ?? "",
-    };
-  }, [note.note_id, note.title, note.content]);
-
-  // Autosave (debounced)
-  useEffect(() => {
+  const scheduleSave = (nextTitle, nextContent) => {
     if (timerRef.current) clearTimeout(timerRef.current);
 
     const last = lastSavedRef.current;
 
-    // If nothing changed since last successful save, stay idle
-    if (title === last.title && content === last.content) {
-      if (status !== "Idle") setStatus("Idle");
+    // Nothing changed, do nothing
+    if (nextTitle === last.title && nextContent === last.content) {
       return;
     }
 
+    // Status updates happen from user action, not inside effects
     setStatus("Typing…");
     setError("");
-
-    const controller = new AbortController();
 
     timerRef.current = setTimeout(async () => {
       try {
         setStatus("Saving…");
 
-        await api.put(
-          `/api/notes/${note.note_id}`,
-          { title, content },
-          { signal: controller.signal }
-        );
+        await updateNote(note.id, { title: nextTitle, content: nextContent });
 
-        lastSavedRef.current = { title, content };
+        lastSavedRef.current = { title: nextTitle, content: nextContent };
         setStatus("Saved");
       } catch (err) {
-        if (err?.name !== "CanceledError" && err?.name !== "AbortError") {
-          setStatus("Error saving");
-          const msg =
-            err?.response?.data?.error ||
-            err?.response?.data?.message ||
-            "Failed to save note.";
-          setError(msg);
-        }
+        setStatus("Error saving");
+        setError(err.message || "Failed to save note.");
       }
     }, 450);
+  };
 
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      controller.abort();
-    };
-    // status intentionally not included to avoid effect loops
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [title, content, note.note_id]);
+  const onTitleChange = (e) => {
+    const next = e.target.value;
+    setTitle(next);
+    scheduleSave(next, content);
+  };
+
+  const onContentChange = (e) => {
+    const next = e.target.value;
+    setContent(next);
+    scheduleSave(title, next);
+  };
 
   return (
     <div style={{ display: "grid", gap: 12 }}>
@@ -87,37 +65,30 @@ export default function NoteEditor({ note }) {
         </span>
       </div>
 
-      {error ? (
+      {error && (
         <div
           style={{
             padding: 10,
             borderRadius: 12,
             border: "1px solid rgba(255,0,0,0.25)",
             background: "rgba(255,0,0,0.08)",
-            fontSize: 13,
+            fontSize: 13
           }}
         >
           {error}
         </div>
-      ) : null}
+      )}
 
       <Field label="Title">
-        <input
-          className="input"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
+        <input className="input" value={title} onChange={onTitleChange} />
       </Field>
 
       <Field label="Content">
         <textarea
           className="textarea"
           value={content}
-          onChange={(e) => setContent(e.target.value)}
-          style={{
-            minHeight: 260,
-            resize: "vertical",
-          }}
+          onChange={onContentChange}
+          style={{ minHeight: 260, resize: "vertical" }}
         />
       </Field>
     </div>
