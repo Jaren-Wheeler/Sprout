@@ -127,7 +127,7 @@ model CalendarEvent {
   title       String   @map("title")
   description String?  @map("description")
   startTime   DateTime @map("start_time")
-  endTime     DateTime @map("end_time")
+  endTime     DateTime? @map("end_time")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 

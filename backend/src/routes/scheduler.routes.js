@@ -1,33 +1,26 @@
-const express = require('express');
-const SchedulerController = require('../controllers/scheduler.controller');
+const express = require("express");
 const router = express.Router();
 
-/**
- * @route GET api/scheduler/items/:id
- * @desc Get an item from the schedule by ID
- * @access Private
- */
-router.get("/items/:id",SchedulerController.getScheduleItem);
+const auth = require("../middleware/auth");
+const {
+  createEvent,
+  getEvents,
+  deleteEvent
+} = require("../controllers/scheduler.controller");
 
-/**
- * @route POST api/scheduler/items/
- * @desc Create an item and input in the schedule
- * @access Private
- */
-router.post("/items", SchedulerController.createScheduleItem);
+// =====================================================
+// Scheduler Routes
+// =====================================================
+// Calendar event API endpoints (protected).
+// =====================================================
 
-/**
- * @route DELETE api/scheduler/items/:id
- * @desc Delete an item from the schedule by ID
- * @access Private
- */
-router.delete("/items/:id", SchedulerController.deleteScheduleItem);
+// Create event
+router.post("/", auth, createEvent);
 
-/**
- * @route PUT api/scheduler/items/:id
- * @desc Edit an existing item from the schedule by ID
- * @access Private
- */
-router.put("/items/:id", SchedulerController.editScheduleItem);
+// Get all events
+router.get("/", auth, getEvents);
+
+// Delete event
+router.delete("/:id", auth, deleteEvent);
 
 module.exports = router;
