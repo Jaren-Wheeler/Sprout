@@ -3,40 +3,39 @@ import { apiFetch } from "./client";
 // =====================================================
 // Authentication API Module
 // =====================================================
-// Contains frontend functions for interacting with
-// authentication-related backend endpoints.
-// =====================================================
 
 /**
  * Registers a new user account.
  *
- * @param {string} email - User email address
- * @param {string} password - User password 
- * @param {string} fullName - user full name
+ * @param {string} fullName - user's full name
+ * @param {string} email - user's email address
+ * @param {string} password - user's password
  * @returns {Promise<Object>} Newly created user data
  */
 export const registerUser = (fullName, email, password) => {
   return apiFetch("/api/auth/register", {
     method: "POST",
     body: JSON.stringify({
-      fullName,
-      email,
+      fullName: (fullName ?? "").trim(),
+      email: (email ?? "").trim(),
       password
     })
   });
 };
 
-
 /**
  * Authenticates an existing user.
  *
- * @param {string} email - User email address
- * @param {string} password - User password 
+ * @param {string} email - user's email address
+ * @param {string} password - user's password
  * @returns {Promise<Object>} Authenticated user data
  */
 export const loginUser = (email, password) => {
   return apiFetch("/api/auth/login", {
     method: "POST",
-    body: JSON.stringify({ email, password })
+    body: JSON.stringify({
+      email: (email ?? "").trim(),
+      password
+    })
   });
 };

@@ -1,20 +1,48 @@
+/* frontend/src/styles/components/buttons.css */
+
 .btn {
-  padding: 20px 46px;
-  font-size: 1.4rem;
-  border-radius: 100px;
+  /* responsive sizing */
+  padding: clamp(10px, 2.2vw, 16px) clamp(16px, 4.5vw, 34px);
+  font-size: clamp(0.95rem, 2vw, 1.15rem);
+  line-height: 1;
+
+  border-radius: 999px;
   border: 3px solid currentColor;
   cursor: pointer;
-  transition: transform 0.25s ease;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  max-width: 100%;
+  white-space: nowrap;
+
+  transition: transform 0.25s ease, filter 0.2s ease;
 }
 
 .btn:hover {
-  transform: scale(1.08);
+  transform: scale(1.06);
+  filter: brightness(1.02);
+}
+
+.btn:active {
+  transform: scale(1.02);
 }
 
 .btn.signup {
-  background: rgba(106,77,133,0.15);
+  background: rgba(106, 77, 133, 0.15);
 }
 
 .btn.login {
-  background: rgba(27,80,149,0.25);
+  background: rgba(27, 80, 149, 0.25);
+}
+
+/* small screens: reduce border + keep tap-friendly */
+@media (max-width: 420px) {
+  .btn {
+    border-width: 2px;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+  }
 }

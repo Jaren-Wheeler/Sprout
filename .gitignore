@@ -24,3 +24,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+LOCAL_NOTES.md
+
+# Local curl cookie jar
+cookies.txt

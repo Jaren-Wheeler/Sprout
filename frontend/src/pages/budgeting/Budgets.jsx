@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
+// frontend/src/pages/budgets/Budgets.jsx
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import {
   getBudgets,
   createBudget,
   deleteBudget,
-  getCategoryTotals
+  getCategoryTotals,
 } from "../../api/finance";
 
 import Card from "../../components/Card.jsx";
@@ -13,306 +14,367 @@ import Field from "../../components/Field.jsx";
 import Button from "../../components/Button.jsx";
 import Modal from "../../components/Modal.jsx";
 
+// ✅ Shared app-page layout styles (panel + header + responsiveness)
+import "../../styles/layout/appPages.css";
+
 export default function Budgets() {
-
   const nav = useNavigate();
-
-  // =====================================================
-  // Data
-  // =====================================================
 
   const [budgets, setBudgets] = useState([]);
   const [analytics, setAnalytics] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
-  // =====================================================
-  // Load Data
-  // =====================================================
-
-  useEffect(() => {
-    loadData();
-  }, []);
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [limitAmount, setLimitAmount] = useState("");
+  const [createError, setCreateError] = useState("");
 
   const loadData = async () => {
+    setLoading(true);
+    setLoadError("");
+
     try {
       const [budgetData, analyticsData] = await Promise.all([
         getBudgets(),
-        getCategoryTotals()
+        getCategoryTotals(),
       ]);
 
-      setBudgets(budgetData);
-      setAnalytics(analyticsData);
-
+      setBudgets(Array.isArray(budgetData) ? budgetData : []);
+      setAnalytics(Array.isArray(analyticsData) ? analyticsData : []);
+    } catch (err) {
+      console.error("Budgets load failed:", err);
+      setBudgets([]);
+      setAnalytics([]);
+      setLoadError(
+        err?.message ||
+          "Failed to load budgets. (Are you logged in? Is the server running?)"
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  // =====================================================
-  // Create Modal State
-  // =====================================================
+  useEffect(() => {
+    loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [limitAmount, setLimitAmount] = useState("");
-  const [error, setError] = useState(null);
-
-  // =====================================================
-  // Create Budget
-  // =====================================================
+  const totals = useMemo(() => {
+    const totalLimit = budgets.reduce(
+      (sum, b) => sum + Number(b?.limitAmount ?? 0),
+      0
+    );
+    const totalSpent = budgets.reduce(
+      (sum, b) => sum + Number(b?.totalSpent ?? 0),
+      0
+    );
+    const remaining = totalLimit - totalSpent;
+    return { totalLimit, totalSpent, remaining };
+  }, [budgets]);
 
   const onCreate = async () => {
-
-    setError(null);
+    setCreateError("");
 
     if (!name.trim()) {
-      setError("Budget name is required");
+      setCreateError("Budget name is required");
       return;
     }
 
-    if (Number(limitAmount) < 0 || isNaN(Number(limitAmount))) {
-      setError("Limit amount must be zero or greater");
+    const num = Number(limitAmount);
+
+    if (Number.isNaN(num) || num < 0) {
+      setCreateError("Limit amount must be zero or greater");
       return;
     }
 
     try {
-
       await createBudget({
         name: name.trim(),
-        limitAmount: Number(limitAmount)
+        limitAmount: num,
       });
 
       setOpen(false);
       setName("");
       setLimitAmount("");
-
-      loadData();
-
+      await loadData();
     } catch (err) {
-      setError(err.message);
+      console.error("Create budget failed:", err);
+      setCreateError(err?.message || "Failed to create budget.");
     }
   };
 
-  // =====================================================
-  // Delete Budget
-  // =====================================================
-
   const onDelete = async (id) => {
-
     if (!confirm("Delete this budget?")) return;
 
     try {
       await deleteBudget(id);
-      loadData();
+      await loadData();
     } catch (err) {
-      alert(err.message);
+      console.error("Delete budget failed:", err);
+      alert(err?.message || "Failed to delete budget.");
     }
   };
 
-  // =====================================================
-  // States
-  // =====================================================
-
-  if (loading) {
-    return <div className="muted">Loading…</div>;
-  }
-
-  // =====================================================
-  // Render
-  // =====================================================
+  if (loading) return <div className="muted">Loading…</div>;
 
   return (
-    <div style={{ display: "grid", gap: 16 }}>
+    <div className="page">
+      <div className="panel">
+        <div className="pageHeader">
+          <div className="pageHeaderText">
+            <h1 className="pageTitle">Budgeting</h1>
+            <div className="pageSubtitle">
+              Create budgets and track spending progress.
+            </div>
 
-      <div className="row">
-        <div>
-          <h1 className="h1">Budgeting</h1>
-          <div className="muted">
-            Create budgets and track spending progress.
+            {loadError ? (
+              <div
+                style={{
+                  marginTop: 10,
+                  padding: 10,
+                  borderRadius: 12,
+                  border: "1px solid rgba(255,0,0,0.25)",
+                  background: "rgba(255,0,0,0.08)",
+                }}
+              >
+                {loadError}
+              </div>
+            ) : null}
+          </div>
+
+          <div className="pageHeaderRight">
+            <Button variant="ghost" onClick={() => nav("/dashboard")}>
+              Dashboard
+            </Button>
+
+            <Button variant="ghost" onClick={loadData}>
+              Refresh
+            </Button>
+
+            <Button onClick={() => setOpen(true)}>+ New budget</Button>
           </div>
         </div>
-        <div className="spacer" />
-        <Button onClick={() => setOpen(true)}>+ New budget</Button>
-      </div>
 
-      {/* ================= Analytics ================= */}
+        <div className="pageBody" style={{ display: "grid", gap: 16 }}>
+          <div className="grid2">
+            <Card title="Overview" subtitle="Totals across all budgets.">
+              <div style={{ display: "grid", gap: 10 }}>
+                <div className="row">
+                  <div className="muted">Total limit</div>
+                  <div className="spacer" />
+                  <div style={{ fontWeight: 800 }}>
+                    ${totals.totalLimit.toFixed(2)}
+                  </div>
+                </div>
 
-      <Card title="Spending by category">
+                <div className="row">
+                  <div className="muted">Total spent</div>
+                  <div className="spacer" />
+                  <div style={{ fontWeight: 800 }}>
+                    ${totals.totalSpent.toFixed(2)}
+                  </div>
+                </div>
 
-        {analytics.length === 0 ? (
+                <div className="row">
+                  <div className="muted">Remaining</div>
+                  <div className="spacer" />
+                  <div
+                    style={{
+                      fontWeight: 800,
+                      color:
+                        totals.remaining < 0 ? "var(--danger)" : "var(--muted)",
+                    }}
+                  >
+                    ${totals.remaining.toFixed(2)}
+                  </div>
+                </div>
+              </div>
+            </Card>
 
-          <div className="muted">No expense data yet.</div>
-
-        ) : (
-
-          <table className="table">
-            <tbody>
-
-              {analytics.map(a => (
-
-                <tr key={a.category}>
-                  <td>{a.category}</td>
-                  <td style={{ textAlign: "right" }}>
-                    ${Number(a.total).toFixed(2)}
-                  </td>
-                </tr>
-
-              ))}
-
-            </tbody>
-          </table>
-
-        )}
-
-      </Card>
-
-      {/* ================= Budgets ================= */}
-
-      <Card title="Your budgets">
-
-        {budgets.length === 0 ? (
-
-          <div className="muted">No budgets yet.</div>
-
-        ) : (
-
-          <table className="table">
-
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Limit</th>
-                <th>Spent</th>
-                <th>Progress</th>
-                <th></th>
-              </tr>
-            </thead>
-
-            <tbody>
-
-              {budgets.map(b => (
-
-                <tr key={b.id} style={{ verticalAlign: "middle" }}>
-
-                  <td>
-                    <Link to={`/budgets/${b.id}`} className="badge">
-                      {b.name}
-                    </Link>
-                  </td>
-
-                  <td>${Number(b.limitAmount).toFixed(2)}</td>
-
-                  <td>${Number(b.totalSpent).toFixed(2)}</td>
-
-                  <td>
-
-                    <div style={{ display: "grid", gap: 4 }}>
-
-                      <div
-                        style={{
-                          height: 8,
-                          background: "var(--border)",
-                          borderRadius: 6,
-                          overflow: "hidden"
-                        }}
-                      >
-                        <div
-                          style={{
-                            width: `${Math.min(
-                              (b.totalSpent / b.limitAmount) * 100,
-                              100
-                            )}%`,
-                            height: "100%",
-                            background:
-                              b.remaining < 0
-                                ? "var(--danger)"
-                                : "var(--accent)"
-                          }}
-                        />
-                      </div>
-
-                      <span
-                        style={{
-                          fontSize: 12,
-                          color:
-                            b.remaining < 0
-                              ? "var(--danger)"
-                              : "var(--muted)"
-                        }}
-                      >
-                        Remaining: ${Number(b.remaining).toFixed(2)}
-                      </span>
-
-                    </div>
-
-                  </td>
-
-                  <td style={{ textAlign: "right", display: "flex", gap: 6 }}>
-
-                    <Button
-                      variant="ghost"
-                      onClick={() => nav(`/budgets/${b.id}`)}
-                    >
-                      Open
-                    </Button>
-
-                    <Button
-                      variant="ghost"
-                      onClick={() => onDelete(b.id)}
-                    >
-                      Delete
-                    </Button>
-
-                  </td>
-
-                </tr>
-
-              ))}
-
-            </tbody>
-
-          </table>
-
-        )}
-
-      </Card>
-
-      {/* ================= Create Budget Modal ================= */}
-
-      <Modal
-        open={open}
-        title="Create budget"
-        onClose={() => setOpen(false)}
-        footer={
-          <div className="row" style={{ justifyContent: "flex-end" }}>
-            <Button variant="ghost" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={onCreate}>Create</Button>
+            <Card title="Spending by category" subtitle="Based on logged expenses.">
+              {analytics.length === 0 ? (
+                <div className="muted">No expense data yet.</div>
+              ) : (
+                <div className="tableWrap">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>Category</th>
+                        <th style={{ textAlign: "right" }}>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {analytics.map((a) => (
+                        <tr key={a.category}>
+                          <td>{a.category}</td>
+                          <td style={{ textAlign: "right" }}>
+                            ${Number(a.total).toFixed(2)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </Card>
           </div>
-        }
-      >
 
-        <Field label="Budget name" error={error}>
-          <input
-            className="input"
-            value={name}
-            onChange={e => setName(e.target.value)}
-          />
-        </Field>
+          <Card title="Your budgets" subtitle="Open one to manage details.">
+            {budgets.length === 0 ? (
+              <div className="muted">No budgets yet.</div>
+            ) : (
+              <div className="tableWrap">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th style={{ minWidth: 220 }}>Name</th>
+                      <th>Limit</th>
+                      <th>Spent</th>
+                      <th style={{ minWidth: 260 }}>Progress</th>
+                      <th style={{ width: 180 }}></th>
+                    </tr>
+                  </thead>
 
-        <Field label="Limit amount">
-          <input
-            className="input"
-            type="number"
-            step="0.01"
-            value={limitAmount}
-            onChange={e => setLimitAmount(e.target.value)}
-          />
-        </Field>
+                  <tbody>
+                    {budgets.map((b) => {
+                      const limit = Number(b?.limitAmount ?? 0);
+                      const spent = Number(b?.totalSpent ?? 0);
+                      const remaining = Number(b?.remaining ?? limit - spent);
 
-      </Modal>
+                      const pct =
+                        limit > 0 ? Math.min((spent / limit) * 100, 100) : 0;
 
+                      return (
+                        <tr key={b.id} style={{ verticalAlign: "middle" }}>
+                          <td>
+                            <Link
+                              to={`/budgets/${b.id}`}
+                              className="badge"
+                              style={{
+                                display: "inline-flex",
+                                maxWidth: "100%",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {b.name}
+                            </Link>
+                          </td>
+
+                          <td>${limit.toFixed(2)}</td>
+                          <td>${spent.toFixed(2)}</td>
+
+                          <td>
+                            <div style={{ display: "grid", gap: 6 }}>
+                              <div
+                                style={{
+                                  height: 10,
+                                  background: "var(--border)",
+                                  borderRadius: 999,
+                                  overflow: "hidden",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    width: `${pct}%`,
+                                    height: "100%",
+                                    background:
+                                      remaining < 0
+                                        ? "var(--danger)"
+                                        : "var(--accent)",
+                                  }}
+                                />
+                              </div>
+
+                              <div className="row" style={{ fontSize: 12 }}>
+                                <span
+                                  style={{
+                                    color:
+                                      remaining < 0
+                                        ? "var(--danger)"
+                                        : "var(--muted)",
+                                  }}
+                                >
+                                  Remaining: ${remaining.toFixed(2)}
+                                </span>
+                                <span className="spacer" />
+                                <span className="muted">
+                                  {limit > 0 ? `${pct.toFixed(0)}%` : "—"}
+                                </span>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td style={{ textAlign: "right" }}>
+                            <div
+                              className="row"
+                              style={{
+                                justifyContent: "flex-end",
+                                gap: 8,
+                                flexWrap: "wrap",
+                              }}
+                            >
+                              <Button
+                                variant="ghost"
+                                onClick={() => nav(`/budgets/${b.id}`)}
+                              >
+                                Open
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                onClick={() => onDelete(b.id)}
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
+        </div>
+
+        <Modal
+          open={open}
+          title="Create budget"
+          onClose={() => setOpen(false)}
+          footer={
+            <div
+              className="row"
+              style={{ justifyContent: "flex-end", flexWrap: "wrap", gap: 10 }}
+            >
+              <Button variant="ghost" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={onCreate}>Create</Button>
+            </div>
+          }
+        >
+          <Field label="Budget name" error={createError}>
+            <input
+              className="input"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </Field>
+
+          <Field label="Limit amount">
+            <input
+              className="input"
+              type="number"
+              step="0.01"
+              value={limitAmount}
+              onChange={(e) => setLimitAmount(e.target.value)}
+            />
+          </Field>
+        </Modal>
+      </div>
     </div>
   );
 }

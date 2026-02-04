@@ -1,50 +1,63 @@
-import React, { useEffect, useRef, useState } from "react";
-import axios from "axios";
+import React, { useRef, useState } from "react";
+import { updateNote } from "../../api/notes";
 import Field from "../../components/Field.jsx";
 
 export default function NoteEditor({ note }) {
-  const [title, setTitle] = useState(note.title);
-  const [content, setContent] = useState(note.content);
+  const [title, setTitle] = useState(note.title ?? "");
+  const [content, setContent] = useState(note.content ?? "");
   const [status, setStatus] = useState("Idle");
+  const [error, setError] = useState("");
 
   const timerRef = useRef(null);
+  const lastSavedRef = useRef({
+    title: note.title ?? "",
+    content: note.content ?? ""
+  });
 
-  // Reset editor when note changes
-  useEffect(() => {
-    setTitle(note.title);
-    setContent(note.content);
-    setStatus("Idle");
-  }, [note.note_id]);
+  const scheduleSave = (nextTitle, nextContent) => {
+    if (timerRef.current) clearTimeout(timerRef.current);
 
-  // Autosave (debounced)
-  useEffect(() => {
-    clearTimeout(timerRef.current);
+    const last = lastSavedRef.current;
 
-    // Don’t autosave immediately on mount
-    if (title === note.title && content === note.content) {
+    // Nothing changed, do nothing
+    if (nextTitle === last.title && nextContent === last.content) {
       return;
     }
 
+    // Status updates happen from user action, not inside effects
     setStatus("Typing…");
+    setError("");
 
     timerRef.current = setTimeout(async () => {
       try {
-        await axios.put(`/api/notes/${note.note_id}`, {
-          title,
-          content,
-        });
+        setStatus("Saving…");
+
+        await updateNote(note.id, { title: nextTitle, content: nextContent });
+
+        lastSavedRef.current = { title: nextTitle, content: nextContent };
         setStatus("Saved");
-      } catch {
+      } catch (err) {
         setStatus("Error saving");
+        setError(err.message || "Failed to save note.");
       }
     }, 450);
+  };
 
-    return () => clearTimeout(timerRef.current);
-  }, [title, content, note.note_id, note.title, note.content]);
+  const onTitleChange = (e) => {
+    const next = e.target.value;
+    setTitle(next);
+    scheduleSave(next, content);
+  };
+
+  const onContentChange = (e) => {
+    const next = e.target.value;
+    setContent(next);
+    scheduleSave(title, next);
+  };
 
   return (
-    <div>
-      <div className="row" style={{ marginBottom: 10 }}>
+    <div style={{ display: "grid", gap: 12 }}>
+      <div className="row" style={{ alignItems: "center" }}>
         <span className="badge">{status}</span>
         <div className="spacer" />
         <span className="muted" style={{ fontSize: 13 }}>
@@ -52,19 +65,30 @@ export default function NoteEditor({ note }) {
         </span>
       </div>
 
+      {error && (
+        <div
+          style={{
+            padding: 10,
+            borderRadius: 12,
+            border: "1px solid rgba(255,0,0,0.25)",
+            background: "rgba(255,0,0,0.08)",
+            fontSize: 13
+          }}
+        >
+          {error}
+        </div>
+      )}
+
       <Field label="Title">
-        <input
-          className="input"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
+        <input className="input" value={title} onChange={onTitleChange} />
       </Field>
 
       <Field label="Content">
         <textarea
           className="textarea"
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={onContentChange}
+          style={{ minHeight: 260, resize: "vertical" }}
         />
       </Field>
     </div>
