@@ -17,7 +17,6 @@ import Calendar from "./pages/calendar/Calendar";
 import Fitness from "./pages/fitness/Fitness";
 import Notes from "./pages/notes/Notes";
 import NoteEditor from "./pages/notes/NoteEditor";
-import Chatbot from "./pages/chatbot/Chatbot";
 
 export default function App() {
   return (
@@ -36,7 +35,6 @@ export default function App() {
         <Route path="fitness" element={<Fitness />} />
         <Route path="notes" element={<Notes />} />
         <Route path="note-editor" element={<NoteEditor />} />
-        <Route path="chatbot" element={<Chatbot />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

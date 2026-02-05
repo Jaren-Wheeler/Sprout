@@ -390,6 +390,7 @@ export default function SproutSection({ subtitle }) {
           style={{
             background: "transparent",
             border: "none",
+            transform: "scale(0.6)"
           }}
         >
           <img src={askmeanything}></img>
