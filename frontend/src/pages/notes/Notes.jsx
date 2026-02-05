@@ -1,17 +1,14 @@
+//src/pages/notes/Notes.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import {
-  getNotes,
-  createNote,
-  deleteNote
-} from "../../api/notes";
+import { getNotes, createNote, deleteNote } from "../../api/notes";
 
 import Card from "../../components/Card.jsx";
 import Button from "../../components/Button.jsx";
 import NoteEditor from "./NoteEditor.jsx";
+import SproutSection from "../../components/SproutSection.jsx";
 
-// Shared app page layout styles
 import "../../styles/layout/appPages.css";
 
 export default function Notes() {
@@ -108,9 +105,7 @@ export default function Notes() {
   // Loading State
   // =====================================================
 
-  if (loading) {
-    return <div className="muted">Loading…</div>;
-  }
+  if (loading) return <div className="muted">Loading…</div>;
 
   // =====================================================
   // Render
@@ -119,7 +114,6 @@ export default function Notes() {
   return (
     <div className="page">
       <div className="panel">
-
         {/* ================= Page Header ================= */}
 
         <div className="pageHeader">
@@ -136,7 +130,7 @@ export default function Notes() {
                   padding: 10,
                   borderRadius: 12,
                   border: "1px solid rgba(255,0,0,0.25)",
-                  background: "rgba(255,0,0,0.08)"
+                  background: "rgba(255,0,0,0.08)",
                 }}
               >
                 {loadError}
@@ -145,6 +139,7 @@ export default function Notes() {
           </div>
 
           <div className="pageHeaderRight">
+            {/* ✅ Only ONE Dashboard button on this page (header only) */}
             <Button variant="ghost" onClick={() => nav("/dashboard")}>
               Dashboard
             </Button>
@@ -161,9 +156,7 @@ export default function Notes() {
 
         <div className="pageBody">
           <div className="notesGrid">
-
             {/* -------- Notes List -------- */}
-
             <Card title="Your notes" subtitle="Select a note to edit.">
               {myNotes.length === 0 ? (
                 <div className="muted">No notes yet.</div>
@@ -204,7 +197,6 @@ export default function Notes() {
             </Card>
 
             {/* -------- Editor -------- */}
-
             <Card title="Editor" subtitle="Autosaves when you type.">
               {selected ? (
                 <NoteEditor key={selected.id} note={selected} />
@@ -212,13 +204,14 @@ export default function Notes() {
                 <div className="muted">Select a note to edit.</div>
               )}
             </Card>
-
           </div>
         </div>
       </div>
 
-      {/* ================= Styles ================= */}
+      {/* ✅ Floating AI Chatbot (bottom-left). Rendered outside the panel so it doesn't take page space. */}
+      <SproutSection subtitle="Quick access to AI Chatbot while writing notes." />
 
+      {/* ================= Styles ================= */}
       <style>{`
         .notesGrid{
           display:grid;

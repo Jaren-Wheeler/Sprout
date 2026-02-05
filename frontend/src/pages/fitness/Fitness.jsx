@@ -1,5 +1,7 @@
+// src/pages/fitness/Fitness.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import SproutSection from "../../components/SproutSection.jsx";
 
 import {
   getFitnessInfo,
@@ -9,7 +11,7 @@ import {
   deleteWorkout,
   getDiets,
   createDiet,
-  deleteDiet
+  deleteDiet,
 } from "../../api/health";
 
 import Card from "../../components/Card.jsx";
@@ -21,8 +23,6 @@ import "../../styles/layout/appPages.css";
 
 export default function Fitness() {
   const nav = useNavigate();
-
-  /* ================= State ================= */
 
   const [fitness, setFitness] = useState(null);
   const [workouts, setWorkouts] = useState([]);
@@ -40,8 +40,6 @@ export default function Fitness() {
   const [dietName, setDietName] = useState("");
   const [dietDesc, setDietDesc] = useState("");
 
-  /* ================= Load ================= */
-
   const loadAll = async () => {
     setLoading(true);
     setError("");
@@ -50,13 +48,12 @@ export default function Fitness() {
       const [fi, ws, ds] = await Promise.all([
         getFitnessInfo(),
         getWorkouts(),
-        getDiets()
+        getDiets(),
       ]);
 
       setFitness(fi);
       setWorkouts(ws || []);
       setDiets(ds || []);
-
     } catch (err) {
       console.error(err);
       setError(err.message || "Failed to load fitness data.");
@@ -69,33 +66,21 @@ export default function Fitness() {
     loadAll();
   }, []);
 
-  /* ================= Fitness Info ================= */
-
   const saveFitness = async () => {
-  try {
-    const updated = await updateFitnessInfo({
-      currentWeight: fitness?.currentWeight
-        ? Number(fitness.currentWeight)
-        : null,
+    try {
+      const updated = await updateFitnessInfo({
+        currentWeight: fitness?.currentWeight
+          ? Number(fitness.currentWeight)
+          : null,
+        goalWeight: fitness?.goalWeight ? Number(fitness.goalWeight) : null,
+        calorieGoal: fitness?.calorieGoal ? Number(fitness.calorieGoal) : null,
+      });
 
-      goalWeight: fitness?.goalWeight
-        ? Number(fitness.goalWeight)
-        : null,
-
-      calorieGoal: fitness?.calorieGoal
-        ? Number(fitness.calorieGoal)
-        : null
-    });
-
-    setFitness(updated);
-
-  } catch (err) {
-    alert(err.message || "Failed to save fitness info.");
-  }
-};
-
-
-  /* ================= Create Workout ================= */
+      setFitness(updated);
+    } catch (err) {
+      alert(err.message || "Failed to save fitness info.");
+    }
+  };
 
   const addWorkout = async () => {
     if (!workoutName.trim()) return;
@@ -103,20 +88,17 @@ export default function Fitness() {
     try {
       const w = await createWorkout({
         name: workoutName.trim(),
-        notes: workoutNotes || null
+        notes: workoutNotes || null,
       });
 
       setWorkouts((x) => [w, ...x]);
       setWorkoutName("");
       setWorkoutNotes("");
       setOpenWorkout(false);
-
     } catch (err) {
       alert(err.message || "Failed to create workout.");
     }
   };
-
-  /* ================= Create Diet ================= */
 
   const addDiet = async () => {
     if (!dietName.trim()) return;
@@ -124,29 +106,23 @@ export default function Fitness() {
     try {
       const d = await createDiet({
         name: dietName.trim(),
-        description: dietDesc || null
+        description: dietDesc || null,
       });
 
       setDiets((x) => [d, ...x]);
       setDietName("");
       setDietDesc("");
       setOpenDiet(false);
-
     } catch (err) {
       alert(err.message || "Failed to create diet.");
     }
   };
 
-  /* ================= Loading ================= */
-
   if (loading) return <div className="muted">Loading…</div>;
-
-  /* ================= Render ================= */
 
   return (
     <div className="page">
       <div className="panel">
-
         <div className="pageHeader">
           <div className="pageHeaderText">
             <h1 className="pageTitle">Fitness</h1>
@@ -161,7 +137,7 @@ export default function Fitness() {
                   padding: 10,
                   borderRadius: 12,
                   border: "1px solid rgba(255,0,0,0.25)",
-                  background: "rgba(255,0,0,0.08)"
+                  background: "rgba(255,0,0,0.08)",
                 }}
               >
                 {error}
@@ -184,12 +160,8 @@ export default function Fitness() {
         </div>
 
         <div className="pageBody" style={{ display: "grid", gap: 16 }}>
-
-          {/* -------- Fitness Info -------- */}
-
           <Card title="Fitness Info" subtitle="Basic goals and metrics.">
             <div style={{ display: "grid", gap: 12 }}>
-
               <Field label="Current weight">
                 <input
                   className="input"
@@ -224,10 +196,7 @@ export default function Fitness() {
             </div>
           </Card>
 
-          {/* -------- Workouts -------- */}
-
           <Card title="Workouts" subtitle="Workout templates.">
-
             {workouts.length === 0 ? (
               <div className="muted">No workouts yet.</div>
             ) : (
@@ -251,13 +220,9 @@ export default function Fitness() {
                 </div>
               ))
             )}
-
           </Card>
 
-          {/* -------- Diets -------- */}
-
           <Card title="Diets" subtitle="Diet templates.">
-
             {diets.length === 0 ? (
               <div className="muted">No diets yet.</div>
             ) : (
@@ -281,13 +246,12 @@ export default function Fitness() {
                 </div>
               ))
             )}
-
           </Card>
-
         </div>
       </div>
 
-      {/* ===== Workout Modal ===== */}
+      {/* ✅ Floating chatbot (does not take layout space) */}
+      <SproutSection subtitle="Quick access to AI Chatbot while tracking fitness & diet." />
 
       <Modal
         open={openWorkout}
@@ -319,8 +283,6 @@ export default function Fitness() {
         </Field>
       </Modal>
 
-      {/* ===== Diet Modal ===== */}
-
       <Modal
         open={openDiet}
         title="Create diet"
@@ -350,7 +312,6 @@ export default function Fitness() {
           />
         </Field>
       </Modal>
-
     </div>
   );
 }

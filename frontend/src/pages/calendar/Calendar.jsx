@@ -1,34 +1,23 @@
-import React, { useEffect, useMemo, useState } from "react";
+//src/pages/calendar/Calendar.jsx
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import SproutSection from "../../components/SproutSection.jsx";
 
-import {
-  getEvents,
-  createEvent,
-  deleteEvent
-} from "../../api/scheduler";
+import { getEvents, createEvent, deleteEvent } from "../../api/scheduler";
 
 import Card from "../../components/Card.jsx";
 import Field from "../../components/Field.jsx";
 import Button from "../../components/Button.jsx";
 import Modal from "../../components/Modal.jsx";
 
-import {
-  isPastDatetimeLocal,
-  toDatetimeLocalValue
-} from "../../lib/datetime.js";
+import { isPastDatetimeLocal, toDatetimeLocalValue } from "../../lib/datetime.js";
 
-// Shared app page layout styles
 import "../../styles/layout/appPages.css";
 
-// Current time for datetime-local input
 const nowForDatetimeInput = () => new Date().toISOString().slice(0, 16);
 
 export default function Calendar() {
   const nav = useNavigate();
-
-  // =====================================================
-  // State
-  // =====================================================
 
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,9 +30,7 @@ export default function Calendar() {
   const [endTime, setEndTime] = useState("");
   const [formError, setFormError] = useState("");
 
-  // =====================================================
-  // Load Events
-  // =====================================================
+  const closeCreateModal = useCallback(() => setOpen(false), []);
 
   const loadEvents = async () => {
     setLoadError("");
@@ -65,19 +52,11 @@ export default function Calendar() {
     loadEvents();
   }, []);
 
-  // =====================================================
-  // Sort Events (newest start time first)
-  // =====================================================
-
   const sortedEvents = useMemo(() => {
     const copy = [...events];
     copy.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
     return copy;
   }, [events]);
-
-  // =====================================================
-  // Create Event
-  // =====================================================
 
   const createNewEvent = async () => {
     setFormError("");
@@ -102,26 +81,21 @@ export default function Calendar() {
         title: title.trim(),
         description: details || null,
         startTime,
-        endTime: endTime || null
+        endTime: endTime || null,
       });
 
       setEvents((e) => [event, ...e]);
 
-      setOpen(false);
+      closeCreateModal();
       setTitle("");
       setDetails("");
       setStartTime(nowForDatetimeInput());
       setEndTime("");
-
     } catch (err) {
       console.error("Create event failed:", err);
       setFormError(err.message || "Failed to create event.");
     }
   };
-
-  // =====================================================
-  // Delete Event
-  // =====================================================
 
   const handleDelete = async (id) => {
     if (!confirm("Delete this event?")) return;
@@ -135,28 +109,15 @@ export default function Calendar() {
     }
   };
 
-  // =====================================================
-  // Loading State
-  // =====================================================
-
   if (loading) return <div className="muted">Loading…</div>;
-
-  // =====================================================
-  // Render
-  // =====================================================
 
   return (
     <div className="page">
       <div className="panel">
-
-        {/* ================= Header ================= */}
-
         <div className="pageHeader">
           <div className="pageHeaderText">
             <h1 className="pageTitle">Calendar</h1>
-            <div className="pageSubtitle">
-              Create and manage scheduled events.
-            </div>
+            <div className="pageSubtitle">Create and manage scheduled events.</div>
 
             {loadError && (
               <div
@@ -165,7 +126,7 @@ export default function Calendar() {
                   padding: 10,
                   borderRadius: 12,
                   border: "1px solid rgba(255,0,0,0.25)",
-                  background: "rgba(255,0,0,0.08)"
+                  background: "rgba(255,0,0,0.08)",
                 }}
               >
                 {loadError}
@@ -186,11 +147,8 @@ export default function Calendar() {
           </div>
         </div>
 
-        {/* ================= Body ================= */}
-
         <div className="pageBody" style={{ display: "grid", gap: 16 }}>
           <Card title="Events" subtitle="Date/time, title, and optional details.">
-
             {sortedEvents.length === 0 ? (
               <div className="muted">No events yet.</div>
             ) : (
@@ -208,19 +166,14 @@ export default function Calendar() {
                   <tbody>
                     {sortedEvents.map((e) => (
                       <tr key={e.id}>
-                        <td className="muted">
-                          {toDatetimeLocalValue(e.startTime)}
-                        </td>
+                        <td className="muted">{toDatetimeLocalValue(e.startTime)}</td>
                         <td className="muted">
                           {e.endTime ? toDatetimeLocalValue(e.endTime) : "—"}
                         </td>
                         <td>{e.title}</td>
                         <td className="muted">{e.description ?? "—"}</td>
                         <td style={{ textAlign: "right" }}>
-                          <Button
-                            variant="ghost"
-                            onClick={() => handleDelete(e.id)}
-                          >
+                          <Button variant="ghost" onClick={() => handleDelete(e.id)}>
                             Delete
                           </Button>
                         </td>
@@ -230,22 +183,19 @@ export default function Calendar() {
                 </table>
               </div>
             )}
-
           </Card>
         </div>
-
-        {/* ================= Create Modal ================= */}
 
         <Modal
           open={open}
           title="Create event"
-          onClose={() => setOpen(false)}
+          onClose={closeCreateModal}
           footer={
             <div
               className="row"
               style={{ justifyContent: "flex-end", flexWrap: "wrap", gap: 10 }}
             >
-              <Button variant="ghost" onClick={() => setOpen(false)}>
+              <Button variant="ghost" onClick={closeCreateModal}>
                 Cancel
               </Button>
               <Button onClick={createNewEvent}>Create</Button>
@@ -272,7 +222,7 @@ export default function Calendar() {
             style={{
               display: "grid",
               gap: 12,
-              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))"
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
             }}
           >
             <Field label="Start time">
@@ -294,8 +244,10 @@ export default function Calendar() {
             </Field>
           </div>
         </Modal>
-
       </div>
+
+      {/* ✅ Floating chatbot (does not take layout space) */}
+      <SproutSection subtitle="Quick access to AI Chatbot while planning your schedule." />
     </div>
   );
 }
