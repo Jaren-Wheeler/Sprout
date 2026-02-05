@@ -92,7 +92,7 @@ export default function Budgets() {
     return { totalLimit, totalSpent, remaining };
   }, [budgets]);
 
-  // ✅ Chart data (sorted biggest spend first)
+  // Chart data (sorted biggest spend first)
   const chartRows = useMemo(() => {
     const rows = (analytics || [])
       .map((a) => ({
@@ -163,8 +163,8 @@ export default function Budgets() {
   if (loading) return <div className="muted">Loading…</div>;
 
   return (
-    <div className="page">
-      <div className="panel">
+    <div className="page" style={{ position: "relative" }}>
+      <div className="panel" style={{ position: "relative" , zIndex: 0}}>
         <div className="pageHeader">
           <div className="pageHeaderText">
             <h1 className="pageTitle">Budgeting</h1>
@@ -449,9 +449,21 @@ export default function Budgets() {
           </Field>
         </Modal>
       </div>
-
-      {/* ✅ Floating chatbot (does not take layout space) */}
-      <SproutSection subtitle="Quick access to AI Chatbot while budgeting and tracking expenses." />
+      
+      <div
+        style={{
+              position: "absolute",
+              bottom: "-50px",
+              right: "-20px",
+              transform: "scale(0.8)",
+              zIndex: 0
+            }}>
+        {/* Chatbot */}
+        <SproutSection 
+          subtitle="Quick access to AI Chatbot while budgeting and tracking expenses." 
+          />
+      </div>
+   
     </div>
   );
 }
