@@ -1,7 +1,7 @@
 // src/components/SproutSection.jsx
 import React, { useMemo, useRef, useState, useEffect, useCallback } from "react";
 import api from "../lib/api.js";
-
+import askmeanything from "../assets/askmeanything.png";
 const CHAT_ENDPOINT = "/api/chatbot";
 
 /**
@@ -272,7 +272,7 @@ export default function SproutSection({ subtitle }) {
                 overscrollBehavior: "contain",
               }}
             >
-              {/* ✅ Removed the “Say hi…” placeholder */}
+              {/* Removed the “Say hi…” placeholder */}
               {messages.length === 0
                 ? null
                 : messages.map((m, idx) => {
@@ -388,20 +388,11 @@ export default function SproutSection({ subtitle }) {
           aria-label={open ? "Hide AI Chatbot" : "Open AI Chatbot"}
           title={open ? "Hide AI Chatbot" : "Open AI Chatbot"}
           style={{
-            width: 56,
-            height: 56,
-            borderRadius: 999,
-            border: "1px solid rgba(0,0,0,0.25)",
-            background: "rgba(0,0,0,0.65)",
-            color: "rgba(255,255,255,0.92)",
-            boxShadow: "0 12px 40px rgba(0,0,0,0.25)",
-            display: "grid",
-            placeItems: "center",
-            fontWeight: 900,
-            cursor: "pointer",
+            background: "transparent",
+            border: "none",
           }}
         >
-          AI
+          <img src={askmeanything}></img>
         </button>
       </div>
     </>

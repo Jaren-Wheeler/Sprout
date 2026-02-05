@@ -1,7 +1,7 @@
 //src/pages/calendar/Calendar.jsx
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import SproutSection from "../../components/SproutSection.jsx";
+import SproutSection from "../../components/Sprout.jsx";
 
 import { getEvents, createEvent, deleteEvent } from "../../api/scheduler";
 

@@ -1,7 +1,7 @@
 // frontend/src/pages/budgeting/Budgets.jsx
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import SproutSection from "../../components/SproutSection.jsx";
+import SproutSection from "../../components/Sprout.jsx";
 
 import {
   getBudgets,

@@ -7,7 +7,7 @@ import { getNotes, createNote, deleteNote } from "../../api/notes";
 import Card from "../../components/Card.jsx";
 import Button from "../../components/Button.jsx";
 import NoteEditor from "./NoteEditor.jsx";
-import SproutSection from "../../components/SproutSection.jsx";
+import SproutSection from "../../components/Sprout.jsx";
 
 import "../../styles/layout/appPages.css";
 
