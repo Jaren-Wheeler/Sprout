@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import BudgetList from "../budgeting/BudgetList";
 import BudgetDetail from "../budgeting/BudgetDetail";
 import BudgetChart from "../budgeting/BudgetChart";
@@ -5,7 +6,9 @@ import BudgetSummary  from "../budgeting/BudgetSummary";
 import Sprout from "../../components/chatbot/Sprout";
 import { sendChatMessage } from "../../api/chatbot";
 
+
 export default function BudgetPage() {
+  const [selectedBudgetId, setSelectedBudgetId] = useState(null);
   return (
     <div className="min-h-screen bg-bg text-text p-6">
       <header className="mb-6">
@@ -20,14 +23,14 @@ export default function BudgetPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
         {/* Left */}
         <div className="space-y-4">
-          <BudgetList />
+          <BudgetList onSelectBudget={setSelectedBudgetId}/>
         </div>
 
         {/* Right */}
         <div className="space-y-6">
-          <BudgetDetail />
-          <BudgetSummary />
-          <BudgetChart />
+          <BudgetDetail budgetId={selectedBudgetId}/>
+          <BudgetSummary budgetId={selectedBudgetId}/>
+          <BudgetChart budgetId={selectedBudgetId}/>
         </div>
       </div>
       <Sprout onSend={sendChatMessage}></Sprout>

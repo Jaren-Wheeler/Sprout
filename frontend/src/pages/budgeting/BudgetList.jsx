@@ -1,13 +1,14 @@
 import BudgetCard from './BudgetCard';
 import { useState, useEffect } from 'react';
 import { getBudgets } from '../../api/finance';
+
 /*const mockBudgets = [
   { id: 1, name: 'Entertainment', spent: 120, total: 200 },
   { id: 2, name: 'Coffee & Treats', spent: 30.5, total: 100 },
   { id: 3, name: 'Fitness', spent: 50, total: 150 },
 ];*/
 
-export default function BudgetList() {
+export default function BudgetList({ onSelectBudget }) {
   const [budgets, setBudgets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -33,7 +34,11 @@ export default function BudgetList() {
 
       <div className="space-y-3 max-h-[70vh] overflow-y-auto">
         {budgets.map((b) => (
-          <BudgetCard key={b.id} budget={b} />
+          <BudgetCard 
+            key={b.id} 
+            budget={b} 
+            onClick={()=> onSelectBudget(b.id)}
+          />
         ))}
       </div>
     </div>
