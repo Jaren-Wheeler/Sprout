@@ -2,7 +2,7 @@ import BudgetList from "../budgeting/BudgetList";
 import BudgetDetail from "../budgeting/BudgetDetail";
 import BudgetChart from "../budgeting/BudgetChart";
 import BudgetSummary  from "../budgeting/BudgetSummary";
-
+import Sprout from "../../components/chatbot/Sprout";
 
 export default function BudgetPage() {
   return (
@@ -29,6 +29,7 @@ export default function BudgetPage() {
           <BudgetChart />
         </div>
       </div>
+      <Sprout></Sprout>
     </div>
   );
 }

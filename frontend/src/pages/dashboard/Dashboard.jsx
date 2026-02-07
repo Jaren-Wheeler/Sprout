@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { features } from './features';
+import Sprout from "../../components/chatbot/Sprout";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ export default function Dashboard() {
           </button>
         ))}
       </div>
+      <Sprout></Sprout>
     </div>
   );
 }
