@@ -1,3 +1,9 @@
+import BudgetList from "../budgeting/BudgetList";
+import BudgetDetail from "../budgeting/BudgetDetail";
+import BudgetChart from "../budgeting/BudgetChart";
+import BudgetSummary  from "../budgeting/BudgetSummary";
+
+
 export default function BudgetPage() {
   return (
     <div className="min-h-screen bg-bg text-text p-6">
