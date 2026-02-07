@@ -1,16 +1,16 @@
 // frontend/src/pages/Signup.jsx
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { registerUser, loginUser } from "../api/auth";
-import { useTheme } from "../state/theme.jsx";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { registerUser, loginUser } from '../../api/auth.js';
+import { useTheme } from '../../theme/ThemeContext.jsx';
 
 export default function Signup() {
   const { theme, setTheme } = useTheme();
 
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -26,19 +26,20 @@ export default function Signup() {
     const fullNameTrimmed = fullName.trim();
     const emailTrimmed = email.trim().toLowerCase();
 
-    if (!fullNameTrimmed) newErrors.fullName = "Full name is required";
+    if (!fullNameTrimmed) newErrors.fullName = 'Full name is required';
 
-    if (!emailTrimmed) newErrors.email = "Email is required";
+    if (!emailTrimmed) newErrors.email = 'Email is required';
     else if (!/^\S+@\S+\.\S+$/.test(emailTrimmed))
-      newErrors.email = "Please enter a valid email";
+      newErrors.email = 'Please enter a valid email';
 
-    if (!password) newErrors.password = "Password is required";
+    if (!password) newErrors.password = 'Password is required';
     else if (password.length < 8)
-      newErrors.password = "Password must be at least 8 characters";
+      newErrors.password = 'Password must be at least 8 characters';
 
-    if (!confirmPassword) newErrors.confirmPassword = "Please confirm your password";
+    if (!confirmPassword)
+      newErrors.confirmPassword = 'Please confirm your password';
     else if (password !== confirmPassword)
-      newErrors.confirmPassword = "Passwords do not match";
+      newErrors.confirmPassword = 'Passwords do not match';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -49,7 +50,11 @@ export default function Signup() {
       setSubmitting(true);
       setErrors({});
 
-      const created = await registerUser(fullNameTrimmed, emailTrimmed, password);
+      const created = await registerUser(
+        fullNameTrimmed,
+        emailTrimmed,
+        password
+      );
 
       let user = created;
       try {
@@ -60,7 +65,7 @@ export default function Signup() {
 
       try {
         localStorage.setItem(
-          "sprout_user",
+          'sprout_user',
           JSON.stringify({
             email: emailTrimmed,
             ...(user?.id ? { id: user.id } : {}),
@@ -70,9 +75,9 @@ export default function Signup() {
         // ignore
       }
 
-      navigate("/dashboard");
+      navigate('/dashboard');
     } catch (err) {
-      setErrors({ form: err.message || "Signup failed" });
+      setErrors({ form: err.message || 'Signup failed' });
     } finally {
       setSubmitting(false);
     }
@@ -90,7 +95,7 @@ export default function Signup() {
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
           />
-          <div className="field-error">{errors.fullName || ""}</div>
+          <div className="field-error">{errors.fullName || ''}</div>
 
           <input
             type="email"
@@ -99,7 +104,7 @@ export default function Signup() {
             onChange={(e) => setEmail(e.target.value)}
             autoComplete="email"
           />
-          <div className="field-error">{errors.email || ""}</div>
+          <div className="field-error">{errors.email || ''}</div>
 
           <input
             type="password"
@@ -108,7 +113,7 @@ export default function Signup() {
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="new-password"
           />
-          <div className="field-error">{errors.password || ""}</div>
+          <div className="field-error">{errors.password || ''}</div>
 
           <input
             type="password"
@@ -117,29 +122,30 @@ export default function Signup() {
             onChange={(e) => setConfirmPassword(e.target.value)}
             autoComplete="new-password"
           />
-          <div className="field-error">{errors.confirmPassword || ""}</div>
+          <div className="field-error">{errors.confirmPassword || ''}</div>
 
           {errors.form && <div className="error-box">{errors.form}</div>}
 
           <button className="btn signup" type="submit" disabled={submitting}>
-            {submitting ? "Creating..." : "Create Account"}
+            {submitting ? 'Creating...' : 'Create Account'}
           </button>
         </form>
 
         <p className="auth-link pop show delay-2">
-          Already have an account? <span onClick={() => navigate("/login")}>Log In</span>
+          Already have an account?{' '}
+          <span onClick={() => navigate('/login')}>Log In</span>
         </p>
 
         <div className="theme-icons pop show delay-3">
           <span
-            className={theme === "light" ? "active" : ""}
-            onClick={() => setTheme("light")}
+            className={theme === 'light' ? 'active' : ''}
+            onClick={() => setTheme('light')}
           >
             ☀️
           </span>
           <span
-            className={theme === "dark" ? "active" : ""}
-            onClick={() => setTheme("dark")}
+            className={theme === 'dark' ? 'active' : ''}
+            onClick={() => setTheme('dark')}
           >
             🌙
           </span>

@@ -1,88 +1,119 @@
-import React, { useMemo, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import Card from "../../components/Card.jsx";
-import Field from "../../components/Field.jsx";
-import Button from "../../components/Button.jsx";
-import { useStore } from "../../state/store.jsx";
-import { requiredText } from "../../lib/validators.js";
-import { loginUser } from "../../api/auth";
+// frontend/src/pages/Login.jsx
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { loginUser } from '../../api/auth.js';
+import { useTheme } from '../../theme/ThemeContext.jsx';
 
 export default function Login() {
-  const { dispatch } = useStore();
+  const { theme, setTheme } = useTheme();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const nav = useNavigate();
-  const loc = useLocation();
+  const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
 
-  const goTo = useMemo(
-    () => (loc.state?.from ? String(loc.state.from) : "/"),
-    [loc.state]
-  );
+  const navigate = useNavigate();
 
   const onSubmit = async (e) => {
-  e.preventDefault();
-  setError(null);
+    e.preventDefault();
+    if (submitting) return;
 
-  const err = requiredText("Email", email);
-  if (err) return setError(err);
+    const newErrors = {};
+    const emailTrimmed = email.trim().toLowerCase();
 
-  if (!password) {
-    return setError("Password is required");
-  }
+    if (!emailTrimmed) newErrors.email = 'Email is required';
+    else if (!/^\S+@\S+\.\S+$/.test(emailTrimmed))
+      newErrors.email = 'Please enter a valid email';
 
-  try {
-    const user = await loginUser(email, password);
+    if (!password) newErrors.password = 'Password is required';
 
-    // ✅ log success response from backend
-    console.log("Login success:", user);
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
-    dispatch({ type: "auth/login", payload: user });
+    try {
+      setSubmitting(true);
+      setErrors({});
 
-    nav(goTo, { replace: true });
+      const user = await loginUser(emailTrimmed, password);
 
-  } catch (err) {
-    // ❌ log error from backend
-    console.log("Login error:", err.message);
+      try {
+        localStorage.setItem(
+          'sprout_user',
+          JSON.stringify({
+            email: emailTrimmed,
+            ...(user?.id ? { id: user.id } : {}),
+          })
+        );
+      } catch {
+        // ignore
+      }
 
-    setError(err.message);
-  }
-};
+      navigate('/dashboard');
+    } catch (err) {
+      setErrors({ form: err.message || 'Login failed' });
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
-    <div className="container" style={{ maxWidth: 560, paddingTop: 40 }}>
-      <Card title="Login">
-        <form onSubmit={onSubmit}>
+    <div className={`home ${theme}`}>
+      <div className="auth-container pop show">
+        <h1 className="pop show">Log In</h1>
 
-          <Field label="Email" error={error}>
+        <form className="auth-form pop show delay-1" onSubmit={onSubmit}>
+          <div className="field-group">
             <input
-              className="input"
+              type="email"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
             />
-          </Field>
-
-          <Field label="Password" error={error}>
-            <input
-              type="password"
-              className="input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </Field>
-
-          <div className="row">
-            <Button type="submit">Login</Button>
-            <div className="spacer" />
-            <Link className="muted" to="/register">
-              Need an account? Register
-            </Link>
+            <div className="field-error">{errors.email || ''}</div>
           </div>
 
+          <div className="field-group">
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+            />
+            <div className="field-error">{errors.password || ''}</div>
+          </div>
+
+          {errors.form && <div className="error-box">{errors.form}</div>}
+
+          <button className="btn login" type="submit" disabled={submitting}>
+            {submitting ? 'Logging in...' : 'Log In'}
+          </button>
         </form>
-      </Card>
+
+        <p className="auth-link pop show delay-2">
+          Don’t have an account?{' '}
+          <span onClick={() => navigate('/signup')}>Sign Up</span>
+        </p>
+
+        <div className="theme-icons inline pop show delay-3">
+          <span
+            className={theme === 'light' ? 'active' : ''}
+            onClick={() => setTheme('light')}
+          >
+            ☀️
+          </span>
+          <span
+            className={theme === 'dark' ? 'active' : ''}
+            onClick={() => setTheme('dark')}
+          >
+            🌙
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
