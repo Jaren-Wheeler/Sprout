@@ -41,7 +41,12 @@ app.use(express.json());
 app.use(session({
   secret: process.env.SESSION_SECRET || "dev-secret",
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    sameSite: "lax", 
+    secure: false      
+  }
 }));
 
 // =====================================================

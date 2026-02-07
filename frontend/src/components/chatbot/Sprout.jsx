@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import sproutChatbot from "../../assets/askmeanything.png";
+
 export default function Sprout({
   title = "Sprout Assistant",
   subtitle = "Ask me anything",
@@ -37,7 +38,8 @@ export default function Sprout({
           ? await onSend(userText)
           : "This is a demo reply. Plug in your API!";
       setMessages((prev) => [...prev, { role: "assistant", text: reply }]);
-    } catch {
+    } catch(err) {
+        console.log("Error: ", err)
       setMessages((prev) => [
         ...prev,
         { role: "assistant", text: "Something went wrong." },

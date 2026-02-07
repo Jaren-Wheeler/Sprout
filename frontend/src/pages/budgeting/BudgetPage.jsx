@@ -3,6 +3,7 @@ import BudgetDetail from "../budgeting/BudgetDetail";
 import BudgetChart from "../budgeting/BudgetChart";
 import BudgetSummary  from "../budgeting/BudgetSummary";
 import Sprout from "../../components/chatbot/Sprout";
+import { sendChatMessage } from "../../api/chatbot";
 
 export default function BudgetPage() {
   return (
@@ -29,7 +30,7 @@ export default function BudgetPage() {
           <BudgetChart />
         </div>
       </div>
-      <Sprout></Sprout>
+      <Sprout onSend={sendChatMessage}></Sprout>
     </div>
   );
 }
