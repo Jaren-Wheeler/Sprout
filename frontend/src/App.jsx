@@ -7,7 +7,7 @@ import Signup from './pages/auth/Signup';
 import Dashboard from './pages/dashboard/Dashboard';
 import Notes from './pages/notes/Notes';
 import Fitness from './pages/fitness/Fitness';
-import Budget from './pages/budgeting/Budget';
+import BudgetPage from './pages/budgeting/BudgetPage';
 import Calendar from './pages/calendar/Calendar';
 
 export default function App() {
@@ -20,10 +20,8 @@ export default function App() {
 
       <Route path="/notes" element={<Notes />} />
       <Route path="/fitness" element={<Fitness />} />
-      <Route path="/budget" element={<Budget />} />
+      <Route path="/budget" element={<BudgetPage />} />
       <Route path="/calendar" element={<Calendar />} />
-
-      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
