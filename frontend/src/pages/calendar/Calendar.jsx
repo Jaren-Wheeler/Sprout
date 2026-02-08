@@ -5,7 +5,7 @@ export default function Calendar() {
     <div className="min-h-[calc(100vh-160px)] flex items-center justify-center px-6">
       <FeaturePlaceholder
         title="Calendar"
-        description="A unified timeline for tasks, workouts, and budget reminders."
+        description="A planner that can be integrated with other features as well as basic reminders!"
         features={[
           'Daily and weekly agenda views',
           'Budget-linked reminders',
