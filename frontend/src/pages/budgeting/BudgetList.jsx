@@ -31,7 +31,7 @@ export default function BudgetList({
       </div>
 
       {/* Budget list */}
-      <div className="space-y-3 max-h-[70vh] overflow-y-auto">
+      <div className="space-y-3 max-h-[70vh] overflow-y-auto pr-3">
         {budgets.map((b) => (
           <BudgetCard
             key={b.id}
