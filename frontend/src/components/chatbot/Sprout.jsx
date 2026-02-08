@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import sproutChatbot from "../../assets/askmeanything.png";
+import sproutChatbotHover from "../../assets/askmeanything-hover.png";
 
 export default function Sprout({
   title = "Sprout Assistant",
@@ -55,15 +56,47 @@ export default function Sprout({
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-5 right-5 z-50 flex h-[10rem] w-[10rem] items-center justify-center"
+          className="
+            fixed bottom-[5rem] right-5
+            h-[13rem] w-[13rem]
+            z-[200]
+            group
+            transition-transform duration-200 ease-out
+            hover:scale-110
+            focus:outline-none
+          "
         >
-            <img src={sproutChatbot}></img>
+          {/* Normal */}
+          <img
+            src={sproutChatbot}
+            alt="Open AI Chatbot"
+            className="
+              absolute inset-0
+              h-full w-full
+              transition-opacity duration-150
+              group-hover:opacity-0
+            "
+          />
+
+          {/* Hover */}
+          <img
+            src={sproutChatbotHover}
+            alt=""
+            className="
+              absolute inset-0
+              h-full w-full
+              opacity-0
+              transition-opacity duration-150
+              group-hover:opacity-100
+            "
+          />
         </button>
       )}
 
+
       {/* Chat window */}
       {open && (
-        <div className="fixed bottom-5 right-5 z-50 flex h-[520px] w-[360px] flex-col overflow-hidden rounded-2xl border bg-white shadow-2xl">
+        <div className="fixed bottom-[4.25rem] right-3 z-50 flex h-[520px] w-[360px] flex-col overflow-hidden rounded-2xl border bg-white shadow-2xl">
           {/* Header */}
           <div className="flex items-center justify-between bg-green-600 px-4 py-3 text-white">
             <div>

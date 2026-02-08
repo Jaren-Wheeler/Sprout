@@ -43,7 +43,7 @@ export default function BudgetDetail({ budgetId }) {
   }
 
   if (!budget) {
-    return null; // ⬅️ CRITICAL: prevents budget.name crash
+    return null;
   }
 
   return (
