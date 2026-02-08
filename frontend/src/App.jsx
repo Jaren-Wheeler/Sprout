@@ -1,23 +1,14 @@
-// frontend/src/App.jsx
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from 'react-router-dom';
 
-import "./styles/components/modal.css";
+import Home from './pages/Home';
 
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-
-import Layout from "./components/Layout.jsx";
-
-import Dashboard from "./pages/Dashboard";
-import Budgets from "./pages/budgeting/Budgets";
-import BudgetDetail from "./pages/budgeting/BudgetDetail";
-
-import Calendar from "./pages/calendar/Calendar";
-import Fitness from "./pages/fitness/Fitness";
-import Notes from "./pages/notes/Notes";
-import NoteEditor from "./pages/notes/NoteEditor";
-import Chatbot from "./pages/chatbot/Chatbot";
+import Login from './pages/auth/Login';
+import Signup from './pages/auth/Signup';
+import Dashboard from './pages/dashboard/Dashboard';
+import Notes from './pages/notes/Notes';
+import Fitness from './pages/fitness/Fitness';
+import BudgetPage from './pages/budgeting/BudgetPage';
+import Calendar from './pages/calendar/Calendar';
 
 export default function App() {
   return (
@@ -25,21 +16,12 @@ export default function App() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/dashboard" element={<Dashboard />} />
 
-      <Route path="/*" element={<Layout />}>
-        <Route path="dashboard" element={<Dashboard />} />
-
-        <Route path="budgets" element={<Budgets />} />
-        <Route path="budgets/:id" element={<BudgetDetail />} />
-
-        <Route path="calendar" element={<Calendar />} />
-        <Route path="fitness" element={<Fitness />} />
-        <Route path="notes" element={<Notes />} />
-        <Route path="note-editor" element={<NoteEditor />} />
-        <Route path="chatbot" element={<Chatbot />} />
-      </Route>
-
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="/notes" element={<Notes />} />
+      <Route path="/fitness" element={<Fitness />} />
+      <Route path="/budget" element={<BudgetPage />} />
+      <Route path="/calendar" element={<Calendar />} />
     </Routes>
   );
 }

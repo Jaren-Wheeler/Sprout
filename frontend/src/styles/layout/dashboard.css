@@ -1,40 +1,196 @@
+/* Container setup to allow free placement */
 .dashboard-bg {
   min-height: 100vh;
   width: 100%;
-  background-image: url("src/assets/forest.png");
   background-size: cover;
   background-position: center;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  position: relative;
 }
 
-.dashboard-grid {
+/* This replaces dashboard-grid */
+.dashboard-container {
   flex: 1;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 3rem;
-  padding: 4rem;
-  place-items: center;
+  position: relative; /* Essential for absolute children */
+  width: 100%;
+  height: 100%;
 }
 
-.dashboard-item {
-  width: 220px;
-  max-width: 90%;
+.dashboard-item-wrapper {
+  position: absolute; /* Allows manual placement like your sketch */
   cursor: pointer;
   transition: transform 0.25s ease;
+  z-index: 2;
 }
 
-.dashboard-item:hover {
-  transform: scale(1.08);
+/* --- Individual Positions based on your draft --- */
+
+#settings { 
+  top: 17%; 
+  left: 10%; 
+  width: 230px; 
 }
 
+#scheduler { 
+  top: 40%; 
+  left: 10%; 
+  width: 700px; /* Large Tent */
+}
+
+#expenses { 
+  bottom: 0%; 
+  left: 45%; 
+  width: 250px; /* Campfire */
+}
+
+#notes { 
+  bottom: 1%; 
+  right: 28%; 
+  width: 280px; /* Purple Chair */
+}
+
+#fitness { 
+  top: 18%; 
+  right: 12%; 
+  width: 230px;
+}
+
+#ama { 
+  bottom: 11%; 
+  right: 7%; 
+  width: 210px; /* Salamander */
+}
+
+/* --- Icon Handling --- */
+
+.dashboard-icon {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: opacity 0.3s ease;
+}
+
+.dashboard-icon.hover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+}
+
+/* Hover States */
+.dashboard-item-wrapper:hover {
+  transform: scale(1.1);
+  z-index: 10;
+}
+
+.dashboard-item-wrapper:hover .dashboard-icon.normal {
+  opacity: 0;
+}
+
+.dashboard-item-wrapper:hover .dashboard-icon.hover {
+  opacity: 1;
+}
+
+/* --- Footer Style --- */
 .dashboard-footer {
-  height: 80px;
-  background: #4a2929;
+  height: 60px;
+  background: #c27070; /* Pinkish-brown from draft */
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 24px;
   font-weight: bold;
-  color: yellow;
+  color: #f3e5ab;
+  z-index: 100;
+}
+
+:root {
+  --footer-bg: #c27070;
+  --footer-text: #f3e5ab;
+  --overlay-opacity: 0;
+}
+
+.dark-mode {
+  --footer-bg: #2a1b1b; /* Darker brown/black */
+  --footer-text: #e0e0e0;
+  --overlay-opacity: 0.4; /* Darkens the background image */
+}
+
+/* Background Overlay for Dark Mode */
+.dashboard-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: black;
+  opacity: var(--overlay-opacity);
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* The Toggle Button (Sticker Style) */
+.theme-toggle-sticker {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  background: white;
+  border: 3px solid black;
+  border-radius: 50px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 100;
+  box-shadow: 5px 5px 0px rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
+}
+.theme-toggle-sticker:hover { transform: scale(1.1) rotate(5deg); }
+
+/* Applying Dark Mode to Icons (if you don't have dark assets) */
+.icon-dark {
+  filter: brightness(0.8) contrast(1.2) saturate(0.7);
+}
+
+.dashboard-footer {
+  height: 60px;
+  background: var(--footer-bg);
+  color: var(--footer-text);
+  transition: background 0.5s ease, color 0.5s ease;
+  /* ... rest of footer styles ... */
+}
+
+/* Position the light/dark toggle sticker */
+#lightdark {
+  top: 1%;
+  left: 50%;
+  transform: translateX(-50%); /* Centered at the top */
+  width: 220px;
+}
+
+#lightdark:hover {
+  transform: translateX(-50%) scale(1.1);
+}
+
+/* Dark Mode Color Overrides */
+.dark-mode .dashboard-footer {
+  background: #2a1b1b;
+  color: #e0e0e0;
+}
+
+/* If you don't have dark versions for ALL icons, 
+   this filter makes the remaining ones look "night-timey" */
+.dark-mode .dashboard-icon.normal:not(#lightdark img) {
+  filter: brightness(0.7) saturate(0.8);
+}
+
+/* Ensure the hover icons stay bright even in dark mode */
+.dark-mode .dashboard-icon.hover {
+  filter: brightness(1.1);
+}
+
+/* Transition for the background swap */
+.dashboard-bg {
+  transition: background-image 0.5s ease-in-out;
+  /* ... keep other styles ... */
 }
