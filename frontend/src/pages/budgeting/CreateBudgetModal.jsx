@@ -29,7 +29,7 @@ export default function CreateBudgetModal({ onCreate, onClose }) {
         {/* Budget creation form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
-            className="w-full p-2 rounded bg-bg border border-border"
+            className="w-full p-2 rounded bg-bg border border-border text-white"
             placeholder="Budget name"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -39,7 +39,7 @@ export default function CreateBudgetModal({ onCreate, onClose }) {
           {/* Budget limit input */}
           <input
             type="number"
-            className="w-full p-2 rounded bg-bg border border-border"
+            className="w-full p-2 rounded bg-bg border border-border text-white"
             placeholder="Limit"
             value={limitAmount}
             onChange={(e) => setLimitAmount(e.target.value)}

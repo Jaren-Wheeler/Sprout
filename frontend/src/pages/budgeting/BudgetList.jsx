@@ -17,7 +17,7 @@ export default function BudgetList({
     <div className="border border-border rounded-xl bg-panel p-4">
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
-        <h2 className="font-semibold leading-none">All Budgets</h2>
+        <h2 className="font-semibold leading-none text-white">All Budgets</h2>
 
         <button
           onClick={onCreateBudget}

@@ -14,7 +14,7 @@ export default function BudgetCard({ budget, onClick, isActive }) {
         }
       `}
     >
-      <div className="flex justify-between font-medium">
+      <div className="flex justify-between font-medium text-white">
         <span>{budget.name}</span>
         <span>${limit.toFixed(2)}</span>
       </div>

@@ -20,7 +20,7 @@ export default function BudgetDetail({ budgetId }) {
 
   if (!budgetId) {
     return (
-      <div className="border border-border rounded-xl bg-panel p-4 text-muted">
+      <div className="border border-border rounded-xl bg-panel p-4 text-muted text-white">
         Select a budget to see details
       </div>
     )
@@ -49,7 +49,7 @@ export default function BudgetDetail({ budgetId }) {
   return (
     <div className="rounded-xl bg-yellow-200/90 text-black p-6 border border-black/10">
       <div className="flex justify-between items-start">
-        <h2 className="text-xl font-semibold">{budget.name}</h2>
+        <h2 className="text-xl font-semibold text-white">{budget.name}</h2>
         <span className="text-2xl font-bold">${budget.limitAmount-0}</span> {/* Set the zero here to show sum of expenses*/}
       </div>
 

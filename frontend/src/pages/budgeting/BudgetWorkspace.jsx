@@ -39,7 +39,7 @@ export default function BudgetWorkspace({
         <div className="p-6 space-y-6">
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-2xl font-semibold">{budget.name}</h2>
+              <h2 className="text-2xl font-semibold text-white">{budget.name}</h2>
               <p className="text-sm text-muted">
                 ${spent.toFixed(2)} spent of $
                 {Number(budget.limitAmount).toFixed(2)}

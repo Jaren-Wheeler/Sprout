@@ -37,7 +37,7 @@ export default function CreateExpenseModal({ budgetId, onCreate, onClose }) {
             type="number"
             step="0.01"
             placeholder="Amount"
-            className="w-full px-3 py-2 rounded bg-black/30 border border-white/10"
+            className="w-full px-3 py-2 rounded bg-black/30 border border-white/10 text-white"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             required
@@ -46,7 +46,7 @@ export default function CreateExpenseModal({ budgetId, onCreate, onClose }) {
           <input
             type="text"
             placeholder="Category"
-            className="w-full px-3 py-2 rounded bg-black/30 border border-white/10"
+            className="w-full px-3 py-2 rounded bg-black/30 border border-white/10 text-white"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             required
@@ -55,14 +55,15 @@ export default function CreateExpenseModal({ budgetId, onCreate, onClose }) {
           <input
             type="text"
             placeholder="Description (optional)"
-            className="w-full px-3 py-2 rounded bg-black/30 border border-white/10"
+            className="w-full px-3 py-2 rounded bg-black/30 border border-white/10 text-white"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
 
           <input
             type="date"
-            className="w-full px-3 py-2 rounded bg-black/30 border border-white/10"
+            className="w-full px-3 py-2 rounded bg-black/30 border border-white/10 text-white [&::-webkit-calendar-picker-indicator]:invert
+              [&::-webkit-calendar-picker-indicator]:opacity-80"
             value={expenseDate}
             onChange={(e) => setExpenseDate(e.target.value)}
             required
@@ -72,7 +73,7 @@ export default function CreateExpenseModal({ budgetId, onCreate, onClose }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded bg-black/30"
+              className="px-4 py-2 rounded bg-black/30 text-white"
             >
               Cancel
             </button>
