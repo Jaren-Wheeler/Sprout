@@ -7,6 +7,7 @@
  */
 
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import BudgetList from '../budgeting/BudgetList';
 import BudgetChart from '../budgeting/BudgetChart';
 import BudgetWorkspace from './BudgetWorkspace';
@@ -193,7 +194,16 @@ export default function BudgetPage() {
       <div className="max-w-7xl mx-auto p-6">
         <header className="mb-6">
           <h1 className="text-3xl font-bold flex items-center gap-3">
-            <img src={sproutLogo} alt="Sprout logo" className="h-20 w-auto" />
+            <Link
+              to="/dashboard"
+              className="flex items-center gap-3 hover:opacity-90"
+            >
+              <img
+                src={sproutLogo}
+                alt="Sprout logo"
+                className="h-20 w-auto cursor-pointer"
+              />
+            </Link>
             Budget
           </h1>
 

@@ -40,7 +40,7 @@ export default function CreateBudgetModal({ onCreate, onClose }) {
           <input
             type="number"
             className="w-full p-2 rounded bg-bg border border-border"
-            placeholder="Monthly limit"
+            placeholder="Limit"
             value={limitAmount}
             onChange={(e) => setLimitAmount(e.target.value)}
             required
