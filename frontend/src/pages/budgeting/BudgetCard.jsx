@@ -1,14 +1,22 @@
-
-export default function BudgetCard({ budget, onClick }) {
-  const percent = (budget.spent / budget.limitAmount) * 100;
+export default function BudgetCard({ budget, onClick, isActive }) {
+  const limit = Number(budget.limitAmount) || 0;
+  const spent = Number(budget.spent || 0);
+  const percent = limit > 0 ? (spent / limit) * 100 : 0;
 
   return (
-    <div className="rounded-lg border border-border p-3 bg-white/5 hover:bg-gray-500"
+    <div
       onClick={onClick}
+      className={`rounded-lg border p-3 cursor-pointer transition
+        ${
+          isActive
+            ? 'border-accent bg-accent/10'
+            : 'border-border bg-white/5 hover:bg-white/10'
+        }
+      `}
     >
       <div className="flex justify-between font-medium">
         <span>{budget.name}</span>
-        <span>${(budget.limitAmount - 0).toFixed(2)}</span> {/* Set the zero here to show sum of expenses*/}
+        <span>${limit.toFixed(2)}</span>
       </div>
 
       <div className="mt-2 h-2 bg-black/20 rounded">
@@ -19,7 +27,7 @@ export default function BudgetCard({ budget, onClick }) {
       </div>
 
       <div className="text-xs text-muted mt-1">
-        $0 spent · ${budget.limitAmount} total {/* Set the zero here to show sum of expenses*/}
+        ${spent.toFixed(2)} spent · ${limit.toFixed(2)} total
       </div>
     </div>
   );

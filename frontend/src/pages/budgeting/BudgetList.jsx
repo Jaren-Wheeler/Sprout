@@ -1,43 +1,43 @@
+/**
+ * BudgetList
+ *
+ * Sidebar list of all budgets.
+ * Handles selection and provides an entry point for creating new budgets.
+ */
+
 import BudgetCard from './BudgetCard';
-import { useState, useEffect } from 'react';
-import { getBudgets } from '../../api/finance';
 
-/*const mockBudgets = [
-  { id: 1, name: 'Entertainment', spent: 120, total: 200 },
-  { id: 2, name: 'Coffee & Treats', spent: 30.5, total: 100 },
-  { id: 3, name: 'Fitness', spent: 50, total: 150 },
-];*/
-
-export default function BudgetList({ onSelectBudget }) {
-  const [budgets, setBudgets] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    async function loadBudgets() {
-      try {
-        const data = await getBudgets();
-        setBudgets(data);
-      } catch (err) {
-        setError(err.message || "Failed to load budgets");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadBudgets(false);
-  },[]);
-
+export default function BudgetList({
+  budgets,
+  selectedBudgetId,
+  onSelectBudget,
+  onCreateBudget,
+}) {
   return (
     <div className="border border-border rounded-xl bg-panel p-4">
-      <h2 className="font-semibold mb-4">All Budgets</h2>
+      {/* Header */}
+      <div className="flex items-start justify-between mb-4">
+        <h2 className="font-semibold leading-none">All Budgets</h2>
 
+        <button
+          onClick={onCreateBudget}
+          className="w-7 h-7 flex items-center justify-center
+                     rounded-full bg-accent text-black font-bold
+                     hover:opacity-80"
+          title="Create budget"
+        >
+          +
+        </button>
+      </div>
+
+      {/* Budget list */}
       <div className="space-y-3 max-h-[70vh] overflow-y-auto">
         {budgets.map((b) => (
-          <BudgetCard 
-            key={b.id} 
-            budget={b} 
-            onClick={()=> onSelectBudget(b.id)}
+          <BudgetCard
+            key={b.id}
+            budget={b}
+            isActive={b.id === selectedBudgetId}
+            onClick={() => onSelectBudget(b.id)}
           />
         ))}
       </div>
