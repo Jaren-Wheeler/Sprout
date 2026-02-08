@@ -82,6 +82,16 @@ export default function BudgetPage() {
     loadActiveBudget();
   }, [selectedBudgetId]);
 
+  async function refreshBudgets() {
+    const [budgetsData, expensesData] = await Promise.all([
+      getBudgets(),
+      getExpenses(),
+    ]);
+
+    setBudgets(budgetsData);
+    setExpenses(expensesData);
+  }
+
   // --------------------------------------
   // Derived data
   // --------------------------------------
@@ -183,11 +193,11 @@ export default function BudgetPage() {
       <div className="max-w-7xl mx-auto p-6">
         <header className="mb-6">
           <h1 className="text-3xl font-bold flex items-center gap-3">
-            <img src={sproutLogo} alt="Sprout logo" className="h-10 w-auto" />
+            <img src={sproutLogo} alt="Sprout logo" className="h-20 w-auto" />
             Budget
           </h1>
 
-          <p className="text-muted">
+          <p className="text-white">
             Track your spending and watch your savings grow
           </p>
         </header>
@@ -240,7 +250,7 @@ export default function BudgetPage() {
           />
         )}
 
-        <Sprout onSend={sendChatMessage} />
+        <Sprout onSend={sendChatMessage} onBudgetChange={refreshBudgets} />
       </div>
     </div>
   );
