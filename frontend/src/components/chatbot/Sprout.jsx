@@ -3,21 +3,21 @@ import sproutChatbot from "../../assets/askmeanything.png";
 import sproutChatbotHover from "../../assets/askmeanything-hover.png";
 
 export default function Sprout({
-  title = "Sprout Assistant",
-  subtitle = "Ask me anything",
-  welcomeMessage = "Hey! How can I help?",
+  title = 'Sprout Assistant',
+  subtitle = 'Ask me anything',
+  welcomeMessage = 'Hey! How can I help?',
   onSend,
+  onBudgetChange,
 }) {
   const [open, setOpen] = useState(false);
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [messages, setMessages] = useState([
-    { role: "assistant", text: welcomeMessage },
+    { role: 'assistant', text: welcomeMessage },
   ]);
 
   const listRef = useRef(null);
 
-  
   useEffect(() => {
     if (listRef.current) {
       listRef.current.scrollTop = listRef.current.scrollHeight;
@@ -28,22 +28,23 @@ export default function Sprout({
     if (!input.trim() || sending) return;
 
     const userText = input;
-    setInput("");
+    setInput('');
     setSending(true);
 
-    setMessages((prev) => [...prev, { role: "user", text: userText }]);
+    setMessages((prev) => [...prev, { role: 'user', text: userText }]);
 
     try {
-      const reply =
-        onSend
-          ? await onSend(userText)
-          : "This is a demo reply. Plug in your API!";
-      setMessages((prev) => [...prev, { role: "assistant", text: reply }]);
-    } catch(err) {
-        console.log("Error: ", err)
+      const reply = onSend
+        ? await onSend(userText)
+        : 'This is a demo reply. Plug in your API!';
+
+      setMessages((prev) => [...prev, { role: 'assistant', text: reply }]);
+      onBudgetChange?.();
+    } catch (err) {
+      console.log('Error: ', err);
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", text: "Something went wrong." },
+        { role: 'assistant', text: 'Something went wrong.' },
       ]);
     } finally {
       setSending(false);
@@ -120,14 +121,14 @@ export default function Sprout({
               <div
                 key={i}
                 className={`flex ${
-                  m.role === "user" ? "justify-end" : "justify-start"
+                  m.role === 'user' ? 'justify-end' : 'justify-start'
                 }`}
               >
                 <div
                   className={`max-w-[75%] rounded-xl px-4 py-2 text-sm ${
-                    m.role === "user"
-                      ? "bg-green-600 text-white"
-                      : "bg-white text-gray-800 shadow"
+                    m.role === 'user'
+                      ? 'bg-green-600 text-white'
+                      : 'bg-white text-gray-800 shadow'
                   }`}
                 >
                   {m.text}
@@ -144,7 +145,7 @@ export default function Sprout({
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Type a message…"
               className="flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
               disabled={sending}
