@@ -21,7 +21,7 @@ const getFitnessInfo = async (userId) => {
 /**
  * Create or update fitness info
  */
-const upsertFitnessInfo = async (userId, data) => {
+const updateFitnessInfo = async (userId, data) => {
 
   const existing = await prisma.fitnessInfo.findUnique({
     where: { userId }
@@ -141,7 +141,7 @@ const deleteDiet = async (id) => {
 
 module.exports = {
   getFitnessInfo,
-  upsertFitnessInfo,
+  updateFitnessInfo,
   createWorkout,
   getWorkouts,
   deleteWorkout,

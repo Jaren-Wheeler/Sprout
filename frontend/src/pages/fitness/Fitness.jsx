@@ -1,23 +1,39 @@
-
+import { useState, useEffect } from 'react';
 import FitnessProfile from './FitnessProfile';
+import CreateFitnessProfileModal from './createFitnessProfileModal';
 import Sprout from '../../components/chatbot/Sprout';
+import { getFitnessInfo, updateFitnessInfo } from '../../api/health';
 
-export default function Fitness(profile) {
+export default function Fitness() {
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getFitnessInfo()
+      .then(setProfile)
+      .finally(() => setLoading(false))
+  },[]);
+
+  if (loading) return null;
 
   if (!profile) {
         return (
             <CreateFitnessProfileModal
-                onSubmit={(profile) => {
-                    // Save to DB here
-                    console.log(profile);
-                }}
+                onClose={() => {}}
+                
+                onSubmit={
+                  async (data) => {
+                    const saved = await updateFitnessInfo(data);
+                    setProfile(saved);
+                  }
+                }
             />
         );
     }
 
   return (
-    <div className="min-h-[calc(100vh-160px)] flex items-center justify-center px-6">
-      <FitnessProfile></FitnessProfile>
+    <div className="min-h-[calc(100vh-160px)] m-6 px-6">
+      <FitnessProfile profile={profile}></FitnessProfile>
       <Sprout></Sprout>
     </div>
   );

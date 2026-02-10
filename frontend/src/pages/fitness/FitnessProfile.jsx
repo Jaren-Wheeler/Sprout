@@ -3,20 +3,9 @@ import { useMemo } from "react";
 import CreateFitnessProfileModal from "./createFitnessProfileModal";
 
 export default function FitnessProfile({
-  profile,        // object from DB
-  onEditGoals,    // callback
+    profile,
+    onEditGoals,    // callback
 }) {
-
-    if (!profile) {
-        return (
-            <CreateFitnessProfileModal
-                onSubmit={(profile) => {
-                    // Save to DB here
-                    console.log(profile);
-                }}
-            />
-        );
-    }
 
     const {
         currentWeight,
@@ -44,51 +33,51 @@ export default function FitnessProfile({
             calorieProgress: Math.min(calorieProgress, 100),
             weightProgress: Math.min(weightProgress, 100),
         };
-    }, [startingWeight, currentWeight, goalWeight, caloriesLost, calorieGoal]);
+    }, [startingWeight, goalWeight, caloriesLost, calorieGoal]);
 
     return (
-        <div className="w-full max-w-md rounded-2xl border bg-white p-5 shadow-sm">
-        {/* Header */}
-        <div className="flex items-start justify-between">
-            <div>
-            <h2 className="text-lg font-semibold">Fitness Profile</h2>
-            <p className="text-sm text-gray-500">
-                Last updated: {lastUpdated}
-            </p>
+        <div className="w-full rounded-2xl border bg-white p-5 shadow-sm">
+            {/* Header */}
+            <div className="flex items-start justify-between">
+                <div>
+                <h2 className="text-lg font-semibold">Fitness Profile</h2>
+                <p className="text-sm text-gray-500">
+                    Last updated: {lastUpdated}
+                </p>
+                </div>
+
+                <button
+                onClick={onEditGoals}
+                className="rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
+                >
+                    Edit goals
+                </button>
             </div>
 
-            <button
-            onClick={onEditGoals}
-            className="rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
-            >
-            Edit goals
-            </button>
-        </div>
+            {/* Weight stats */}
+            <div className="mt-4 grid grid-cols-2 gap-3">
+                <Stat label="Current weight" value={`${currentWeight} lb`} />
+                <Stat label="Starting weight" value={`${startingWeight} lb`} />
+                <Stat label="Weight lost" value={`${stats.weightLost} lb`} />
+                <Stat label="To goal" value={`${stats.weightRemaining} lb`} />
+            </div>
 
-        {/* Weight stats */}
-        <div className="mt-4 grid grid-cols-2 gap-3">
-            <Stat label="Current weight" value={`${currentWeight} lb`} />
-            <Stat label="Starting weight" value={`${startingWeight} lb`} />
-            <Stat label="Weight lost" value={`${stats.weightLost} lb`} />
-            <Stat label="To goal" value={`${stats.weightRemaining} lb`} />
-        </div>
+            {/* Goals */}
+            <div className="mt-5 space-y-4">
+                <Progress
+                    label="Calorie loss goal"
+                    value={`${caloriesLost} / ${calorieGoal} kcal`}
+                    percent={stats.calorieProgress}
+                />
 
-        {/* Goals */}
-        <div className="mt-5 space-y-4">
-            <Progress
-                label="Calorie loss goal"
-                value={`${caloriesLost} / ${calorieGoal} kcal`}
-                percent={stats.calorieProgress}
-            />
-
-            <Progress
-                label="Weight goal progress"
-                value={`${stats.weightLost} / ${startingWeight - goalWeight} lb`}
-                percent={stats.weightProgress}
-            />
-        </div>
-        </div>
-    );
+                <Progress
+                    label="Weight goal progress"
+                    value={`${stats.weightLost} / ${startingWeight - goalWeight} lb`}
+                    percent={stats.weightProgress}
+                />
+            </div>
+            </div>
+        );
     }
 
     /* ---------- Subcomponents ---------- */

@@ -20,7 +20,7 @@ const getFitnessInfo = async (req, res, next) => {
 
 const updateFitnessInfo = async (req, res, next) => {
   try {
-    const info = await healthService.upsertFitnessInfo(req.user.id, req.body);
+    const info = await healthService.updateFitnessInfo(req.user.id, req.body);
     res.json(info);
   } catch (err) {
     next(err);

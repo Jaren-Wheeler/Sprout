@@ -1,5 +1,6 @@
 export default function CreateFitnessProfileModal({
   onClose,
+  onDelete,
   onSubmit,
 }) {
 
@@ -18,16 +19,17 @@ export default function CreateFitnessProfileModal({
             const formData = new FormData(e.target);
 
             onSubmit({
-              startingWeight: Number(formData.get("startingWeight")),
               currentWeight: Number(formData.get("currentWeight")),
               goalWeight: Number(formData.get("goalWeight")),
               calorieGoal: Number(formData.get("calorieGoal")),
+              age: Number(formData.get("age")),
+              heightFt: Number(formData.get("height"))
             });
           }}
           className="space-y-4"
         >
         <label className="mb-1 block text-sm font-medium text-gray-700">
-            Current Weight
+            Current Weight (lbs)
         </label>
         <input
             name="currentWeight"
@@ -36,7 +38,7 @@ export default function CreateFitnessProfileModal({
             className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
         />
         <label className="mb-1 block text-sm font-medium text-gray-700">
-            Goal Weight
+            Goal Weight (lbs)
         </label>
         <input
             name="goalWeight"
@@ -80,7 +82,13 @@ export default function CreateFitnessProfileModal({
             >
               Cancel
             </button>
-
+            <button
+                type="button"
+                onClick={onDelete}
+                className="rounded-lg bg-red-600 border px-4 py-2 text-sm hover:bg-gray-50"
+                >
+                Delete profile
+            </button>
             <button
               type="submit"
               className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
