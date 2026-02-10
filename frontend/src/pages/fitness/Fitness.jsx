@@ -1,18 +1,24 @@
-import FeaturePlaceholder from '../../components/FeaturePlaceholder';
 
-export default function Fitness() {
+import FitnessProfile from './FitnessProfile';
+import Sprout from '../../components/chatbot/Sprout';
+
+export default function Fitness(profile) {
+
+  if (!profile) {
+        return (
+            <CreateFitnessProfileModal
+                onSubmit={(profile) => {
+                    // Save to DB here
+                    console.log(profile);
+                }}
+            />
+        );
+    }
+
   return (
     <div className="min-h-[calc(100vh-160px)] flex items-center justify-center px-6">
-      <FeaturePlaceholder
-        title="Fitness"
-        description="Track workouts, routines, and long-term progress."
-        features={[
-          'Workout logging',
-          'Exercise history and progression',
-          'Routine templates',
-          'Integration with calendar scheduling',
-        ]}
-      />
+      <FitnessProfile></FitnessProfile>
+      <Sprout></Sprout>
     </div>
   );
 }
