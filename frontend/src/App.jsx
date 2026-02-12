@@ -9,8 +9,8 @@ import Notes from './pages/notes/Notes';
 import Fitness from './pages/fitness/Fitness';
 import BudgetPage from './pages/budgeting/BudgetPage';
 import Calendar from './pages/calendar/Calendar';
-import DietPage from './pages/fitness/dietPage';
-import WorkoutPage from './pages/fitness/workoutPage';
+import DietPage from './pages/fitness/diet/DietPage';
+import WorkoutPage from './pages/fitness/workout/WorkoutPage';
 
 export default function App() {
   return (
