@@ -46,18 +46,6 @@ export default function CreateDietModal({ isOpen, onClose, onCreate }) {
             />
           </div>
 
-          {/* Calories */}
-          <div>
-            <label className="text-sm text-gray-600">Calories</label>
-            <input
-              type="number"
-              placeholder="2200"
-              value={calories}
-              onChange={(e) => setCalories(e.target.value)}
-              className="w-full border rounded-lg p-3 mt-1"
-            />
-          </div>
-
           {/* Buttons */}
           <div className="flex justify-end gap-3 pt-4">
             <button

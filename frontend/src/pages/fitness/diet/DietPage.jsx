@@ -4,6 +4,7 @@ import { getDiets } from "../../../api/health";
 import Sprout from "../../../components/chatbot/Sprout";
 import DietStats from "./DietStats";
 import CreateDietModal from "./CreateDietModal";
+import DietCard from "./DietCard";
 
 export default function DietPage() {
     const navigate = useNavigate();
@@ -89,6 +90,22 @@ export default function DietPage() {
                 </button>
                 ))}
             </div>
+            
+            {/* ONE DIET → FEATURED LAYOUT */}
+            {diets.length === 1 && (
+            <div className="flex justify-center mt-10">
+                <DietCard diet={diets[0]} featured />
+            </div>
+            )}
+
+            {/* MULTIPLE DIETS → GRID */}
+            {diets.length > 1 && (
+            <div className="grid grid-cols-3 gap-4 mt-6">
+                {diets.map(diet => (
+                <DietCard key={diet.id} diet={diet} />
+                ))}
+            </div>
+            )}
 
             <CreateDietModal
                 isOpen={showModal}
