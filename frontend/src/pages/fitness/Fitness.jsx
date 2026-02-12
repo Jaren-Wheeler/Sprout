@@ -19,7 +19,7 @@ export default function Fitness() {
 
   if (loading) return null;
 
-  if (!profile) {
+  if (!profile || showModal) {
       return (
           <CreateFitnessProfileModal
               onClose={() => {setShowModal(false)}}
@@ -28,25 +28,13 @@ export default function Fitness() {
                 async (data) => {
                   const saved = await updateFitnessInfo(data);
                   setProfile(saved);
-                }
-              }
-          />
-      );
-  } else if (showModal) {
-      return (
-        <CreateFitnessProfileModal
-              onClose={() => {setShowModal(false)}}
-              onSubmit={
-                async (data) => {
-                  const saved = await updateFitnessInfo(data);
-                  setProfile(saved);
                   setShowModal(false);
                 }
               }
-              profile={profile}
+              onEditGoals={profile}
           />
-      )
-  }
+      );
+  };
 
   return (
     <div className="min-h-[calc(100vh-160px)] m-6 px-6">

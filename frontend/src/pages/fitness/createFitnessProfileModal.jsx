@@ -4,27 +4,29 @@ export default function CreateFitnessProfileModal({
   onClose,
   onDelete,
   onSubmit,
-  profile
+  onEditGoals
 }) {
 
   const [form, setForm] = useState({
     currentWeight: "",
-    startingWeight: "",
     goalWeight: "",
     calorieGoal: "",
+    age: "",
+    height: ""
   });
 
   // Prefill when editing
   useEffect(() => {
-    if (profile) {
+    if (onEditGoals) {
       setForm({
-        currentWeight: profile.currentWeight ?? "",
-        startingWeight: profile.startingWeight ?? "",
-        goalWeight: profile.goalWeight ?? "",
-        calorieGoal: profile.calorieGoal ?? "",
+        currentWeight: onEditGoals.currentWeight ?? "",
+        goalWeight: onEditGoals.goalWeight ?? "",
+        calorieGoal: onEditGoals.calorieGoal ?? "",
+        age: onEditGoals.age ?? "",
+        height: onEditGoals.height ?? ""
       });
     }
-  }, [profile])
+  }, [onEditGoals])
   
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
@@ -56,6 +58,8 @@ export default function CreateFitnessProfileModal({
             name="currentWeight"
             type="number"
             required
+            value={form.currentWeight}
+            onChange={(e) => setForm({...form, currentWeight: e.target.value})}
             className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
         />
         <label className="mb-1 block text-sm font-medium text-gray-700">
@@ -65,6 +69,8 @@ export default function CreateFitnessProfileModal({
             name="goalWeight"
             type="number"
             required
+            value={form.goalWeight}
+            onChange={(e) => setForm({...form, goalWeight: e.target.value})}
             className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
         />
         <label className="mb-1 block text-sm font-medium text-gray-700">
@@ -74,6 +80,8 @@ export default function CreateFitnessProfileModal({
             name="calorieGoal"
             type="number"
             required
+            value={form.calorieGoal}
+            onChange={(e) => setForm({...form, calorieGoal: e.target.value})}
             className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
         />
         <label className="mb-1 block text-sm font-medium text-gray-700">
@@ -83,6 +91,8 @@ export default function CreateFitnessProfileModal({
             name="age"
             type="number"
             required
+            value={form.age}
+            onChange={(e) => setForm({...form, age: e.target.value})}
             className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
         />
         <label className="mb-1 block text-sm font-medium text-gray-700">
@@ -92,6 +102,8 @@ export default function CreateFitnessProfileModal({
             name="height"
             type="number"
             required
+            value={form.height}
+            onChange={(e) => setForm({...form, height: e.target.value})}
             className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
         />
           {/* Actions */}
