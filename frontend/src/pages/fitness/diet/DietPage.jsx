@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getDiets, createDiet } from "../../../api/health";
+import { getDiets, createDiet, deleteDiet } from "../../../api/health";
 import Sprout from "../../../components/chatbot/Sprout";
 import DietStats from "./DietStats";
 import CreateDietModal from "./CreateDietModal";
@@ -15,6 +15,17 @@ export default function DietPage() {
 
     function handleCreateDiet() {
         console.log("Create diet clicked");
+    }
+    
+    async function handleDeleteDiet(id) {
+        try {
+            await deleteDiet(id);
+            setDiets(prev => prev.filter(d => d.id !== id));
+        } catch(err) {
+            console.error("Failed to delete diet", err);
+        } finally {
+            setLoading(false);
+        }
     }
 
     useEffect(() => {
@@ -49,6 +60,7 @@ export default function DietPage() {
             </div>
             
             <DietStats></DietStats>
+
             {/*DIET*/}
             {diets.length === 0 && (
                 <div className="flex flex-col items-center justify-center mt-20">
@@ -74,37 +86,21 @@ export default function DietPage() {
 
                 </div>
             )}
-
-            {/* DIET CARDS */}
-            <div className="grid grid-cols-3 gap-4">
-                {diets.map(diet => (
-                <button
-                    key={diet.id}
-                    onClick={() => navigate(`/diet/${diet.id}`)}
-                    className="rounded-2xl border bg-white p-6 shadow-sm text-left hover:shadow-md transition"
-                >
-                    <h2 className="font-semibold text-lg">{diet.name}</h2>
-                    <p className="text-sm text-gray-500">
-                    {diet.calorieGoal} kcal
-                    </p>
-                </button>
-                ))}
-            </div>
             
             {/* ONE DIET → FEATURED LAYOUT */}
             {diets.length === 1 && (
-            <div className="flex justify-center mt-10">
-                <DietCard diet={diets[0]} featured />
-            </div>
+                <div className="flex justify-center mt-10">
+                    <DietCard diet={diets[0]} featured onDelete={handleDeleteDiet}/>
+                </div>
             )}
 
             {/* MULTIPLE DIETS → GRID */}
             {diets.length > 1 && (
-            <div className="grid grid-cols-3 gap-4 mt-6">
-                {diets.map(diet => (
-                <DietCard key={diet.id} diet={diet} />
-                ))}
-            </div>
+                <div className="grid grid-cols-3 gap-4 mt-6">
+                    {diets.map(diet => (
+                    <DietCard key={diet.id} diet={diet} onDelete={handleDeleteDiet}/>
+                    ))}
+                </div>
             )}
 
             <CreateDietModal
