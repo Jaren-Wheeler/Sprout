@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getDiets } from "../../../api/health";
 import Sprout from "../../../components/chatbot/Sprout";
+import DietStats from "./DietStats";
+import CreateDietModal from "./CreateDietModal";
 
 export default function DietPage() {
     const navigate = useNavigate();
 
     const [diets, setDiets] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showModal, setShowModal] = useState(false);
 
     function handleCreateDiet() {
         console.log("Create diet clicked");
@@ -35,18 +38,16 @@ export default function DietPage() {
         
             {/* HEADER */}
             <div className="flex justify-between mb-6">
-                <h1 className="text-2xl font-bold">My Diets</h1>
+                <h1 className="text-2xl font-bold">Diet Dashboard</h1>
 
-                <button className="bg-gray-800 text-white px-4 py-2 rounded-xl">
-                + Create Diet
+                <button className="bg-gray-800 text-white px-4 py-2 rounded-xl hover:scale-105 transition"
+                    onClick={() => setShowModal(true)}
+                >
+                    + Create Diet
                 </button>
             </div>
-
-            {/* LIVE STATS SECTION */}
-            <div className="rounded-2xl border bg-white p-8 text-center">
-                <p>Your stats (IMPORT SOME FROM THE FITNESS GOALS)</p>
-            </div>
             
+            <DietStats></DietStats>
             {/*DIET*/}
             {diets.length === 0 && (
                 <div className="flex flex-col items-center justify-center mt-20">
@@ -62,7 +63,7 @@ export default function DietPage() {
                     </p>
 
                     <button
-                        onClick={handleCreateDiet}
+                         onClick={() => setShowModal(true)}
                         className="bg-gray-900 text-white px-6 py-3 rounded-xl hover:scale-105 transition"
                     >
                         + Create Diet
@@ -88,6 +89,14 @@ export default function DietPage() {
                 </button>
                 ))}
             </div>
+
+            <CreateDietModal
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                onCreate={(dietData) => {
+                    console.log("Create diet:", dietData);
+                }}
+            />
             <Sprout></Sprout>
         </div>
     );
