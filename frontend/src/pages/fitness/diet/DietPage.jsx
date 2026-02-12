@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getDiets, createDiet, deleteDiet } from "../../../api/health";
+import { getDiets, createDiet, deleteDiet, getFitnessInfo } from "../../../api/health";
 import Sprout from "../../../components/chatbot/Sprout";
 import DietStats from "./DietStats";
 import CreateDietModal from "./CreateDietModal";
 import DietCard from "./DietCard";
+import Progress from "../../../components/Progress";
 
 export default function DietPage() {
     const navigate = useNavigate();
@@ -12,10 +13,7 @@ export default function DietPage() {
     const [diets, setDiets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
-
-    function handleCreateDiet() {
-        console.log("Create diet clicked");
-    }
+    const [stats, setStats] = useState([]);
     
     async function handleDeleteDiet(id) {
         try {
@@ -29,15 +27,30 @@ export default function DietPage() {
     }
 
     useEffect(() => {
-        async function loadDiets() {
-        try {
-            const data = await getDiets();
-            setDiets(data || []);
-        } catch (err) {
-            console.error("Failed to load diets", err);
-        } finally {
-            setLoading(false);
+        async function handleFitnessInfo(){
+            try {
+                const info = await getFitnessInfo();
+                setStats(info || []);
+            } catch (err) {
+                console.error("Failed to fetch stats");
+            }
         }
+       
+        handleFitnessInfo();
+    }, []);
+
+ 
+    useEffect(() => {
+        async function loadDiets() {
+            try {
+                const data = await getDiets();
+                console.log(data);
+                setDiets(data || {});
+            } catch (err) {
+                console.error("Failed to load diets", err);
+            } finally {
+                setLoading(false);
+            }
         }
 
         loadDiets();
@@ -59,7 +72,7 @@ export default function DietPage() {
                 </button>
             </div>
             
-            <DietStats></DietStats>
+            <DietStats stats={stats}></DietStats>
 
             {/*DIET*/}
             {diets.length === 0 && (

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useMemo } from "react";
 import CreateFitnessProfileModal from "./CreateFitnessProfileModal";
-
+import Progress from "../../components/Progress";
+import Stat from '../../components/Stat';
 export default function FitnessProfile({
     profile,
     onEditGoals,    // callback
@@ -65,7 +66,7 @@ export default function FitnessProfile({
             {/* Goals */}
             <div className="mt-5 space-y-4">
                 <Progress
-                    label="Calorie loss goal"
+                    label="Daily calorie progress"
                     value={`${caloriesLost} / ${calorieGoal} kcal`}
                     percent={stats.calorieProgress}
                 />
@@ -76,35 +77,6 @@ export default function FitnessProfile({
                     percent={stats.weightProgress}
                 />
             </div>
-            </div>
-        );
-    }
-
-    /* ---------- Subcomponents ---------- */
-
-    function Stat({ label, value }) {
-    return (
-        <div className="rounded-xl bg-gray-50 p-3">
-        <p className="text-xs text-gray-500">{label}</p>
-        <p className="text-sm font-semibold">{value}</p>
-        </div>
-    );
-    }
-
-    function Progress({ label, value, percent }) {
-    return (
-        <div>
-        <div className="mb-1 flex justify-between text-sm">
-            <span className="font-medium">{label}</span>
-            <span className="text-gray-500">{value}</span>
-        </div>
-
-        <div className="h-2 w-full rounded-full bg-gray-200">
-            <div
-            className="h-2 rounded-full bg-green-500 transition-all"
-            style={{ width: `${percent}%` }}
-            />
-        </div>
         </div>
     );
 }
