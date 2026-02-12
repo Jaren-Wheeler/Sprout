@@ -1,10 +1,31 @@
+import { useState, useEffect } from 'react';
+
 export default function CreateFitnessProfileModal({
   onClose,
   onDelete,
   onSubmit,
+  profile
 }) {
 
+  const [form, setForm] = useState({
+    currentWeight: "",
+    startingWeight: "",
+    goalWeight: "",
+    calorieGoal: "",
+  });
 
+  // Prefill when editing
+  useEffect(() => {
+    if (profile) {
+      setForm({
+        currentWeight: profile.currentWeight ?? "",
+        startingWeight: profile.startingWeight ?? "",
+        goalWeight: profile.goalWeight ?? "",
+        calorieGoal: profile.calorieGoal ?? "",
+      });
+    }
+  }, [profile])
+  
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       {/* Modal */}

@@ -8,7 +8,7 @@ import { getFitnessInfo, updateFitnessInfo } from '../../api/health';
 export default function Fitness() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,23 +20,37 @@ export default function Fitness() {
   if (loading) return null;
 
   if (!profile) {
-        return (
-            <CreateFitnessProfileModal
-                onClose={() => {}}
-                
-                onSubmit={
-                  async (data) => {
-                    const saved = await updateFitnessInfo(data);
-                    setProfile(saved);
-                  }
+      return (
+          <CreateFitnessProfileModal
+              onClose={() => {setShowModal(false)}}
+              
+              onSubmit={
+                async (data) => {
+                  const saved = await updateFitnessInfo(data);
+                  setProfile(saved);
                 }
-            />
-        );
-    }
+              }
+          />
+      );
+  } else if (showModal) {
+      return (
+        <CreateFitnessProfileModal
+              onClose={() => {setShowModal(false)}}
+              onSubmit={
+                async (data) => {
+                  const saved = await updateFitnessInfo(data);
+                  setProfile(saved);
+                  setShowModal(false);
+                }
+              }
+              profile={profile}
+          />
+      )
+  }
 
   return (
     <div className="min-h-[calc(100vh-160px)] m-6 px-6">
-      <FitnessProfile profile={profile}></FitnessProfile>
+      <FitnessProfile profile={profile} onEditGoals={() => setShowModal(true)}></FitnessProfile>
 
       <div className="flex justify-center">
         <button className="w-[25%] rounded-2xl border bg-white p-5 m-5 shadow-sm" onClick={() => navigate("/diet")}>My Diets</button>
