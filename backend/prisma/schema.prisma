@@ -149,8 +149,9 @@ model FitnessInfo {
   currentWeight Decimal? @map("current_weight")
   goalWeight    Decimal? @map("goal_weight")
   calorieGoal   Int?     @map("calorie_goal")
+  age           Int?     @map("age")
+  heightFt      Decimal? @map("height_ft")
   updatedAt     DateTime @updatedAt @map("updated_at")
-
   userId String @unique @map("user_id")
   user   User   @relation(fields: [userId], references: [id])
 
@@ -188,6 +189,9 @@ model Diet {
   id          String   @id @default(uuid()) @map("id")
   name        String   @map("name")
   description String?  @map("description")
+
+  isActive    Boolean  @default(false) @map("is_active")
+
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 

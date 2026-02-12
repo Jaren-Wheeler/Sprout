@@ -42,6 +42,10 @@ export const getDiets = () => {
   return apiFetch("/api/health/diets");
 };
 
+export const getDietById = () => {
+  return apiFetch(`/api/health/diets/${id}`);
+}
+
 export const createDiet = (data) => {
   return apiFetch("/api/health/diets", {
     method: "POST",
