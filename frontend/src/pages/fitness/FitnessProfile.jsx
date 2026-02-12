@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMemo } from "react";
-import CreateFitnessProfileModal from "./createFitnessProfileModal";
+import CreateFitnessProfileModal from "./CreateFitnessProfileModal";
 
 export default function FitnessProfile({
     profile,
