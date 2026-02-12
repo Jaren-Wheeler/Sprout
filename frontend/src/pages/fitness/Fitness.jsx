@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'
 import FitnessProfile from './FitnessProfile';
 import CreateFitnessProfileModal from './CreateFitnessProfileModal';
 import Sprout from '../../components/chatbot/Sprout';
@@ -7,6 +8,8 @@ import { getFitnessInfo, updateFitnessInfo } from '../../api/health';
 export default function Fitness() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     getFitnessInfo()
@@ -36,9 +39,10 @@ export default function Fitness() {
       <FitnessProfile profile={profile}></FitnessProfile>
 
       <div className="flex justify-center">
-        <button className="w-[25%] rounded-2xl border bg-white p-5 m-5 shadow-sm">My Diets</button>
-        <button className="w-[25%] rounded-2xl border bg-white p-5 m-5 shadow-sm">My Workouts</button>
+        <button className="w-[25%] rounded-2xl border bg-white p-5 m-5 shadow-sm" onClick={() => navigate("/diet")}>My Diets</button>
+        <button className="w-[25%] rounded-2xl border bg-white p-5 m-5 shadow-sm" onClick={() => navigate("/workout")}>My Workouts</button>
       </div>
+
       <Sprout></Sprout>
     </div>
   );

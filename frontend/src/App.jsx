@@ -9,6 +9,8 @@ import Notes from './pages/notes/Notes';
 import Fitness from './pages/fitness/Fitness';
 import BudgetPage from './pages/budgeting/BudgetPage';
 import Calendar from './pages/calendar/Calendar';
+import DietPage from './pages/fitness/dietPage';
+import WorkoutPage from './pages/fitness/workoutPage';
 
 export default function App() {
   return (
@@ -22,6 +24,9 @@ export default function App() {
       <Route path="/fitness" element={<Fitness />} />
       <Route path="/budget" element={<BudgetPage />} />
       <Route path="/calendar" element={<Calendar />} />
+
+      <Route path="/diet" element={<DietPage />} />
+      <Route path="/workout" element={<WorkoutPage />} />
     </Routes>
   );
 }
