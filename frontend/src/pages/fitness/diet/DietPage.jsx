@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getDiets } from "../../../api/health";
+import { getDiets, createDiet } from "../../../api/health";
 import Sprout from "../../../components/chatbot/Sprout";
 import DietStats from "./DietStats";
 import CreateDietModal from "./CreateDietModal";
@@ -110,8 +110,12 @@ export default function DietPage() {
             <CreateDietModal
                 isOpen={showModal}
                 onClose={() => setShowModal(false)}
-                onCreate={(dietData) => {
-                    console.log("Create diet:", dietData);
+                onCreate={async (data) => {
+                    const newDiet = await createDiet(data);
+
+                    //add new card instantly
+                    setDiets(prev => [...prev, newDiet]);
+                    setShowModal(false);
                 }}
             />
             <Sprout></Sprout>
