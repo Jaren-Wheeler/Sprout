@@ -15,6 +15,12 @@ const {
   updateExpense,
   deleteExpense,
 
+  // Income
+  updateExpectedIncome,
+  createIncomeEntry,
+  getIncomeEntries,
+  getExpectedIncome,
+
   // Analytics
   getCategoryTotals
 } = require("../controllers/finance.controller");
@@ -49,5 +55,13 @@ router.delete("/expenses/:id", auth, deleteExpense);
 
 router.get("/analytics/categories", auth, getCategoryTotals);
 
+// =====================================================
+// Income Routes
+// =====================================================
+
+router.patch("/income/expected", auth, updateExpectedIncome);
+router.post("/income", auth, createIncomeEntry);
+router.get("/income", auth, getIncomeEntries);
+router.get("/income/expected", auth, getExpectedIncome);
 
 module.exports = router;
