@@ -11,8 +11,8 @@ export default function CreateDietModal({ isOpen, onClose, onCreate }) {
         if (!name) return;
 
         onCreate({
-        name,
-        description
+            name,
+            description
         });
 
         // reset fields

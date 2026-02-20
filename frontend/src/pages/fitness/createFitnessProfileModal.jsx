@@ -12,7 +12,7 @@ export default function CreateFitnessProfileModal({
     goalWeight: "",
     calorieGoal: "",
     age: "",
-    height: ""
+    heightFt: ""
   });
 
   // Prefill when editing
@@ -23,7 +23,7 @@ export default function CreateFitnessProfileModal({
         goalWeight: onEditGoals.goalWeight ?? "",
         calorieGoal: onEditGoals.calorieGoal ?? "",
         age: onEditGoals.age ?? "",
-        height: onEditGoals.height ?? ""
+        heightFt: onEditGoals.heightFt ?? ""
       });
     }
   }, [onEditGoals])
@@ -32,6 +32,7 @@ export default function CreateFitnessProfileModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       {/* Modal */}
       <div className="w-full max-w-lg rounded-2xl border bg-white p-6 shadow-lg">
+
         {onEditGoals ? (
           <h1 className="mb-4 text-lg font-semibold text-gray-800">
             Update your fitness goals!
