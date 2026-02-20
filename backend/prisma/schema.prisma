@@ -198,7 +198,27 @@ model Diet {
   userId String @map("user_id")
   user   User   @relation(fields: [userId], references: [id])
 
+  dietItems DietItem[]
+
   @@map("diets")
+}
+
+model DietItem {
+  id          String   @id @default(uuid()) @map("id")
+  name        String   @map("name")
+  meal        MealType
+
+  calories    Int?
+  protein     Float?
+  carbs       Float?
+  fat         Float?
+  sugar       Float?
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  dietId String @map("diet_id")
+  diet  Diet @relation(fields: [dietId], references: [id])
 }
 
 // =====================================================
@@ -227,4 +247,11 @@ model ChatbotMessage {
 enum Sender {
   user
   bot
+}
+
+enum MealType {
+  Breakfast
+  Lunch
+  Dinner
+  Snacks
 }
