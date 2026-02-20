@@ -5,7 +5,7 @@ import Progress from "../../components/Progress";
 import Stat from '../../components/Stat';
 export default function FitnessProfile({
     profile,
-    onEditGoals,    // callback
+    onEditGoals
 }) {
 
     const {
@@ -48,8 +48,8 @@ export default function FitnessProfile({
                 </div>
 
                 <button
-                onClick={onEditGoals}
-                className="rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
+                    onClick={onEditGoals} 
+                    className="rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
                 >
                     Edit goals
                 </button>

@@ -33,7 +33,9 @@ const updateFitnessInfo = async (userId, data) => {
       data: {
         currentWeight: data.currentWeight,
         goalWeight: data.goalWeight,
-        calorieGoal: data.calorieGoal
+        calorieGoal: data.calorieGoal,
+        age: data.age,
+        heightFt: data.heightFt,
       }
     });
   }
@@ -43,6 +45,8 @@ const updateFitnessInfo = async (userId, data) => {
       currentWeight: data.currentWeight,
       goalWeight: data.goalWeight,
       calorieGoal: data.calorieGoal,
+      age: data.age,
+      heightFt: data.heightFt,
       user: {
         connect: { id: userId }
       }

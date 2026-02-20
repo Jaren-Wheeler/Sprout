@@ -5,7 +5,7 @@ import Sprout from "../../../components/chatbot/Sprout";
 import DietStats from "./DietStats";
 import CreateDietModal from "./CreateDietModal";
 import DietCard from "./DietCard";
-import Progress from "../../../components/Progress";
+
 
 export default function DietPage() {
     const navigate = useNavigate();
