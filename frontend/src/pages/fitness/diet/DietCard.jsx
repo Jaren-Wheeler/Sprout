@@ -16,7 +16,7 @@ export default function DietCard({ diet, featured = false, onDelete }) {
                     `}>
             <div
                 className="flex w-[90%]"
-                onClick={() => navigate(`/diet/${diet.id}`)}
+                onClick={() => navigate(`/diet/${diet.id}`, { state: { diet } })}
             >
                 <div>
                     {/* TITLE */}
