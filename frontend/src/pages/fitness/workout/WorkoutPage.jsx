@@ -103,7 +103,7 @@ export default function WorkoutPage() {
                 </div>
             )}
 
-            {/* MULTIPLE DIETS → GRID */}
+            {/* MULTIPLE WORKOUTS → GRID */}
             {workouts.length > 1 && (
                 <div className="grid grid-cols-3 gap-4 mt-6">
                     {workouts.map(workout => (
@@ -119,7 +119,7 @@ export default function WorkoutPage() {
                     const newWorkout = await createWorkout(data);
 
                     //add new card instantly
-                    setWorkout(prev => [...prev, newWorkout]);
+                    setWorkouts(prev => [...prev, newWorkout]);
                     setShowModal(false);
                 }}
             />
