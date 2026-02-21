@@ -97,8 +97,19 @@ const deleteDiet = async (req, res, next) => {
 
 const addDietItem = async (req, res, next) => {
   try {
-    await healthService.addDietItem(req.params.id);
-    res.status(204).send();
+    const {name, meal, calories,protein,carbs,fat,sugar} = req.body
+    const item = await healthService.addDietItem(
+      req.params.id,
+      name,
+      meal,
+      false,
+      calories,
+      protein,
+      carbs,
+      fat,
+      sugar
+    );
+    res.status(201).json(item);
   } catch (err) {
     next(err)
   }

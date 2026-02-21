@@ -19,7 +19,7 @@ export default function DietPage() {
                 <h1>Diet Page for {diet.name}</h1>
             </div>
             <div className="flex">
-                <LogFoodCard></LogFoodCard>
+                <LogFoodCard diet={diet}></LogFoodCard>
                 <div className=" w-[95%] p-8 m-auto flex flex-col gap-5">
                     <MealPlanningCard></MealPlanningCard>
                     <DietCharts></DietCharts>
