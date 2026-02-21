@@ -9,9 +9,10 @@ import Notes from './pages/notes/Notes';
 import Fitness from './pages/fitness/Fitness';
 import BudgetPage from './pages/budgeting/BudgetPage';
 import Calendar from './pages/calendar/Calendar';
+import DietDashboard from './pages/fitness/diet/DietDashboard';
+import WorkoutDashboard from './pages/fitness/workout/WorkoutDashboard';
 import DietPage from './pages/fitness/diet/DietPage';
 import WorkoutPage from './pages/fitness/workout/WorkoutPage';
-
 export default function App() {
   return (
     <Routes>
@@ -25,8 +26,12 @@ export default function App() {
       <Route path="/budget" element={<BudgetPage />} />
       <Route path="/calendar" element={<Calendar />} />
 
-      <Route path="/diet" element={<DietPage />} />
-      <Route path="/workout" element={<WorkoutPage />} />
+      <Route path="/diet" element={<DietDashboard />} />
+      <Route path="/workout" element={<WorkoutDashboard />} />
+
+      
+      <Route path="/diet/:id" element={<DietPage />} />
+      <Route path="/workout/:id" element={<WorkoutPage />} />
     </Routes>
   );
 }

@@ -14,7 +14,7 @@ export default function WorkoutStats({stats}) {
             <h2>Your stats for {date.toDateString()}</h2>
             
             <div className="mt-4 grid grid-cols-2 gap-3">
-                <Stat label="Current weight" value={`${stats.currentWeight} lb`} />
+                <Stat label="Current Weight" value={`${stats.currentWeight} lb`} />
                 <Stat label="Calories Consumed" value={`${consumedCalories} kCal`} />
                 <Stat label="Calorie Goal" value={`${stats.calorieGoal} lb`} />
                 <Stat label="Calories remaining" value={`${stats.calorieGoal - consumedCalories} lb`} />

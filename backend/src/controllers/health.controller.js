@@ -95,6 +95,24 @@ const deleteDiet = async (req, res, next) => {
   }
 };
 
+const addDietItem = async (req, res, next) => {
+  try {
+    await healthService.addDietItem(req.params.id);
+    res.status(204).send();
+  } catch (err) {
+    next(err)
+  }
+};
+
+const deleteDietItem = async (req, res, next) => {
+  try {
+    await healthService.deleteDietItem(req.params.id);
+    res.status(204).send();
+  } catch (err) {
+    next(err)
+  }
+};
+
 module.exports = {
   getFitnessInfo,
   updateFitnessInfo,
@@ -103,5 +121,7 @@ module.exports = {
   deleteWorkout,
   createDiet,
   getDiets,
-  deleteDiet
+  deleteDiet,
+  addDietItem,
+  deleteDietItem
 };
