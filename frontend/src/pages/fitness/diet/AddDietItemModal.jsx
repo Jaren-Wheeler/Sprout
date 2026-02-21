@@ -2,7 +2,12 @@ import { useState } from "react";
 
 export default function AddDietItemModal({ isOpen, onClose, onCreate }) {
     const [name, setName] = useState("");
-    const [description, setDescription] = useState("");
+    const [calories, setCalories] = useState("");
+    const [protein, setProtein] = useState("");
+    const [carbs, setCarbs] = useState("");
+    const [fat, setFat] = useState("");
+    const [sugar, setSugar] = useState("");
+
     if (!isOpen) return null;
 
     function handleSubmit(e) {
@@ -12,12 +17,21 @@ export default function AddDietItemModal({ isOpen, onClose, onCreate }) {
 
         onCreate({
             name,
-            description
+            calories,
+            protein,
+            carbs,
+            fat,
+            sugar
         });
 
         // reset fields
         setName("");
         setDescription("");
+        setCalories("");
+        setProtein("");
+        setCarbs("");
+        setFat("");
+        setSugar("");
     }
 
     return (
@@ -27,19 +41,73 @@ export default function AddDietItemModal({ isOpen, onClose, onCreate }) {
             <div className="bg-white rounded-3xl shadow-xl w-[420px] p-8">
 
                 <h2 className="text-xl font-semibold mb-6">
-                Create New Diet
+                    Log a food item
                 </h2>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
 
-                    {/* Diet Name */}
+                    {/* Food Name */}
                     <div>
-                        <label className="text-sm text-gray-600">Diet Name</label>
+                        <label className="text-sm text-gray-600">Food Name</label>
                         <input
                         type="text"
-                        placeholder="Lean Bulk"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
+                        className="w-full border rounded-lg p-3 mt-1"
+                        />
+                    </div>
+
+                     {/* Calorie Amount */}
+                    <div>
+                        <label className="text-sm text-gray-600">Calories (kCal)</label>
+                        <input
+                        type="text"
+                        value={calories}
+                        onChange={(e) => setCalories(e.target.value)}
+                        className="w-full border rounded-lg p-3 mt-1"
+                        />
+                    </div>
+
+                     {/* Protein Amount */}
+                    <div>
+                        <label className="text-sm text-gray-600">Protein (g)</label>
+                        <input
+                        type="text"
+                        value={protein}
+                        onChange={(e) => setProtein(e.target.value)}
+                        className="w-full border rounded-lg p-3 mt-1"
+                        />
+                    </div>
+
+                     {/* Carb Amount */}
+                    <div>
+                        <label className="text-sm text-gray-600">Carbs (g)</label>
+                        <input
+                        type="text"
+                        value={carbs}
+                        onChange={(e) => setCarbs(e.target.value)}
+                        className="w-full border rounded-lg p-3 mt-1"
+                        />
+                    </div>
+
+                     {/* Fat Amount */}
+                    <div>
+                        <label className="text-sm text-gray-600">Fat (g)</label>
+                        <input
+                        type="text"
+                        value={fat}
+                        onChange={(e) => setFat(e.target.value)}
+                        className="w-full border rounded-lg p-3 mt-1"
+                        />
+                    </div>
+
+                     {/* Sugar Amount */}
+                    <div>
+                        <label className="text-sm text-gray-600">Sugar (g)</label>
+                        <input
+                        type="text"
+                        value={sugar}
+                        onChange={(e) => setSugar(e.target.value)}
                         className="w-full border rounded-lg p-3 mt-1"
                         />
                     </div>
