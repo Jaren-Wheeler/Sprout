@@ -1,4 +1,5 @@
 const prisma = require("../clients/prisma.client");
+const { MealType } = require("@prisma/client");
 
 // =====================================================
 // Health Service
@@ -143,6 +144,39 @@ const deleteDiet = async (id) => {
   });
 };
 
+/**
+ * Add a diet item to the system
+ */
+const addDietItem = async (dietId, name, meal, presetMeal, calories, protein, carbs, fat, sugar) => {
+
+  if (!name || !meal || !calories) {
+    const err = Error("Missing required inputs for diet item.");
+    err.status = 400;
+    throw err;
+  }
+
+  if (!Object.values(MealType).includes(meal)) {
+    const err = Error("Invalid meal type.");
+    err.status = 400;
+    throw err;
+  }
+  return prisma.dietItem.create({
+    data: {
+      name,
+      meal,
+      presetMeal: presetMeal ?? false,
+      calories,
+      protein,
+      carbs,
+      fat,
+      sugar,
+      diet: {
+        connect: {id: dietId}
+      }
+    }
+  })
+};
+
 module.exports = {
   getFitnessInfo,
   updateFitnessInfo,
@@ -151,5 +185,6 @@ module.exports = {
   deleteWorkout,
   createDiet,
   getDiets,
-  deleteDiet
+  deleteDiet,
+  addDietItem
 };

@@ -207,8 +207,9 @@ model DietItem {
   id          String   @id @default(uuid()) @map("id")
   name        String   @map("name")
   meal        MealType
+  presetMeal  Boolean? @default(false)
 
-  calories    Int?
+  calories    Int
   protein     Float?
   carbs       Float?
   fat         Float?
