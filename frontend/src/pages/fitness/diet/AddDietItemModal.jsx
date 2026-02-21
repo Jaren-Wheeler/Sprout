@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function CreateDietModal({ isOpen, onClose, onCreate }) {
+export default function AddDietItemModal({ isOpen, onClose, onCreate }) {
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     if (!isOpen) return null;
