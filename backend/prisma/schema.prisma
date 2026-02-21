@@ -251,8 +251,8 @@ enum Sender {
 }
 
 enum MealType {
-  Breakfast
-  Lunch
-  Dinner
-  Snacks
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACKS
 }

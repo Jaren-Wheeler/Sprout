@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function AddDietItemModal({ isOpen, onClose, onCreate }) {
+export default function AddDietItemModal({ isOpen, meal, onClose, onCreate }) {
     const [name, setName] = useState("");
     const [calories, setCalories] = useState("");
     const [protein, setProtein] = useState("");
@@ -13,20 +13,20 @@ export default function AddDietItemModal({ isOpen, onClose, onCreate }) {
     function handleSubmit(e) {
         e.preventDefault();
 
-        if (!name) return;
+        if (!name || !calories) return;
 
         onCreate({
             name,
-            calories,
-            protein,
-            carbs,
-            fat,
-            sugar
+            meal,
+            calories: Number(calories),
+            protein: Number(protein),
+            carbs: Number(carbs),
+            fat: Number(fat),
+            sugar: Number(sugar)
         });
-
+        
         // reset fields
         setName("");
-        setDescription("");
         setCalories("");
         setProtein("");
         setCarbs("");
