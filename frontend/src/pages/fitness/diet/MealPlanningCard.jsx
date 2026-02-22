@@ -18,7 +18,7 @@ export default function MealPlanningCard({ diet }) {
 
    async function handleSubmit(preset) {
         const newItem = await addDietItem({
-            id: diet.id,          // ⭐ REQUIRED
+            id: diet.id,         
             name: preset.name,
             meal: preset.meal,
             presetMeal: false,
