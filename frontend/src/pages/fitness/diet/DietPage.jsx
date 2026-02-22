@@ -21,9 +21,11 @@ export default function DietPage() {
             <div className="flex gap-5">
                 <LogFoodCard diet={diet}></LogFoodCard>
                 <FoodListCard diet={diet}></FoodListCard>
-                <div className=" w-[95%] flex flex-col gap-5 flex-start">
+                <div className=" w-[95%] flex flex-col gap-5 self-start h-full">
                     <MealPlanningCard diet={diet}></MealPlanningCard>
-                    <DietCharts></DietCharts>
+                    <div className="mt-auto">
+                        <DietCharts></DietCharts>
+                    </div> 
                 </div>
             </div> 
         </div>
