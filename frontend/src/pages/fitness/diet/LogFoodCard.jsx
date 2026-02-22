@@ -8,7 +8,7 @@ export default function LogFoodCard({diet}) {
     const [showModal, setShowModal] = useState(false);
 
     return (
-        <div className="rounded-2xl border bg-[red] w-[30%] p-5 m-auto">
+        <div className="rounded-2xl border bg-[red] w-[15%] p-5 m-auto">
             <h2 className="mb-2">Log Foods</h2>
             <div className="
                 rounded-2xl w-[95%] m-auto flex flex-col gap-5
