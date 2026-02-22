@@ -13,7 +13,8 @@ const {
   getDiets,
   deleteDiet,
   addDietItem,
-  deleteDietItem
+  deleteDietItem,
+  getDietItems
 } = require("../controllers/health.controller");
 
 // =====================================================
@@ -36,6 +37,7 @@ router.delete("/diets/:id", auth, deleteDiet);
 
 // Diet Items
 router.post("/diets/:id/diet-items", auth, addDietItem);
+router.get("/diets/:id/diet-items", auth, getDietItems)
 router.delete("/diets/:id/diet_items/:itemId", auth, deleteDietItem);
 
 module.exports = router;

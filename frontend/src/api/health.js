@@ -65,3 +65,7 @@ export const addDietItem = (data) => {
     body: JSON.stringify(data)
   });
 }
+
+export const getDietItems = (id) => {
+  return apiFetch(`/api/health/diets/${id}/diet-items`);
+}

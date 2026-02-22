@@ -178,6 +178,12 @@ const addDietItem = async (dietId, name, meal, presetMeal, calories, protein, ca
   })
 };
 
+const getDietItems = async (dietId) => {
+  return prisma.dietItem.findMany({
+    where: { dietId },
+    orderBy: { createdAt: "desc" }
+  });
+}
 module.exports = {
   getFitnessInfo,
   updateFitnessInfo,
@@ -187,5 +193,6 @@ module.exports = {
   createDiet,
   getDiets,
   deleteDiet,
-  addDietItem
+  addDietItem,
+  getDietItems
 };

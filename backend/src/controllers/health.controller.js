@@ -124,6 +124,14 @@ const deleteDietItem = async (req, res, next) => {
   }
 };
 
+const getDietItems = async(req,res,next) => {
+  try {
+    const items = await healthService.getDietItems(req.params.id);
+    res.json(items);
+  } catch (err) {
+    next(err);
+  }
+}
 module.exports = {
   getFitnessInfo,
   updateFitnessInfo,
@@ -134,5 +142,6 @@ module.exports = {
   getDiets,
   deleteDiet,
   addDietItem,
-  deleteDietItem
+  deleteDietItem,
+  getDietItems
 };
