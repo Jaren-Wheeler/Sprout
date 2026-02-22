@@ -1,6 +1,9 @@
 
-export default function MealCard({dietItem}) {
+export default function MealCard({item}) {
     return (
-        <h2>Diet Item</h2>
+        <div className='flex'>
+            <h2>{item.name}</h2>
+        </div>
+        
     )
 }
