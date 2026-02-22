@@ -97,12 +97,12 @@ const deleteDiet = async (req, res, next) => {
 
 const addDietItem = async (req, res, next) => {
   try {
-    const {name, meal, calories,protein,carbs,fat,sugar} = req.body
+    const {name, meal, presetMeal, calories,protein,carbs,fat,sugar} = req.body
     const item = await healthService.addDietItem(
       req.params.id,
       name,
       meal,
-      false,
+      presetMeal,
       calories,
       protein,
       carbs,

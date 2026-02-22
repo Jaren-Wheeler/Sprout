@@ -165,7 +165,7 @@ const addDietItem = async (dietId, name, meal, presetMeal, calories, protein, ca
     data: {
       name,
       meal,
-      presetMeal: presetMeal ?? false,
+      presetMeal,
       calories,
       protein,
       carbs,

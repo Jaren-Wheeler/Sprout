@@ -7,7 +7,6 @@ export default function FoodListCard({diet}) {
     useEffect(() => {
         async function loadItems() {
             const data = await getDietItems(diet.id);
-            console.log(data);
             setItems(data);
         }
 

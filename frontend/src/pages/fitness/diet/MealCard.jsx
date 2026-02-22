@@ -1,6 +1,6 @@
 
-export default function MealCard() {
+export default function MealCard({dietItem}) {
     return (
-        <h2>This ia a meal card</h2>
+        <h2>Diet Item</h2>
     )
 }
