@@ -69,3 +69,9 @@ export const addDietItem = (data) => {
 export const getDietItems = (id) => {
   return apiFetch(`/api/health/diets/${id}/diet-items`);
 }
+
+export const deleteDietItem = (id, itemId) => {
+  return apiFetch(`/api/health/diets/${id}/diet-items/${itemId}`, {
+    method: "DELETE"
+  });
+}
