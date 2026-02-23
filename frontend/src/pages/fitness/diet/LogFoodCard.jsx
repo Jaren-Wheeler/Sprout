@@ -31,7 +31,7 @@ export default function LogFoodCard({diet}) {
                 onCreate = {async (data) => {
                     const newItem = await addDietItem({
                         ...data,
-                        diet_id: diet.id});
+                        id: diet.id});
                     
                     setItem(prev => [...prev, newItem]);
                     setShowModal(false);
