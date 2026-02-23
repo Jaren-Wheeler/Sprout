@@ -10,7 +10,7 @@ export default function AddDietItemModal({ isOpen, meal, onClose, onCreate }) {
 
     if (!isOpen) return null;
 
-    function handleSubmit(e) {
+    function handleSubmit(e, preset) {
         e.preventDefault();
 
         if (!name || !calories) return;
@@ -18,6 +18,7 @@ export default function AddDietItemModal({ isOpen, meal, onClose, onCreate }) {
         onCreate({
             name,
             meal,
+            presetMeal: preset,
             calories: Number(calories),
             protein: Number(protein),
             carbs: Number(carbs),
@@ -32,6 +33,7 @@ export default function AddDietItemModal({ isOpen, meal, onClose, onCreate }) {
         setCarbs("");
         setFat("");
         setSugar("");
+    
     }
 
     return (
@@ -115,18 +117,26 @@ export default function AddDietItemModal({ isOpen, meal, onClose, onCreate }) {
                     {/* Buttons */}
                     <div className="flex justify-end gap-3 pt-4">
                         <button
-                        type="button"
-                        onClick={onClose}
-                        className="px-4 py-2 rounded-lg border"
+                            type="button"
+                            onClick={onClose}
+                            className="px-4 py-2 rounded-lg border"
                         >
                         Cancel
                         </button>
 
                         <button
-                        type="submit"
-                        className="bg-gray-900 text-white px-5 py-2 rounded-lg"
+                            type="submit"
+                            onClick={(e) => handleSubmit(e, false)}
+                            className="bg-gray-900 text-white px-5 py-2 rounded-lg"
                         >
                             Create
+                        </button>
+                        <button
+                            type="submit"
+                            onClick={(e) => handleSubmit(e,true)}
+                            className="bg-gray-900 text-white px-5 py-2 rounded-lg"
+                        >
+                            Save as preset
                         </button>
                     </div>
 

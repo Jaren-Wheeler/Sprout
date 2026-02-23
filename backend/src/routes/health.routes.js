@@ -38,6 +38,6 @@ router.delete("/diets/:id", auth, deleteDiet);
 // Diet Items
 router.post("/diets/:id/diet-items", auth, addDietItem);
 router.get("/diets/:id/diet-items", auth, getDietItems)
-router.delete("/diets/:id/diet_items/:itemId", auth, deleteDietItem);
+router.delete("/diets/:id/diet-items/:itemId", auth, deleteDietItem);
 
 module.exports = router;

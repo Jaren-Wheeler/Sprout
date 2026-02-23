@@ -155,7 +155,6 @@ const addDietItem = async (dietId, name, meal, presetMeal, calories, protein, ca
     throw err;
   }
   
-
   if (!Object.values(MealType).includes(meal)) {
     const err = Error("Invalid meal type.");
     err.status = 400;
@@ -165,7 +164,7 @@ const addDietItem = async (dietId, name, meal, presetMeal, calories, protein, ca
     data: {
       name,
       meal,
-      presetMeal: presetMeal ?? false,
+      presetMeal,
       calories,
       protein,
       carbs,
@@ -184,6 +183,15 @@ const getDietItems = async (dietId) => {
     orderBy: { createdAt: "desc" }
   });
 }
+
+const deleteDietItem = async (itemId) => {
+  return prisma.dietItem.delete({
+    where: {
+      id: itemId
+    }
+  });
+}
+
 module.exports = {
   getFitnessInfo,
   updateFitnessInfo,
@@ -194,5 +202,6 @@ module.exports = {
   getDiets,
   deleteDiet,
   addDietItem,
-  getDietItems
+  getDietItems,
+  deleteDietItem
 };

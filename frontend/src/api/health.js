@@ -60,7 +60,7 @@ export const deleteDiet = (id) => {
 };
 
 export const addDietItem = (data) => {
-  return apiFetch(`/api/health/diets/${data.diet_id}/diet-items`, {
+  return apiFetch(`/api/health/diets/${data.id}/diet-items`, {
     method: "POST",
     body: JSON.stringify(data)
   });
@@ -68,4 +68,10 @@ export const addDietItem = (data) => {
 
 export const getDietItems = (id) => {
   return apiFetch(`/api/health/diets/${id}/diet-items`);
+}
+
+export const deleteDietItem = (id, itemId) => {
+  return apiFetch(`/api/health/diets/${id}/diet-items/${itemId}`, {
+    method: "DELETE"
+  });
 }

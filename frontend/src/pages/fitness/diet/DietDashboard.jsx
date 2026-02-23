@@ -1,19 +1,18 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { getDiets, createDiet, deleteDiet, getFitnessInfo } from "../../../api/health";
 import Sprout from "../../../components/chatbot/Sprout";
 import DietStats from "./DietStats";
 import CreateDietModal from "./CreateDietModal";
 import DietCard from "./DietCard";
+import DietPage from "./DietPage";
 
-
-export default function DietPage() {
-    const navigate = useNavigate();
+export default function DietDashboard() {
 
     const [diets, setDiets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [stats, setStats] = useState([]);
+    const [selectedDiet, setSelectedDiet] = useState(null);
     
     async function handleDeleteDiet(id) {
         try {
@@ -45,7 +44,7 @@ export default function DietPage() {
             try {
                 const data = await getDiets();
                 console.log(data);
-                setDiets(data || {});
+                setDiets(data || []);
             } catch (err) {
                 console.error("Failed to load diets", err);
             } finally {
@@ -102,8 +101,12 @@ export default function DietPage() {
             
             {/* ONE DIET → FEATURED LAYOUT */}
             {diets.length === 1 && (
-                <div className="flex justify-center mt-10">
-                    <DietCard diet={diets[0]} featured onDelete={handleDeleteDiet}/>
+                <div className="flex justify-center mt-10 w-[33%]">
+                    <DietCard
+                        diet={diets[0]}
+                        onDelete={handleDeleteDiet}
+                        onSelect={setSelectedDiet}
+                    />
                 </div>
             )}
 
@@ -111,7 +114,12 @@ export default function DietPage() {
             {diets.length > 1 && (
                 <div className="grid grid-cols-3 gap-4 mt-6">
                     {diets.map(diet => (
-                    <DietCard key={diet.id} diet={diet} onDelete={handleDeleteDiet}/>
+                        <DietCard
+                            key={diet.id}
+                            diet={diet}
+                            onDelete={handleDeleteDiet}
+                            onSelect={setSelectedDiet}
+                        />
                     ))}
                 </div>
             )}
@@ -127,6 +135,10 @@ export default function DietPage() {
                     setShowModal(false);
                 }}
             />
+            
+            {selectedDiet && (
+                <DietPage diet={selectedDiet} />
+            )}
             <Sprout></Sprout>
         </div>
     );

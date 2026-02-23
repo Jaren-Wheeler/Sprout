@@ -11,7 +11,7 @@ import BudgetPage from './pages/budgeting/BudgetPage';
 import Calendar from './pages/calendar/Calendar';
 import DietDashboard from './pages/fitness/diet/DietDashboard';
 import WorkoutDashboard from './pages/fitness/workout/WorkoutDashboard';
-import DietPage from './pages/fitness/diet/DietPage';
+//import DietPage from './pages/fitness/diet/DietPage';
 import WorkoutPage from './pages/fitness/workout/WorkoutPage';
 export default function App() {
   return (
@@ -30,7 +30,7 @@ export default function App() {
       <Route path="/workout" element={<WorkoutDashboard />} />
 
       
-      <Route path="/diet/:id" element={<DietPage />} />
+     {/* <Route path="/diet/:id" element={<DietPage />} /> */}
       <Route path="/workout/:id" element={<WorkoutPage />} />
     </Routes>
   );
