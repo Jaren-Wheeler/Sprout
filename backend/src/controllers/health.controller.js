@@ -117,7 +117,7 @@ const addDietItem = async (req, res, next) => {
 
 const deleteDietItem = async (req, res, next) => {
   try {
-    await healthService.deleteDietItem(req.params.id);
+    await healthService.deleteDietItem(req.params.itemId);
     res.status(204).send();
   } catch (err) {
     next(err)

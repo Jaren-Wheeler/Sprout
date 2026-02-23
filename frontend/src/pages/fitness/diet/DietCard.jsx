@@ -1,8 +1,6 @@
-import { useNavigate } from "react-router-dom";
 
 
-export default function DietCard({ diet, featured = false, onDelete }) {
-    const navigate = useNavigate();
+export default function DietCard({ diet, featured = false, onDelete, onSelect }) {
 
     return (
         <div  
@@ -15,8 +13,8 @@ export default function DietCard({ diet, featured = false, onDelete }) {
                     : "w-full p-6"}
                     `}>
             <div
+                onClick={() => onSelect?.(diet)}
                 className="flex w-[90%]"
-                onClick={() => navigate(`/diet/${diet.id}`, { state: { diet } })}
             >
                 <div>
                     {/* TITLE */}

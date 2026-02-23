@@ -27,7 +27,7 @@ export default function FoodListCard({diet}) {
     }
 
     return (
-        <div className="rounded-2xl border bg-[red] w-[30%] p-5 m-auto max-h-[520px] overflow-y-auto self-start">
+        <div className="rounded-2xl border bg-[red] w-[30%] p-5 max-h-[520px] overflow-y-auto ">
             <h2 className="mb-2">Your Daily Log</h2>
             <div className="rounded-2xl w-[95%] m-auto flex flex-col gap-5">
                 {(items || []).map(item => (

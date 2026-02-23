@@ -184,11 +184,10 @@ const getDietItems = async (dietId) => {
   });
 }
 
-const deleteDietItem = async (dietId, itemId) => {
-  return prisma.dietItem.deleteMany({
+const deleteDietItem = async (itemId) => {
+  return prisma.dietItem.delete({
     where: {
-      id: itemId,
-      dietId: dietId
+      id: itemId
     }
   });
 }

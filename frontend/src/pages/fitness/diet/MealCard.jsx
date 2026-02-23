@@ -1,9 +1,16 @@
-
+import { useState } from 'react';
 export default function MealCard({item}) {
 
+    const [items, setItems] = useState([]);
+    // delete a diet item
+    async function handleDelete(id) {
+        try {
+            await deleteDietItem(diet.id, id);
 
-    function handleDelete() {
-
+            setItems(prev => prev.filter(item => item.id !== id));
+        } catch (err) {
+            return err;
+        }
     }
 
     return (
