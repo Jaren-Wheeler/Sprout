@@ -192,14 +192,18 @@ export default function BudgetDashboard({
         </div>
 
         {/* ================= MAIN WORKSPACE ================= */}
-        <div className="grid lg:grid-cols-2 gap-6">
-          <BudgetChart categoryStats={categoryStats} />
+        <div className="grid lg:grid-cols-2 gap-6 items-stretch">
+          <div className="h-full">
+            <BudgetChart categoryStats={categoryStats} />
+          </div>
 
-          <BudgetWorkspace
-            categories={budgets}
-            expenses={expenses}
-            refreshData={refreshData}
-          />
+          <div className="h-full">
+            <BudgetWorkspace
+              categories={budgets}
+              expenses={expenses}
+              refreshData={refreshData}
+            />
+          </div>
         </div>
 
         {/* ================= TRANSACTION HISTORY ================= */}

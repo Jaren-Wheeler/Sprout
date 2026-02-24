@@ -10,7 +10,16 @@ export default function BudgetChart({ categoryStats }) {
 
   const totalSpent = data.reduce((sum, d) => sum + d.value, 0);
 
-  const COLORS = ['#F4B400', '#6BA292', '#D98E8E', '#9C7C5D', '#C8A96A'];
+  const generateColors = (count) => {
+    const colors = [];
+    for (let i = 0; i < count; i++) {
+      const hue = (i * 360) / count;
+      colors.push(`hsl(${hue}, 55%, 60%)`);
+    }
+    return colors;
+  };
+
+  const COLORS = generateColors(data.length);
 
   const renderLabel = ({ cx, cy, midAngle, outerRadius, percent, name }) => {
     if (percent < 0.01) return null;
@@ -36,7 +45,7 @@ export default function BudgetChart({ categoryStats }) {
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-[#E8D9A8]">
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-[#E8D9A8] h-full flex flex-col">
       <h2 className="font-semibold mb-6 text-[#3B2F2F]">
         Spending by Category
       </h2>
@@ -46,8 +55,7 @@ export default function BudgetChart({ categoryStats }) {
           No expenses yet
         </p>
       ) : (
-        <div className="flex justify-center">
-          {/* ================= PIE CHART ================= */}
+        <div className="flex justify-center flex-1">
           <div className="relative w-full max-w-[500px] h-[420px] outline-none">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart
@@ -65,7 +73,7 @@ export default function BudgetChart({ categoryStats }) {
                   animationDuration={800}
                 >
                   {data.map((entry, index) => (
-                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={index} fill={COLORS[index]} />
                   ))}
                 </Pie>
 
@@ -79,7 +87,6 @@ export default function BudgetChart({ categoryStats }) {
               </PieChart>
             </ResponsiveContainer>
 
-            {/* ================= CENTER TEXT ================= */}
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
               <p className="text-3xl font-bold text-[#3B2F2F]">
                 ${totalSpent.toFixed(0)}
