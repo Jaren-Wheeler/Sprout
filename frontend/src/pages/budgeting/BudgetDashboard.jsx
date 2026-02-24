@@ -193,7 +193,7 @@ export default function BudgetDashboard({
 
         {/* ================= MAIN WORKSPACE ================= */}
         <div className="grid lg:grid-cols-2 gap-6">
-          <BudgetChart expenses={expenses} />
+          <BudgetChart categoryStats={categoryStats} />
 
           <BudgetWorkspace
             categories={budgets}
