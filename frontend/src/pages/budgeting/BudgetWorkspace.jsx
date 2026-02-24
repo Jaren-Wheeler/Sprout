@@ -1,130 +1,141 @@
 /**
  * BudgetWorkspace
  *
- * Main detail view for the selected budget.
- * Shows totals, remaining amount, progress,
- * and the list of expenses tied to this budget.
+ * Central transaction panel.
+ * Allows adding income/expenses and shows recent activity.
  */
 
-import { useState } from 'react';
-import ExpenseList from './ExpenseList';
-import CreateExpenseModal from './CreateExpenseModal';
+import { useState } from "react";
+import { createExpense, createIncomeEntry } from "../../api/finance";
 
 export default function BudgetWorkspace({
-  budget,
+  categories,
   expenses,
-  onDeleteExpense,
-  onCreateExpense,
-  onDeleteBudget,
+  refreshData,
 }) {
-  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [description, setDescription] = useState("");
+  const [amount, setAmount] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [type, setType] = useState("expense");
+  const [loading, setLoading] = useState(false);
 
-  if (!budget) {
-    return (
-      <div className="border border-border rounded-xl bg-panel p-6 text-muted">
-        Select a budget to see details
-      </div>
-    );
+  async function handleSubmit(e) {
+  e.preventDefault();
+  if (!amount) return;
+
+  setLoading(true);
+
+  try {
+    if (type === "income") {
+      await createIncomeEntry({
+        amount: Number(amount),
+        note: description,
+        incomeDate: new Date().toISOString(),
+      });
+    } else {
+      const selectedCategory = categories.find(c => c.id === categoryId);
+
+      await createExpense({
+        amount: Number(amount),
+        description,
+        category: selectedCategory?.name || "Other",
+        expenseDate: new Date().toISOString(),
+        budgetId: categoryId,
+      });
+    }
+
+    // Reset form
+    setDescription("");
+    setAmount("");
+    setCategoryId("");
+
+    await refreshData();
+
+  } catch (err) {
+    alert(err.message || "Failed to add transaction");
+  } finally {
+    setLoading(false);  
   }
+}
 
-  const spent = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
-  const remaining = Number(budget.limitAmount) - spent;
-  const percent = Math.min((spent / budget.limitAmount) * 100, 100);
 
   return (
-    <>
-      {/* Workspace card */}
-      <div className="rounded-2xl bg-panel p-6 border border-border space-y-6">
-        {/* Header + summary */}
-        <div className="p-6 space-y-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <h2 className="text-2xl font-semibold text-white">{budget.name}</h2>
-              <p className="text-sm text-muted">
-                ${spent.toFixed(2)} spent of $
-                {Number(budget.limitAmount).toFixed(2)}
-              </p>
-            </div>
+    <div className="bg-white border-2 border-[#E8D9A8] rounded-xl p-6 space-y-6 shadow-sm">
 
-            <button
-              onClick={() => onDeleteBudget(budget.id)}
-              className="text-sm text-red-400 hover:text-red-300"
-            >
-              Delete
-            </button>
+      <h2 className="font-semibold text-lg text-[#3B2F2F]">
+        Add Transaction
+      </h2>
 
-            <div className="text-right">
-              <div className="text-sm text-muted">Remaining</div>
-              <div className="text-2xl font-bold text-green-500">
-                ${remaining.toFixed(2)}
-              </div>
-            </div>
-          </div>
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-4">
 
-          {/* Progress */}
-          <div>
-            <div className="h-3 bg-black/40 rounded">
-              <div
-                className="h-full bg-accent rounded transition-all"
-                style={{ width: `${percent}%` }}
-              />
-            </div>
-          </div>
+        <input
+          className="w-full p-3 rounded-lg bg-[#F9F6EC] border border-[#E8D9A8]"
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
 
-          {/* Summary */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <SummaryItem
-              label="Total Budget"
-              value={`$${budget.limitAmount}`}
-            />
-            <SummaryItem label="Total Spent" value={`$${spent.toFixed(2)}`} />
-            <SummaryItem
-              label="Remaining"
-              value={`$${remaining.toFixed(2)}`}
-              highlight
-            />
-          </div>
+        <input
+          type="number"
+          className="w-full p-3 rounded-lg bg-[#F9F6EC] border border-[#E8D9A8]"
+          placeholder="Amount"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+        />
 
-          {/* Add expense */}
-          <button
-            onClick={() => setIsAddOpen(true)}
-            className="px-4 py-2 rounded-lg bg-accent text-black font-medium"
+        {/* Category dropdown */}
+        {type === "expense" && (
+          <select
+            className="w-full p-3 rounded-lg bg-[#F9F6EC] border border-[#E8D9A8]"
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+            required
           >
-            + Add Expense
+            <option value="">Select Category</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        )}
+
+        {/* Toggle */}
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => setType("expense")}
+            className={`flex-1 py-2 rounded-lg font-medium transition ${
+              type === "expense"
+                ? "bg-red-500 text-white"
+                : "bg-gray-200 text-gray-600"
+            }`}
+          >
+            Expense
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setType("income")}
+            className={`flex-1 py-2 rounded-lg font-medium transition ${
+              type === "income"
+                ? "bg-green-500 text-white"
+                : "bg-gray-200 text-gray-600"
+            }`}
+          >
+            Income
           </button>
         </div>
 
-        {/* Scrollable expense list */}
-        <div className="border-t border-border px-6 py-4 overflow-y-auto min-h-0">
-          <ExpenseList expenses={expenses} onDelete={onDeleteExpense} />
-        </div>
-      </div>
-
-      {isAddOpen && (
-        <CreateExpenseModal
-          budgetId={budget.id}
-          onCreate={(data) => {
-            onCreateExpense(data);
-            setIsAddOpen(false);
-          }}
-          onClose={() => setIsAddOpen(false)}
-        />
-      )}
-    </>
-  );
-}
-
-function SummaryItem({ label, value, highlight }) {
-  return (
-    <div className="rounded-lg bg-black/20 border border-white/10 p-4">
-      <div className="text-xs uppercase tracking-wide text-muted">{label}</div>
-      <div
-        className={`text-2xl font-semibold ${
-          highlight ? 'text-green-400' : 'text-white'
-        }`}
-      >
-        {value}
-      </div>
+        {/* Submit */}
+        <button
+          disabled={loading}
+          className="w-full py-3 rounded-lg bg-[#F4A000] text-white font-semibold hover:opacity-90 transition"
+        >
+          {loading ? "Adding…" : "+ Add Transaction"}
+        </button>
+      </form>
     </div>
   );
 }

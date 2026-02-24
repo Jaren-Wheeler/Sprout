@@ -57,7 +57,7 @@ export const createExpense = (data) => {
 };
 
 /**
- * Fetch expenses (optional query string)
+ * Fetch expenses 
  * Example: getExpenses("?budgetId=123")
  */
 export const getExpenses = (query = "") => {
@@ -102,3 +102,51 @@ export const deleteBudget = (id) => {
 export const getCategoryTotals = () => {
   return apiFetch("/api/finance/analytics/categories");
 };
+
+// =====================================================
+// Income API
+// =====================================================
+
+/**
+ * Update expected monthly income baseline
+ * @param {number} amount
+ */
+export const updateExpectedIncome = (amount) => {
+  return apiFetch("/api/finance/income/expected", {
+    method: "PATCH",
+    body: JSON.stringify({ amount })
+  });
+};
+
+
+/**
+ * Create a new income entry
+ * @param {Object} data
+ * @param {number} data.amount
+ * @param {string} [data.note]
+ * @param {string|Date} [data.incomeDate]
+ */
+export const createIncomeEntry = (data) => {
+  return apiFetch("/api/finance/income", {
+    method: "POST",
+    body: JSON.stringify(data)
+  });
+};
+
+
+/**
+ * Fetch income entries
+ * @param {string} query Optional query string
+ * Example: getIncomeEntries("?from=2026-02-01&to=2026-02-29")
+ */
+export const getIncomeEntries = (query = "") => {
+  return apiFetch(`/api/finance/income${query}`);
+};
+
+/**
+ * Fetch expected monthly income baseline
+ */
+export const getExpectedIncome = () => {
+  return apiFetch("/api/finance/income/expected");
+};
+

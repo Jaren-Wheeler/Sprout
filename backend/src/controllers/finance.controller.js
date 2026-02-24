@@ -220,6 +220,82 @@ async function getCategoryTotals(req, res) {
   }
 }
 
+// =====================================================
+// Income Controllers
+// =====================================================
+
+/**
+ * Updates the user's expected monthly income.
+ * @route PATCH /api/finance/income/expected
+ */
+async function updateExpectedIncome(req, res) {
+  try {
+    const userId = req.user.id;
+    const { amount } = req.body;
+
+    const updated = await financeService.updateExpectedIncome(userId, amount);
+
+    res.json(updated);
+
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+
+/**
+ * Creates a new income entry.
+ * @route POST /api/finance/income
+ */
+async function createIncomeEntry(req, res) {
+  try {
+    const userId = req.user.id;
+
+    const income = await financeService.createIncomeEntry(userId, req.body);
+
+    res.status(201).json(income);
+
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+
+/**
+ * Retrieves income entries for the authenticated user.
+ * @route GET /api/finance/income
+ */
+async function getIncomeEntries(req, res) {
+  try {
+    const userId = req.user.id;
+
+    const income = await financeService.getIncomeEntries(userId, req.query);
+
+    res.json(income);
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+/**
+ * Retrieves the user's expected monthly income baseline.
+ * @route GET /api/finance/income/expected
+ */
+async function getExpectedIncome(req, res) {
+  try {
+    const userId = req.user.id;
+
+    const income = await financeService.getExpectedIncome(userId);
+
+    res.json(income);
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
 
 // =====================================================
 // Exports
@@ -238,6 +314,12 @@ module.exports = {
   getExpenses,
   updateExpense,
   deleteExpense,
+
+  // Income
+  updateExpectedIncome,
+  createIncomeEntry,
+  getIncomeEntries,
+  getExpectedIncome,
 
   // Analytics
   getCategoryTotals

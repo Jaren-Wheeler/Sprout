@@ -253,6 +253,81 @@ async function getExpenseTotalsByCategory(userId) {
   }));
 }
 
+// =====================================================
+// Income Services
+// =====================================================
+// Handles tracking of real income deposits and the
+// user's expected monthly income baseline.
+// =====================================================
+
+/**
+ * Updates the user's expected monthly income.
+ */
+async function updateExpectedIncome(userId, amount) {
+  return prisma.user.update({
+    where: { id: userId },
+    data: {
+      expectedIncome: amount
+    }
+  });
+}
+
+
+/**
+ * Creates a new income entry.
+ */
+async function createIncomeEntry(userId, data) {
+  return prisma.incomeEntry.create({
+    data: {
+      amount: data.amount,
+      note: data.note,
+      incomeDate: data.incomeDate
+        ? new Date(data.incomeDate)
+        : new Date(),
+      user: {
+        connect: { id: userId }
+      }
+    }
+  });
+}
+
+
+/**
+ * Retrieves income entries for a user.
+ * Supports optional date filtering.
+ */
+async function getIncomeEntries(userId, filters = {}) {
+
+  const where = { userId };
+
+  if (filters.from && filters.to) {
+    where.incomeDate = {
+      gte: new Date(filters.from),
+      lte: new Date(filters.to)
+    };
+  }
+
+  return prisma.incomeEntry.findMany({
+    where,
+    orderBy: {
+      incomeDate: "desc"
+    }
+  });
+}
+
+/**
+ * Retrieves the user's expected monthly income baseline.
+ */
+async function getExpectedIncome(userId) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { expectedIncome: true }
+  });
+
+  return {
+    amount: user?.expectedIncome || 0
+  };
+}
 
 // =====================================================
 // Exports
@@ -271,6 +346,12 @@ module.exports = {
   getExpenses,
   updateExpense,
   deleteExpense,
+
+  // Income
+  updateExpectedIncome,
+  createIncomeEntry,
+  getIncomeEntries,
+  getExpectedIncome,
 
   // Analytics
   getExpenseTotalsByCategory
