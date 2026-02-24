@@ -14,7 +14,7 @@ export default function MealPlanningCard({ diet }) {
         }
 
         if (diet?.id) loadItems();
-    }, [diet?.id]);
+    });
 
    async function handleSubmit(preset) {
         const newItem = await addDietItem({

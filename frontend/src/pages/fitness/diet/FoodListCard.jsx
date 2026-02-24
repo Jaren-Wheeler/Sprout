@@ -13,7 +13,7 @@ export default function FoodListCard({diet}) {
         if (diet?.id) {
             loadItems();
         }
-    }, [diet.id])
+    })
 
     // delete a diet item
     async function handleDelete(id) {
