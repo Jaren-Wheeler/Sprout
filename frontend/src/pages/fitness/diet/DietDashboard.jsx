@@ -3,7 +3,6 @@ import { getDiets, createDiet, deleteDiet, getFitnessInfo } from "../../../api/h
 import Sprout from "../../../components/chatbot/Sprout";
 import DietStats from "./DietStats";
 import CreateDietModal from "./CreateDietModal";
-import DietCard from "./DietCard";
 import DietPage from "./DietPage";
 
 export default function DietDashboard() {
@@ -55,6 +54,12 @@ export default function DietDashboard() {
         loadDiets();
     }, []);
 
+    useEffect(() => {
+        if (diets.length > 0 && !selectedDiet) {
+            setSelectedDiet(diets[0]);
+        }
+    }, [diets]);
+
     if (loading) return <div className="p-6">Loading diets...</div>;
 
     return (
@@ -98,32 +103,7 @@ export default function DietDashboard() {
 
                 </div>
             )}
-            
-            {/* ONE DIET → FEATURED LAYOUT */}
-            {diets.length === 1 && (
-                <div className="flex justify-center mt-10 w-[33%]">
-                    <DietCard
-                        diet={diets[0]}
-                        onDelete={handleDeleteDiet}
-                        onSelect={setSelectedDiet}
-                    />
-                </div>
-            )}
-
-            {/* MULTIPLE DIETS → GRID */}
-            {diets.length > 1 && (
-                <div className="grid grid-cols-3 gap-4 mt-6">
-                    {diets.map(diet => (
-                        <DietCard
-                            key={diet.id}
-                            diet={diet}
-                            onDelete={handleDeleteDiet}
-                            onSelect={setSelectedDiet}
-                        />
-                    ))}
-                </div>
-            )}
-
+        
             <CreateDietModal
                 isOpen={showModal}
                 onClose={() => setShowModal(false)}
@@ -136,9 +116,14 @@ export default function DietDashboard() {
                 }}
             />
             
-            {selectedDiet && (
-                <DietPage diet={selectedDiet} />
-            )}
+        
+            <DietPage 
+                diet={selectedDiet} 
+                diets={diets}
+                onDeleteDiet={handleDeleteDiet}
+                onSelectDiet={setSelectedDiet}
+            />
+    
             <Sprout></Sprout>
         </div>
     );

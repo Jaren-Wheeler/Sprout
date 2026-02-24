@@ -1,45 +1,38 @@
 
 
-export default function DietCard({ diet, featured = false, onDelete, onSelect }) {
+import { useState } from "react";
+
+export default function DietCard({ diets = [], selectedDiet, onSelect }) {
+    const [open, setOpen] = useState(false);
 
     return (
-        <div  
-            className={`
-                    text-left transition-all duration-200
-                    rounded-3xl border bg-white shadow-sm hover:shadow-xl
-                    flex 
-                    ${featured
-                    ? "w-[520px] p-10"
-                    : "w-full p-6"}
-                    `}>
-            <div
-                onClick={() => onSelect?.(diet)}
-                className="flex w-[90%]"
+        <div className="relative w-[260px] ml-auto z-50">
+            {/* Trigger */}
+            <button
+                onClick={() => setOpen(prev => !prev)}
+                className="w-full flex justify-between items-center px-4 py-2 rounded-xl border bg-white shadow-sm hover:bg-gray-50"
             >
-                <div>
-                    {/* TITLE */}
-                    <h2 className={featured ? "text-2xl font-semibold" : "text-lg font-semibold"}>
-                        {diet.name}
-                    </h2> 
-                    
-                </div>
-                
-                {diet.description && (
-                    <p className="text-sm text-gray-500 mt-1">
-                        {diet.description}
-                    </p>
-                )}
+                <span>{selectedDiet?.name || "Select Diet"}</span>
+                <span>▾</span>
+            </button>
 
-                {/* ACTIVE BADGE */}
-                {diet.isActive && (
-                    <span className="inline-block mt-4 text-xs bg-green-100 text-green-700 px-3 py-1 rounded-md">
-                        Active Diet
-                    </span>
-                )}
-            </div>
-            <button className="ml-auto" onClick={() => onDelete(diet.id)}>X</button>
+            {/* Dropdown Menu */}
+            {open && (
+                <div className="absolute right-0 mt-2 w-full bg-white border rounded-xl shadow-lg z-50">
+                    {diets.map(diet => (
+                        <div
+                            key={diet.id}
+                            onClick={() => {
+                                onSelect(diet);
+                                setOpen(false);
+                            }}
+                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        >
+                            {diet.name}
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
-      
-      
     );
 }
