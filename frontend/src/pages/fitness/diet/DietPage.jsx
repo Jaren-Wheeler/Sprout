@@ -9,10 +9,9 @@ import DietCard from './DietCard';
 export default function DietPage({ diet, diets, onDeleteDiet, onSelectDiet }) {
 
     if (!diet) return null;
-
     return (
         <div className="rounded-2xl border bg-white w-[100%] p-5 mt-8 m-auto flex flex-col gap-5">
-            <div className="flex">
+            <div className="flex space-between">
                 <h1 className="text-2xl font-bold">{diet.name}</h1>
                 <DietCard
                     diets={diets}
