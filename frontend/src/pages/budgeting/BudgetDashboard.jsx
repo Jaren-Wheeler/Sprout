@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 import BudgetChart from './BudgetChart';
@@ -37,9 +37,63 @@ export default function BudgetDashboard({
   const balance = totalIncome - totalExpenses;
 
   // =====================================================
+  // DRAG SCROLL CAROUSEL LOGIC
+  // =====================================================
+
+  const scrollRef = useRef(null);
+  const isDown = useRef(false);
+  const startX = useRef(0);
+  const scrollLeftPos = useRef(0);
+
+  function handleMouseDown(e) {
+    isDown.current = true;
+    scrollRef.current.classList.add('cursor-grabbing');
+    startX.current = e.pageX - scrollRef.current.offsetLeft;
+    scrollLeftPos.current = scrollRef.current.scrollLeft;
+  }
+
+  function handleMouseLeave() {
+    isDown.current = false;
+    scrollRef.current.classList.remove('cursor-grabbing');
+  }
+
+  function handleMouseUp() {
+    isDown.current = false;
+    scrollRef.current.classList.remove('cursor-grabbing');
+  }
+
+  function handleMouseMove(e) {
+    if (!isDown.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX.current) * 1.5;
+    scrollRef.current.scrollLeft = scrollLeftPos.current - walk;
+  }
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    function handleWheel(e) {
+      const hasHorizontalOverflow = el.scrollWidth > el.clientWidth;
+      if (!hasHorizontalOverflow) return;
+
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault();
+        el.scrollLeft += e.deltaY * 0.8;
+      }
+    }
+
+    el.addEventListener('wheel', handleWheel, { passive: false });
+
+    return () => {
+      el.removeEventListener('wheel', handleWheel);
+    };
+  }, []);
+
+  // =====================================================
   // CATEGORY SPENDING DATA
   // =====================================================
-  // Used for progress bars.
 
   const categoryStats = useMemo(() => {
     return budgets.map((b) => {
@@ -78,14 +132,12 @@ export default function BudgetDashboard({
       category: 'Income',
     }));
 
-    // Merge + sort newest first
     return [...expenseTx, ...incomeTx].sort(
       (a, b) => new Date(b.date) - new Date(a.date)
     );
   }, [expenses, incomeEntries]);
 
   const [editingCategory, setEditingCategory] = useState(null);
-  
 
   // =====================================================
   // UI
@@ -110,28 +162,31 @@ export default function BudgetDashboard({
 
         {/* ================= SUMMARY CARDS ================= */}
         <div className="grid md:grid-cols-3 gap-4">
-          {/* Planned monthly income */}
           <SummaryCard title="Income" value={totalIncome} color="income" />
-
-          {/* Real spending */}
           <SummaryCard title="Expenses" value={totalExpenses} color="expense" />
-
-          {/* Budget planning balance */}
           <SummaryCard title="Balance" value={balance} color="balance" />
         </div>
 
-        {/* ================= CATEGORY PROGRESS STRIP ================= */}
-        <div className="overflow-x-auto pb-4">
-          <div className="flex gap-4 px-2 snap-x snap-mandatory">
-            {categoryStats.map((cat) => (
-              <div key={cat.id} className="snap-start">
-                <CategoryCard category={cat} onClick={setEditingCategory} />
-              </div>
-            ))}
+        {/* ================= CATEGORY CAROUSEL ================= */}
+        <div className="relative pb-6 carousel-fade">
+          <div
+            ref={scrollRef}
+            onMouseDown={handleMouseDown}
+            onMouseLeave={handleMouseLeave}
+            onMouseUp={handleMouseUp}
+            onMouseMove={handleMouseMove}
+            className="overflow-x-auto hide-scrollbar scroll-smooth cursor-grab select-none px-4"
+          >
+            <div className="flex gap-4 snap-x snap-mandatory">
+              {categoryStats.map((cat) => (
+                <div key={cat.id} className="snap-start">
+                  <CategoryCard category={cat} onClick={setEditingCategory} />
+                </div>
+              ))}
 
-            {/* ALWAYS LAST */}
-            <div className="snap-start">
-              <CategoryAddCard onClick={() => setEditingCategory('new')} />
+              <div className="snap-start">
+                <CategoryAddCard onClick={() => setEditingCategory('new')} />
+              </div>
             </div>
           </div>
         </div>
