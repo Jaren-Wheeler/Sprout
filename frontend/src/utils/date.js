@@ -1,54 +1,35 @@
-// =====================================================
-// Date Utilities
-// =====================================================
-// Helper functions for generating ISO date ranges
-// and formatting dates for UI inputs.
-// =====================================================
+import { format } from "date-fns";
 
+export function groupEventsByDate(events) {
+  const grouped = {};
 
-/**
- * Returns ISO start and end timestamps for the
- * current calendar month.
- */
-export function getCurrentMonthRange() {
-  const now = new Date();
+  for (const e of events) {
+    const key = format(new Date(e.startTime), "yyyy-MM-dd");
 
-  const start = new Date(now.getFullYear(), now.getMonth(), 1);
-  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(e);
+  }
 
-  return {
-    from: start.toISOString(),
-    to: end.toISOString()
-  };
+  return grouped;
 }
 
+export function getEventColor(id) {
+  const colors = [
+    "bg-blue-200 border-blue-400",
+    "bg-green-200 border-green-400",
+    "bg-purple-200 border-purple-400",
+    "bg-yellow-200 border-yellow-400",
+    "bg-pink-200 border-pink-400"
+  ];
 
-/**
- * Returns ISO start and end timestamps for the month
- * containing the given date.
- */
-export function getMonthRange(dateInput) {
-  const date = new Date(dateInput);
-
-  const start = new Date(date.getFullYear(), date.getMonth(), 1);
-  const end = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59, 999);
-
-  return {
-    from: start.toISOString(),
-    to: end.toISOString()
-  };
+  const index = Math.abs(hashCode(id)) % colors.length;
+  return colors[index];
 }
 
-
-/**
- * Formats a date into YYYY-MM-DD for input fields.
- */
-export function formatDateForInput(dateInput) {
-  const date = new Date(dateInput);
-
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-
-  return `${y}-${m}-${d}`;
+function hashCode(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return hash;
 }
