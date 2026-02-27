@@ -1,10 +1,10 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 
-import { useNotes } from "./useNotes";
-import NotesToolbar from "./NotesToolbar";
-import NotesGrid from "./NotesGrid";
-import NoteEditorPanel from "./NoteEditorPanel";
+import { useNotes } from './useNotes';
+import NotesToolbar from './NotesToolbar';
+import NotesGrid from './NotesGrid';
+import NoteEditorPanel from './NoteEditorPanel';
 
 export default function NotesPage() {
   const { notes, loading, error, setError, add, edit, remove } = useNotes();
@@ -16,13 +16,13 @@ export default function NotesPage() {
   const isEditing = useMemo(() => Boolean(editingNote?.id), [editingNote]);
 
   const openCreate = () => {
-    setError("");
+    setError('');
     setEditingNote(null);
     setEditorOpen(true);
   };
 
   const openEdit = (note) => {
-    setError("");
+    setError('');
     setEditingNote(note);
     setEditorOpen(true);
   };
@@ -37,12 +37,12 @@ export default function NotesPage() {
     const c = content.trim();
 
     if (!t) {
-      setError("Title is required");
+      setError('Title is required');
       return;
     }
 
     setSaving(true);
-    setError("");
+    setError('');
 
     try {
       if (isEditing) {
@@ -52,22 +52,22 @@ export default function NotesPage() {
       }
       closeEditor();
     } catch (e) {
-      setError(e?.message || "Failed to save note");
+      setError(e?.message || 'Failed to save note');
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (id) => {
-    const ok = window.confirm("Delete this note?");
+    const ok = window.confirm('Delete this note?');
     if (!ok) return;
 
-    setError("");
+    setError('');
     try {
       await remove(id);
       if (editingNote?.id === id) closeEditor();
     } catch (e) {
-      setError(e?.message || "Failed to delete note");
+      setError(e?.message || 'Failed to delete note');
     }
   };
 
@@ -80,7 +80,13 @@ export default function NotesPage() {
             className="w-14 h-14 rounded-full grid place-items-center bg-white/60 border-2 border-yellow-400/60 text-amber-900 shadow-[0_10px_20px_rgba(0,0,0,0.08)] hover:-translate-y-[1px] transition"
             aria-label="Back to dashboard"
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
               <path
                 d="M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10.5Z"
                 stroke="currentColor"
@@ -95,7 +101,7 @@ export default function NotesPage() {
               My Notes
             </h1>
             <p className="m-0 text-[16px] text-orange-600/90">
-              Capture your brilliant ideas!
+              Take some notes!
             </p>
           </div>
         </div>
@@ -109,18 +115,27 @@ export default function NotesPage() {
         </div>
       ) : null}
 
-      {editorOpen ? (
-        <div className="mb-7">
-          <NoteEditorPanel
-            initialTitle={editingNote?.title || ""}
-            initialContent={editingNote?.content || ""}
-            saving={saving}
-            mode={isEditing ? "edit" : "create"}
-            onSave={handleSave}
-            onCancel={closeEditor}
+      {editorOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* dark bg  */}
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+            onClick={closeEditor}
           />
+
+          {/* Notes editor */}
+          <div className="relative w-full max-w-[560px] mx-4 animate-scaleIn">
+            <NoteEditorPanel
+              initialTitle={editingNote?.title || ''}
+              initialContent={editingNote?.content || ''}
+              saving={saving}
+              mode={isEditing ? 'edit' : 'create'}
+              onSave={handleSave}
+              onCancel={closeEditor}
+            />
+          </div>
         </div>
-      ) : null}
+      )}
 
       <NotesGrid
         notes={notes}

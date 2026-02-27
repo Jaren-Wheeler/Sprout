@@ -1,15 +1,19 @@
 const VARIANTS = [
-  { bg: "bg-violet-200/55", rotate: -1.2 },
-  { bg: "bg-rose-200/55", rotate: 0.8 },
-  { bg: "bg-yellow-200/60", rotate: -0.4 }
+  { bg: 'bg-violet-200/55', rotate: -1.2 },
+  { bg: 'bg-rose-200/55', rotate: 0.8 },
+  { bg: 'bg-yellow-200/60', rotate: -0.4 },
 ];
 
 function formatDate(value) {
   try {
     const d = new Date(value);
-    return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+    return d.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
   } catch {
-    return "";
+    return '';
   }
 }
 
@@ -26,12 +30,10 @@ export default function NoteCard({ note, variant = 1, onOpen, onDelete }) {
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") onOpen();
+        if (e.key === 'Enter' || e.key === ' ') onOpen();
       }}
     >
-
-
-      {/* Fixed card height layout */}
+      {/*  card layout */}
       <div className="h-[170px] flex flex-col">
         <div className="flex items-start justify-between gap-3 mb-3">
           <h3 className="m-0 text-[20px] text-amber-900/95 line-clamp-1">
@@ -43,12 +45,22 @@ export default function NoteCard({ note, variant = 1, onOpen, onDelete }) {
           </div>
         </div>
 
-        <div className="text-[14px] leading-relaxed text-amber-800/95 line-clamp-4">
-          {note.content ? note.content : <span className="opacity-60">No content</span>}
+        <div className="text-[14px] leading-relaxed text-amber-800/95 line-clamp-4 overflow-hidden">
+          {note.content ? (
+            <div
+              className="prose prose-sm max-w-none text-amber-800"
+              dangerouslySetInnerHTML={{ __html: note.content }}
+            />
+          ) : (
+            <span className="opacity-60">No content</span>
+          )}
         </div>
 
         {/* Footer pinned to bottom */}
-        <div className="mt-auto pt-3 flex justify-end" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="mt-auto pt-3 flex justify-end"
+          onClick={(e) => e.stopPropagation()}
+        >
           <button
             type="button"
             onClick={() => onDelete(note.id)}

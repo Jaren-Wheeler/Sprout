@@ -1,4 +1,4 @@
-import NoteCard from "./NoteCard";
+import NoteCard from './NoteCard';
 
 export default function NotesGrid({ notes, loading, onEdit, onDelete }) {
   if (loading) {
@@ -10,9 +10,7 @@ export default function NotesGrid({ notes, loading, onEdit, onDelete }) {
       <div className="py-8 text-amber-900/70">
         <div className="max-w-[520px] p-5 rounded-xl border-2 border-yellow-400/70 bg-yellow-100/60 shadow-[0_14px_24px_rgba(0,0,0,0.10)]">
           <h3 className="m-0 mb-2 text-amber-900/95">Welcome!</h3>
-          <p className="m-0">
-            Click the + button to add your first note. Gecko is here to help you stay organized!
-          </p>
+          <p className="m-0">Click the + button to add your first note.</p>
         </div>
       </div>
     );
@@ -25,7 +23,7 @@ export default function NotesGrid({ notes, loading, onEdit, onDelete }) {
           key={note.id}
           note={note}
           variant={(idx % 3) + 1}
-          onEdit={() => onEdit(note)}
+          onOpen={() => onEdit(note)}
           onDelete={() => onDelete(note.id)}
         />
       ))}
