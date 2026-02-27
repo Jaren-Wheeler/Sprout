@@ -117,14 +117,14 @@ export default function NotesPage() {
 
       {editorOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          {/* dark bg  */}
+          {/* dark bg*/}
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-black/40 backdrop-blur-[2px] z-0"
             onClick={closeEditor}
           />
 
-          {/* Notes editor */}
-          <div className="relative w-full max-w-[560px] mx-4 animate-scaleIn">
+          {/* notes editor */}
+          <div className="relative z-10 w-full max-w-[560px] mx-4 animate-scaleIn">
             <NoteEditorPanel
               initialTitle={editingNote?.title || ''}
               initialContent={editingNote?.content || ''}
