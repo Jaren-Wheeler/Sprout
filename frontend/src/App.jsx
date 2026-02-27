@@ -5,7 +5,7 @@ import Home from './pages/Home';
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
 import Dashboard from './pages/dashboard/Dashboard';
-import Notes from './pages/notes/Notes';
+import NotesPage from './pages/notes/NotesPage';
 import Fitness from './pages/fitness/Fitness';
 import BudgetPage from './pages/budgeting/BudgetPage';
 import Calendar from './pages/calendar/Calendar';
@@ -21,7 +21,7 @@ export default function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/dashboard" element={<Dashboard />} />
 
-      <Route path="/notes" element={<Notes />} />
+      <Route path="/notes" element={<NotesPage />} />
       <Route path="/fitness" element={<Fitness />} />
       <Route path="/budget" element={<BudgetPage />} />
       <Route path="/calendar" element={<Calendar />} />
