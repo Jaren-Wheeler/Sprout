@@ -2,7 +2,7 @@ import MealCard from './MealCard';
 import { useState, useEffect } from 'react';
 import { getPresetItems, addDietItem, deletePresetItem } from '../../../api/health';
 
-export default function MealPlanningCard({ diet }) {
+export default function MealPlanningCard({ diet, onAddDietItem }) {
     const [items, setItems] = useState([]);
 
     useEffect(() => {
@@ -12,7 +12,7 @@ export default function MealPlanningCard({ diet }) {
         }
 
         if (diet?.id) loadItems();
-    });
+    }, [diet?.id]);
 
    async function handleSubmit(preset) {
         console.log("Diet ID:", diet.id);
@@ -27,7 +27,7 @@ export default function MealPlanningCard({ diet }) {
             sugar: preset.sugar
         });
 
-        setItems(prev => [...prev, newItem]);
+        onAddDietItem(newItem);
     }
 
      // delete a diet item

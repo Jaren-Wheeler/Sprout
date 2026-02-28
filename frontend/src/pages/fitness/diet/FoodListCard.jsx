@@ -1,19 +1,7 @@
 import { useState, useEffect } from 'react';
 import {getDietItems, deleteDietItem} from '../../../api/health';
 import FoodItem from './FoodItem';
-export default function FoodListCard({diet}) {
-    const [items, setItems] = useState([]);
-
-    useEffect(() => {
-        async function loadItems() {
-            const data = await getDietItems(diet.id);
-            setItems(data);
-        }
-
-        if (diet?.id) {
-            loadItems();
-        }
-    })
+export default function FoodListCard({diet, items, setItems}) {
 
     // delete a diet item
     async function handleDelete(id) {
