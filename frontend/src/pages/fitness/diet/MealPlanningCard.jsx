@@ -15,8 +15,9 @@ export default function MealPlanningCard({ diet }) {
     });
 
    async function handleSubmit(preset) {
+        console.log("Diet ID:", diet.id);
         const newItem = await addDietItem({
-            dietId: diet.id,         
+            id: diet.id,         
             name: preset.name,
             meal: preset.meal,
             calories: preset.calories,
