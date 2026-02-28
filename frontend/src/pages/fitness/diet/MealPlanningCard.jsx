@@ -1,27 +1,24 @@
 import MealCard from './MealCard';
 import { useState, useEffect } from 'react';
-import { getDietItems, addDietItem, deleteDietItem } from '../../../api/health';
+import { getPresetItems, addDietItem, deletePresetItem } from '../../../api/health';
 
 export default function MealPlanningCard({ diet }) {
     const [items, setItems] = useState([]);
 
-    const presets = items.filter(item => item.presetMeal);
-
     useEffect(() => {
         async function loadItems() {
-            const data = await getDietItems(diet.id);
+            const data = await getPresetItems(diet.id);
             setItems(data ?? []);
         }
 
         if (diet?.id) loadItems();
-    }, [diet?.id]);
+    });
 
    async function handleSubmit(preset) {
         const newItem = await addDietItem({
-            id: diet.id,         
+            dietId: diet.id,         
             name: preset.name,
             meal: preset.meal,
-            presetMeal: false,
             calories: preset.calories,
             protein: preset.protein,
             carbs: preset.carbs,
@@ -35,7 +32,7 @@ export default function MealPlanningCard({ diet }) {
      // delete a diet item
     async function handleDelete(id) {
         try {
-            await deleteDietItem(diet.id, id);
+            await deletePresetItem(diet.id, id);
 
             setItems(prev => prev.filter(item => item.id !== id));
         } catch (err) {
@@ -48,7 +45,7 @@ export default function MealPlanningCard({ diet }) {
             <h2>Your Saved Meals</h2>
 
             <div className="flex gap-5 pt-5">
-                {presets.map(p => (
+                {items.map(p => (
                     <div
                         key={p.id}
                         className="bg-white p-3 rounded-lg hover:bg-gray-200 cursor-pointer"

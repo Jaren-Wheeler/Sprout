@@ -15,6 +15,7 @@ const {
   addDietItem,
   deleteDietItem,
   getDietItems,
+  getPresetItems,
   addPresetItem,
   deletePresetItem
 } = require("../controllers/health.controller");
@@ -45,6 +46,7 @@ router.delete("/diets/:id/diet-items/:itemId", auth, deleteDietItem);
 
 // Preset Meal Items
 router.post("/diets/:id/preset-items", auth, addPresetItem);
-router.delete("/diets/:id/diet-items/:itemId", auth, deletePresetItem);
+router.get("/diets/:id/preset-items", auth, getPresetItems);
+router.delete("/diets/:id/preset-items/:itemId", auth, deletePresetItem);
 
 module.exports = router;

@@ -191,6 +191,12 @@ const deleteDietItem = async (itemId) => {
   });
 }
 
+const getPresetItems = async (dietId) => {
+  return prisma.presetMealItems.findMany({
+    where: { dietId }
+  });
+}
+
 const addPresetItem = async (dietId, name, meal, calories, protein, carbs, fat, sugar) => {
   return prisma.presetMealItems.create({
      data: {
@@ -228,6 +234,7 @@ module.exports = {
   addDietItem,
   getDietItems,
   deleteDietItem,
+  getPresetItems,
   addPresetItem,
   deletePresetItem
 };

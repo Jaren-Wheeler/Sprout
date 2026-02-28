@@ -132,6 +132,15 @@ const getDietItems = async(req,res,next) => {
   }
 }
 
+const getPresetItems = async (req,res,next) => {
+  try {
+    const items = await healthService.getPresetItems(req.params.id);
+    res.json(items);
+  } catch (err) {
+    next(err);
+  }
+}
+
 const addPresetItem = async (req,res,next) => {
   
   try {
@@ -172,6 +181,7 @@ module.exports = {
   addDietItem,
   deleteDietItem,
   getDietItems,
+  getPresetItems,
   addPresetItem,
   deletePresetItem
 };

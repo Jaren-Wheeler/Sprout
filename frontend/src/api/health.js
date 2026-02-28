@@ -76,6 +76,10 @@ export const deleteDietItem = (id, itemId) => {
   });
 }
 
+export const getPresetItems = (id) => {
+  return apiFetch(`/api/health/diets/${id}/preset-items`);
+}
+
 export const addPresetItem = (data) => {
   return apiFetch(`/api/health/diets/${data.id}/preset-items`, {
       method: "POST",
