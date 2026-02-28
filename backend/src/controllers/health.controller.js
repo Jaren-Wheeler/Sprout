@@ -97,12 +97,11 @@ const deleteDiet = async (req, res, next) => {
 
 const addDietItem = async (req, res, next) => {
   try {
-    const {name, meal, presetMeal, calories,protein,carbs,fat,sugar} = req.body
+    const {name, meal, calories,protein,carbs,fat,sugar} = req.body;
     const item = await healthService.addDietItem(
       req.params.id,
       name,
       meal,
-      presetMeal,
       calories,
       protein,
       carbs,
@@ -132,6 +131,44 @@ const getDietItems = async(req,res,next) => {
     next(err);
   }
 }
+
+const getPresetItems = async (req,res,next) => {
+  try {
+    const items = await healthService.getPresetItems(req.params.id);
+    res.json(items);
+  } catch (err) {
+    next(err);
+  }
+}
+
+const addPresetItem = async (req,res,next) => {
+  
+  try {
+    const {name, meal, calories,protein,carbs,fat,sugar} = req.body;
+    const item = await healthService.addPresetItem(
+      req.params.id,
+      name,
+      meal,
+      calories,
+      protein,
+      carbs,
+      fat,
+      sugar
+    );
+    res.status(201).json(item);
+  } catch (err) {
+    next(err)
+  }
+}
+
+const deletePresetItem = async (req,res,next) => {
+  try {
+    await healthService.deletePresetItem(req.params.itemId);
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+}
 module.exports = {
   getFitnessInfo,
   updateFitnessInfo,
@@ -143,5 +180,8 @@ module.exports = {
   deleteDiet,
   addDietItem,
   deleteDietItem,
-  getDietItems
+  getDietItems,
+  getPresetItems,
+  addPresetItem,
+  deletePresetItem
 };

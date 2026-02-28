@@ -10,7 +10,7 @@ export default function AddDietItemModal({ isOpen, meal, onClose, onCreate }) {
 
     if (!isOpen) return null;
 
-    function handleSubmit(e, preset) {
+    function handleSubmit(e, isPreset) {
         e.preventDefault();
 
         if (!name || !calories) return;
@@ -18,14 +18,14 @@ export default function AddDietItemModal({ isOpen, meal, onClose, onCreate }) {
         onCreate({
             name,
             meal,
-            presetMeal: preset,
             calories: Number(calories),
             protein: Number(protein),
             carbs: Number(carbs),
             fat: Number(fat),
-            sugar: Number(sugar)
+            sugar: Number(sugar),
+            isPreset
         });
-        
+
         // reset fields
         setName("");
         setCalories("");
@@ -36,6 +36,7 @@ export default function AddDietItemModal({ isOpen, meal, onClose, onCreate }) {
     
     }
 
+    
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
 
@@ -126,6 +127,7 @@ export default function AddDietItemModal({ isOpen, meal, onClose, onCreate }) {
 
                         <button
                             type="submit"
+                            value="create"
                             onClick={(e) => handleSubmit(e, false)}
                             className="bg-gray-900 text-white px-5 py-2 rounded-lg"
                         >
@@ -133,6 +135,7 @@ export default function AddDietItemModal({ isOpen, meal, onClose, onCreate }) {
                         </button>
                         <button
                             type="submit"
+                            value="preset"
                             onClick={(e) => handleSubmit(e,true)}
                             className="bg-gray-900 text-white px-5 py-2 rounded-lg"
                         >

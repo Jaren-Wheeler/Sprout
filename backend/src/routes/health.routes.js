@@ -14,8 +14,12 @@ const {
   deleteDiet,
   addDietItem,
   deleteDietItem,
-  getDietItems
+  getDietItems,
+  getPresetItems,
+  addPresetItem,
+  deletePresetItem
 } = require("../controllers/health.controller");
+
 
 // =====================================================
 // Health Routes (Protected)
@@ -39,5 +43,10 @@ router.delete("/diets/:id", auth, deleteDiet);
 router.post("/diets/:id/diet-items", auth, addDietItem);
 router.get("/diets/:id/diet-items", auth, getDietItems)
 router.delete("/diets/:id/diet-items/:itemId", auth, deleteDietItem);
+
+// Preset Meal Items
+router.post("/diets/:id/preset-items", auth, addPresetItem);
+router.get("/diets/:id/preset-items", auth, getPresetItems);
+router.delete("/diets/:id/preset-items/:itemId", auth, deletePresetItem);
 
 module.exports = router;

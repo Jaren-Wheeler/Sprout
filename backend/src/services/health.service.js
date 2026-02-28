@@ -147,7 +147,7 @@ const deleteDiet = async (id) => {
 /**
  * Add a diet item to the system
  */
-const addDietItem = async (dietId, name, meal, presetMeal, calories, protein, carbs, fat, sugar) => {
+const addDietItem = async (dietId, name, meal, calories, protein, carbs, fat, sugar) => {
 
   if (!name || !meal || calories === undefined || calories === null) {
     const err = Error("Missing required inputs for diet item.");
@@ -164,7 +164,6 @@ const addDietItem = async (dietId, name, meal, presetMeal, calories, protein, ca
     data: {
       name,
       meal,
-      presetMeal,
       calories,
       protein,
       carbs,
@@ -192,6 +191,37 @@ const deleteDietItem = async (itemId) => {
   });
 }
 
+const getPresetItems = async (dietId) => {
+  return prisma.presetMealItems.findMany({
+    where: { dietId }
+  });
+}
+
+const addPresetItem = async (dietId, name, meal, calories, protein, carbs, fat, sugar) => {
+  return prisma.presetMealItems.create({
+     data: {
+      name,
+      meal,
+      calories,
+      protein,
+      carbs,
+      fat,
+      sugar,
+      diet: {
+        connect: {id: dietId}
+      }
+    }
+  });
+}
+
+const deletePresetItem = async (itemId) => {
+  return prisma.presetMealItems.delete({
+    where: {
+      id: itemId
+    }
+  })
+}
+
 module.exports = {
   getFitnessInfo,
   updateFitnessInfo,
@@ -203,5 +233,8 @@ module.exports = {
   deleteDiet,
   addDietItem,
   getDietItems,
-  deleteDietItem
+  deleteDietItem,
+  getPresetItems,
+  addPresetItem,
+  deletePresetItem
 };
