@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import AddDietItemModal from './addDietItemModal';
-import {addDietItem} from '../../../api/health';
+import {addDietItem, addPresetItem} from '../../../api/health';
 
 export default function LogFoodCard({diet}) {
     const [item, setItem] = useState([]);
+    const [presetItem, setPresetItem] = useState([]);
     const [activeMeal, setActiveMeal] = useState(null);
     const [showModal, setShowModal] = useState(false);
 
@@ -29,12 +30,24 @@ export default function LogFoodCard({diet}) {
                 meal = {activeMeal}
                 onClose = {() => setShowModal(false)}
                 onCreate = {async (data) => {
-                    const newItem = await addDietItem({
+
+                    if (data.isPreset) {
+                        console.log(data);
+                        const newPresetItem = await addPresetItem({
                         ...data,
                         id: diet.id});
+                        setPresetItem(prev => [...prev, newPresetItem])
+                        
+                    } 
+
+                    const newItem = await addDietItem({
+                    ...data,
+                    id: diet.id});
                     
                     setItem(prev => [...prev, newItem]);
                     setShowModal(false);
+
+                    console.log(data);
                 }}
             >
             </AddDietItemModal>
