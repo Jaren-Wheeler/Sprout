@@ -18,24 +18,16 @@ const prisma = require("../clients/prisma.client");
  */
 const createNote = async (userId, data) => {
 
-  // Basic validation
-  if (!data.title) {
+  if (!data.title || !data.title.trim()) {
     const err = new Error("Title is required");
     err.status = 400;
     throw err;
   }
 
-  if (!data.title) {
-  const err = new Error("Title is required");
-  err.status = 400;
-  throw err;
-  }
-
-
   const note = await prisma.note.create({
     data: {
-      title: data.title,
-      content: data.content,
+      title: data.title.trim(),
+      content: data.content ? data.content.trim() : "",
       userId
     }
   });
@@ -85,24 +77,31 @@ const getNoteById = async (userId, noteId) => {
  */
 const updateNote = async (userId, noteId, data) => {
 
-  // Basic validation
-  if (!data.title) {
+  if (!data.title || !data.title.trim()) {
     const err = new Error("Title is required");
     err.status = 400;
     throw err;
   }
 
-  if (!data.content) {
-    const err = new Error("Content is required");
-    err.status = 400;
+  // Ensure note belongs to this user
+  const existing = await prisma.note.findFirst({
+    where: {
+      id: noteId,
+      userId
+    }
+  });
+
+  if (!existing) {
+    const err = new Error("Note not found");
+    err.status = 404;
     throw err;
   }
 
   const updatedNote = await prisma.note.update({
     where: { id: noteId },
     data: {
-      title: data.title,
-      content: data.content
+      title: data.title.trim(),
+      content: data.content ? data.content.trim() : ""
     }
   });
 
@@ -116,6 +115,20 @@ const updateNote = async (userId, noteId, data) => {
  * @returns {void}
  */
 const deleteNote = async (userId, noteId) => {
+
+  // Ensure note belongs to this user
+  const existing = await prisma.note.findFirst({
+    where: {
+      id: noteId,
+      userId
+    }
+  });
+
+  if (!existing) {
+    const err = new Error("Note not found");
+    err.status = 404;
+    throw err;
+  }
 
   await prisma.note.delete({
     where: { id: noteId }
