@@ -180,6 +180,19 @@ model FitnessInfo {
 }
 
 // =====================================================
+// WeightEntry
+// =====================================================
+// Stores historical weight entry data for users for the purposes of tracking
+// =====================================================
+model WeightEntry {
+  id        String   @id @default(uuid())
+  weight    Decimal
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+// =====================================================
 // Workouts
 // =====================================================
 // Reusable workout templates.
