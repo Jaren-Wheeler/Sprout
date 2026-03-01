@@ -49,7 +49,7 @@ export default function Dashboard() {
       route: "/budget" 
     },
     { id: "notes", src: notes, hoverSrc: noteshover, label: "Notes", route: "/notes" },
-    { id: "fitness", src: fitness, hoverSrc: fitnesshover, label: "Fitness", route: "/fitness" },
+    { id: "fitness", src: fitness, hoverSrc: fitnesshover, label: "Fitness", route: "/diet" },
 
     { 
       id: "lightdark", 

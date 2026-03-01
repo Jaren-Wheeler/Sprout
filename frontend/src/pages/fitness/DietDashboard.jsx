@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { getDiets, createDiet, deleteDiet, getFitnessInfo , getDietItems, updateFitnessInfo} from "../../../api/health";
-import Sprout from "../../../components/chatbot/Sprout";
+import { getDiets, createDiet, deleteDiet, getFitnessInfo , getDietItems, updateFitnessInfo} from "../../api/health";
+import Sprout from "../../components/chatbot/Sprout";
 import DietStats from "./DietStats";
 import CreateDietModal from "./CreateDietModal";
 import DietPage from "./DietPage";
-import CreateFitnessProfileModal from "../CreateFitnessProfileModal";
+import CreateFitnessProfileModal from "./CreateFitnessProfileModal";
 
 export default function DietDashboard() {
 

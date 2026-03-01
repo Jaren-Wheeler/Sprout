@@ -1,5 +1,5 @@
-import Progress from "../../../components/Progress";
-import Stat from "../../../components/Stat";
+import Progress from "../../components/Progress";
+import Stat from "../../components/Stat";
 
 export default function DietStats({ stats, diet, dietItems, onEditGoals }) {
 
