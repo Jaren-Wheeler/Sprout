@@ -1,11 +1,23 @@
+import {useState, useEffect} from 'react';
 import Progress from "../../../components/Progress";
 import Stat from "../../../components/Stat";
-export default function DietStats({stats}) {
 
-    let consumedCalories = 0; // NEED TO BUILD THIS OUT ONCE DIET ITEMS CAN BE ADDED
+export default function DietStats({stats, diet, dietItems}) {
+
+    const todayString = new Date().toDateString();
+
+    const consumedCalories = (dietItems || [])
+        .filter(item => item.createdAt)
+        .filter(item => 
+            new Date(item.createdAt).toDateString() === todayString
+        )
+        .reduce((sum, item) => sum + (item.calories || 0), 0);
 
     const calorieProgress =
-        stats.calorieGoal > 0 ? (consumedCalories / stats.calorieGoal) * 100 : 0;
+        stats.calorieGoal > 0
+            ? (consumedCalories / stats.calorieGoal) * 100
+            : 0;
+
 
     const date = new Date();
     return (
@@ -22,7 +34,7 @@ export default function DietStats({stats}) {
             <Progress
                 label="Daily calorie progress"
                 value={`${consumedCalories} / ${stats.calorieGoal} kcal`}
-                percent={stats.calorieProgress}
+                percent={calorieProgress}
             />
         </div>
     );

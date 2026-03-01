@@ -5,21 +5,9 @@ import MealPlanningCard from './MealPlanningCard';
 import DietCharts from './DietCharts';
 import FoodListCard from './FoodListCard';
 import DietCard from './DietCard';
-import { getDietItems } from '../../../api/health';
 
-export default function DietPage({ diet, diets, onDeleteDiet, onSelectDiet }) {
 
-    const [dietItems, setDietItems] = useState([]);
-    useEffect(() => {
-            async function loadItems() {
-                const data = await getDietItems(diet.id);
-                setDietItems(data);
-            }
-
-            if (diet?.id) {
-                loadItems();
-            }
-        }, [diet?.id])
+export default function DietPage({ diet, diets, dietItems, setDietItems, onDeleteDiet, onSelectDiet }) {
 
     if (!diet) return null;
 

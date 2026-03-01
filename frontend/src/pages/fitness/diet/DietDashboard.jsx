@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getDiets, createDiet, deleteDiet, getFitnessInfo } from "../../../api/health";
+import { getDiets, createDiet, deleteDiet, getFitnessInfo , getDietItems} from "../../../api/health";
 import Sprout from "../../../components/chatbot/Sprout";
 import DietStats from "./DietStats";
 import CreateDietModal from "./CreateDietModal";
@@ -12,7 +12,8 @@ export default function DietDashboard() {
     const [showModal, setShowModal] = useState(false);
     const [stats, setStats] = useState([]);
     const [selectedDiet, setSelectedDiet] = useState(null);
-    
+    const [dietItems, setDietItems] = useState([]);
+
     async function handleDeleteDiet(id) {
         try {
             await deleteDiet(id);
@@ -60,6 +61,21 @@ export default function DietDashboard() {
         }
     }, [diets]);
 
+    useEffect(() => {
+        async function loadItems() {
+            if (!selectedDiet?.id) return;
+
+            try {
+                const items = await getDietItems(selectedDiet.id);
+                setDietItems(items || []);
+            } catch (err) {
+                console.error("Failed to load diet items", err);
+            }
+        }
+
+        loadItems();
+    }, [selectedDiet]);
+
     if (loading) return <div className="p-6">Loading diets...</div>;
 
     return (
@@ -76,7 +92,7 @@ export default function DietDashboard() {
                 </button>
             </div>
             
-            <DietStats stats={stats}></DietStats>
+            <DietStats stats={stats} diet={selectedDiet} dietItems={dietItems}></DietStats>
 
             {/*DIET*/}
             {diets.length === 0 && (
@@ -120,6 +136,8 @@ export default function DietDashboard() {
             <DietPage 
                 diet={selectedDiet} 
                 diets={diets}
+                dietItems={dietItems}
+                setDietItems={setDietItems}
                 onDeleteDiet={handleDeleteDiet}
                 onSelectDiet={setSelectedDiet}
             />
