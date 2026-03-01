@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { getDiets, createDiet, deleteDiet, getFitnessInfo , getDietItems} from "../../../api/health";
+import { getDiets, createDiet, deleteDiet, getFitnessInfo , getDietItems, updateFitnessInfo} from "../../../api/health";
 import Sprout from "../../../components/chatbot/Sprout";
 import DietStats from "./DietStats";
 import CreateDietModal from "./CreateDietModal";
 import DietPage from "./DietPage";
+import CreateFitnessProfileModal from "../CreateFitnessProfileModal";
 
 export default function DietDashboard() {
 
@@ -13,6 +14,7 @@ export default function DietDashboard() {
     const [stats, setStats] = useState([]);
     const [selectedDiet, setSelectedDiet] = useState(null);
     const [dietItems, setDietItems] = useState([]);
+    const [showGoalsModal, setShowGoalsModal] = useState(false);
 
     async function handleDeleteDiet(id) {
         try {
@@ -92,7 +94,22 @@ export default function DietDashboard() {
                 </button>
             </div>
             
-            <DietStats stats={stats} diet={selectedDiet} dietItems={dietItems}></DietStats>
+            <DietStats
+                stats={stats}
+                diet={selectedDiet}
+                dietItems={dietItems}
+                onEditGoals={() => setShowGoalsModal(true)}
+                />
+
+            {showGoalsModal && (
+            <CreateFitnessProfileModal
+                onClose={() => setShowGoalsModal(false)}
+                onSubmit={async (data) => {
+                await updateFitnessInfo(data);
+                setShowGoalsModal(false);
+                }}
+            />
+            )}
 
             {/*DIET*/}
             {diets.length === 0 && (
