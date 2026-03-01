@@ -7,7 +7,7 @@ import FoodListCard from './FoodListCard';
 import DietCard from './DietCard';
 
 
-export default function DietPage({ diet, diets, dietItems, setDietItems, onDeleteDiet, onSelectDiet }) {
+export default function DietPage({ diet, diets, dietItems, setDietItems, onDeleteDiet, onSelectDiet, weightHistory}) {
 
     if (!diet) return null;
 
@@ -37,7 +37,7 @@ export default function DietPage({ diet, diets, dietItems, setDietItems, onDelet
                     }}>
                     </MealPlanningCard>
                     <div className="mt-auto">
-                        <DietCharts diet={diet} dietItems={dietItems}></DietCharts>
+                        <DietCharts diet={diet} dietItems={dietItems} weightHistory={weightHistory}></DietCharts>
                     </div> 
                 </div>
             </div> 

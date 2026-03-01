@@ -27,6 +27,14 @@ const updateFitnessInfo = async (req, res, next) => {
   }
 };
 
+const getWeightHistory = async (req, res, next) => {
+  try {
+    const weights = await healthService.getWeightHistory(req.user.id);
+    res.json(weights);
+  } catch (err) {
+    next(err);
+  }
+};
 
 /* ================= WORKOUTS ================= */
 
@@ -172,6 +180,7 @@ const deletePresetItem = async (req,res,next) => {
 module.exports = {
   getFitnessInfo,
   updateFitnessInfo,
+  getWeightHistory,
   createWorkout,
   getWorkouts,
   deleteWorkout,

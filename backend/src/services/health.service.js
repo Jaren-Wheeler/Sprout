@@ -28,8 +28,12 @@ const updateFitnessInfo = async (userId, data) => {
     where: { userId }
   });
 
+  // ----------------------------
+  // CASE 1: PROFILE EXISTS
+  // ----------------------------
   if (existing) {
-    return prisma.fitnessInfo.update({
+
+    const updated = await prisma.fitnessInfo.update({
       where: { userId },
       data: {
         currentWeight: data.currentWeight,
@@ -39,9 +43,27 @@ const updateFitnessInfo = async (userId, data) => {
         heightFt: data.heightFt,
       }
     });
+
+    // Log weight history only if changed
+    if (
+      data.currentWeight &&
+      existing.currentWeight?.toString() !== data.currentWeight.toString()
+    ) {
+      await prisma.weightEntry.create({
+        data: {
+          weight: data.currentWeight,
+          userId
+        }
+      });
+    }
+
+    return updated;
   }
 
-  return prisma.fitnessInfo.create({
+  // ----------------------------
+  // CASE 2: PROFILE DOESN'T EXIST
+  // ----------------------------
+  const created = await prisma.fitnessInfo.create({
     data: {
       currentWeight: data.currentWeight,
       goalWeight: data.goalWeight,
@@ -53,9 +75,29 @@ const updateFitnessInfo = async (userId, data) => {
       }
     }
   });
+
+  // Log initial weight
+  if (data.currentWeight) {
+    await prisma.weightEntry.create({
+      data: {
+        weight: data.currentWeight,
+        userId
+      }
+    });
+  }
+
+  return created;
 };
 
-
+/**
+ * Get the weight history of the user
+ */
+const getWeightHistory = async (userId) => {
+  return prisma.weightEntry.findMany({
+    where: { userId },
+    orderBy: { createdAt: "asc" }
+  });
+};
 
 /* ================= WORKOUTS ================= */
 
@@ -225,6 +267,7 @@ const deletePresetItem = async (itemId) => {
 module.exports = {
   getFitnessInfo,
   updateFitnessInfo,
+  getWeightHistory,
   createWorkout,
   getWorkouts,
   deleteWorkout,

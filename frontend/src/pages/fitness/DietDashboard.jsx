@@ -15,6 +15,7 @@ export default function DietDashboard() {
     const [selectedDiet, setSelectedDiet] = useState(null);
     const [dietItems, setDietItems] = useState([]);
     const [showGoalsModal, setShowGoalsModal] = useState(false);
+    const [weightHistory, setWeightHistory] = useState([]);
 
     async function handleDeleteDiet(id) {
         try {
@@ -157,6 +158,7 @@ export default function DietDashboard() {
                 setDietItems={setDietItems}
                 onDeleteDiet={handleDeleteDiet}
                 onSelectDiet={setSelectedDiet}
+                weightHistory={weightHistory}
             />
     
             <Sprout></Sprout>

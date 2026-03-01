@@ -6,6 +6,7 @@ const auth = require("../middleware/auth");
 const {
   getFitnessInfo,
   updateFitnessInfo,
+  getWeightHistory,
   createWorkout,
   getWorkouts,
   deleteWorkout,
@@ -28,7 +29,7 @@ const {
 // Fitness info
 router.get("/fitness", auth, getFitnessInfo);
 router.put("/fitness", auth, updateFitnessInfo);
-
+router.get("/weight-history", auth, getWeightHistory);
 // Workouts
 router.post("/workouts", auth, createWorkout);
 router.get("/workouts", auth, getWorkouts);
