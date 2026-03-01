@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import {getDietItems, deleteDietItem} from '../../../api/health';
+import {getDietItems, deleteDietItem} from '../../api/health';
 import FoodItem from './FoodItem';
 export default function FoodListCard({diet, items, setItems}) {
 

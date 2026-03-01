@@ -1,6 +1,6 @@
 import MealCard from './MealCard';
 import { useState, useEffect } from 'react';
-import { getPresetItems, addDietItem, deletePresetItem } from '../../../api/health';
+import { getPresetItems, addDietItem, deletePresetItem } from '../../api/health';
 
 export default function MealPlanningCard({ diet, onAddDietItem }) {
     const [items, setItems] = useState([]);

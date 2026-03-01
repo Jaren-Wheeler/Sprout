@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import AddDietItemModal from './addDietItemModal';
-import {addDietItem, addPresetItem} from '../../../api/health';
+import AddDietItemModal from './AddDietItemModal';
+import {addDietItem, addPresetItem} from '../../api/health';
 
 export default function LogFoodCard({diet}) {
     const [item, setItem] = useState([]);
