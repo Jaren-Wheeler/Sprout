@@ -37,7 +37,7 @@ export default function DietPage({ diet, diets, dietItems, setDietItems, onDelet
                     }}>
                     </MealPlanningCard>
                     <div className="mt-auto">
-                        <DietCharts></DietCharts>
+                        <DietCharts diet={diet} dietItems={dietItems}></DietCharts>
                     </div> 
                 </div>
             </div> 
