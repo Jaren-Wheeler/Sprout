@@ -17,8 +17,8 @@ export const updateFitnessInfo = (data) => {
   });
 };
 
-const getWeightHistory = () => {
-  return apiFetch("api/health/weight-history");
+export const getWeightHistory = () => {
+  return apiFetch("/api/health/weight-history");
 };
 
 /* ---------- Workouts ---------- */

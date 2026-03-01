@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getDiets, createDiet, deleteDiet, getFitnessInfo , getDietItems, updateFitnessInfo} from "../../api/health";
+import { getDiets, createDiet, deleteDiet, getFitnessInfo , getDietItems, updateFitnessInfo, getWeightHistory} from "../../api/health";
 import Sprout from "../../components/chatbot/Sprout";
 import DietStats from "./DietStats";
 import CreateDietModal from "./CreateDietModal";
@@ -79,6 +79,20 @@ export default function DietDashboard() {
         loadItems();
     }, [selectedDiet]);
 
+    useEffect(() => {
+        async function loadWeightHistory() {
+            try {
+                const data = await getWeightHistory();
+                console.log("Fetched weight history:", data); // debug
+                setWeightHistory(data || []);
+            } catch (err) {
+                console.error("Failed to load weight history", err);
+            }
+        }
+
+        loadWeightHistory();
+    }, []);
+
     if (loading) return <div className="p-6">Loading diets...</div>;
 
     return (
@@ -106,8 +120,12 @@ export default function DietDashboard() {
             <CreateFitnessProfileModal
                 onClose={() => setShowGoalsModal(false)}
                 onSubmit={async (data) => {
-                await updateFitnessInfo(data);
-                setShowGoalsModal(false);
+                    await updateFitnessInfo(data);
+
+                    const updatedHistory = await getWeightHistory();
+                    setWeightHistory(updatedHistory);
+
+                    setShowGoalsModal(false);
                 }}
             />
             )}
