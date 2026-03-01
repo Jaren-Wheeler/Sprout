@@ -46,7 +46,7 @@ model User {
   workouts        Workout[]
   diets           Diet[]
   chatbotMessages ChatbotMessage[]
-
+  weightEntries WeightEntry[]
   @@map("users")
 }
 
