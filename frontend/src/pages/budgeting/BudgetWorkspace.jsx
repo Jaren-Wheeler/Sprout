@@ -1,8 +1,3 @@
-/**
- * Central transaction panel.
- * Allows adding income/expenses.
- */
-
 import { useState } from 'react';
 import { createExpense, createIncomeEntry } from '../../api/finance';
 
@@ -51,16 +46,16 @@ export default function BudgetWorkspace({ categories, expenses, refreshData }) {
   }
 
   return (
-    <div className="bg-white border-2 border-[#E8D9A8] rounded-xl p-6 shadow-sm flex flex-col h-full">
+    <div className="sprout-panel p-4 flex flex-col h-full">
       <h2 className="font-semibold text-lg text-[#3B2F2F] mb-6">
         Add Transaction
       </h2>
 
       <form onSubmit={handleSubmit} className="flex flex-col flex-1">
-        {/* Top Section */}
+        {/* Inputs */}
         <div className="space-y-4">
           <input
-            className="w-full p-3 rounded-lg bg-[#F9F6EC] border border-[#E8D9A8]"
+            className="sprout-input"
             placeholder="Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -68,7 +63,7 @@ export default function BudgetWorkspace({ categories, expenses, refreshData }) {
 
           <input
             type="number"
-            className="w-full p-3 rounded-lg bg-[#F9F6EC] border border-[#E8D9A8]"
+            className="sprout-input"
             placeholder="Amount"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
@@ -76,7 +71,7 @@ export default function BudgetWorkspace({ categories, expenses, refreshData }) {
 
           {type === 'expense' && (
             <select
-              className="w-full p-3 rounded-lg bg-[#F9F6EC] border border-[#E8D9A8]"
+              className="sprout-input"
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
               required
@@ -91,16 +86,16 @@ export default function BudgetWorkspace({ categories, expenses, refreshData }) {
           )}
         </div>
 
-        {/* Bottom Buttons */}
+        {/* Buttons */}
         <div className="mt-auto space-y-4 pt-6">
           <div className="flex gap-3">
             <button
               type="button"
               onClick={() => setType('expense')}
-              className={`flex-1 py-2 rounded-lg font-medium transition ${
+              className={`flex-1 ${
                 type === 'expense'
-                  ? 'bg-red-500 text-white'
-                  : 'bg-gray-200 text-gray-600'
+                  ? 'sprout-btn-base sprout-btn-danger'
+                  : 'sprout-btn-muted'
               }`}
             >
               Expense
@@ -109,20 +104,17 @@ export default function BudgetWorkspace({ categories, expenses, refreshData }) {
             <button
               type="button"
               onClick={() => setType('income')}
-              className={`flex-1 py-2 rounded-lg font-medium transition ${
+              className={`flex-1 ${
                 type === 'income'
-                  ? 'bg-green-500 text-white'
-                  : 'bg-gray-200 text-gray-600'
+                  ? 'sprout-btn-base sprout-btn-success'
+                  : 'sprout-btn-muted'
               }`}
             >
               Income
             </button>
           </div>
 
-          <button
-            disabled={loading}
-            className="w-full py-3 rounded-lg bg-[#F4A000] text-white font-semibold hover:opacity-90 transition"
-          >
+          <button disabled={loading} className="w-full sprout-btn-primary">
             {loading ? 'Adding…' : '+ Add Transaction'}
           </button>
         </div>
