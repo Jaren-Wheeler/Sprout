@@ -5,7 +5,7 @@ import {
   eachDayOfInterval,
   getDay,
 } from "date-fns";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 
 export default function CalendarGrid({
   currentMonth,
@@ -63,9 +63,12 @@ export default function CalendarGrid({
 
         {days.map((day) => {
           const key = format(day, "yyyy-MM-dd");
+
           const isSelected =
-            format(day, "yyyy-MM-dd") ===
-            format(selectedDate, "yyyy-MM-dd");
+            key === format(selectedDate, "yyyy-MM-dd");
+          
+          const isToday =
+            key === format(new Date(), "yyyy-MM-dd");
 
           const dayEvents = eventsByDate[key] || [];
 
@@ -73,24 +76,24 @@ export default function CalendarGrid({
             <div
               key={key}
               onClick={() => setSelectedDate(day)}
-              className={`sprout-day-cell ${
+              className={`sprout-day-cell relative ${
                 isSelected ? "sprout-day-cell-selected" : ""
-              }`}
+              }${isToday && !isSelected ? "ring-2 ring-orange-400" : ""}`}
             >
-              <span className="text-sm font-medium text-amber-900">
+              {/* DAY NUMBER */}
+              <span className={`text-sm text-amber-900 ${
+              isToday ? "font-bold" : "font-medium"
+                }`}>
                 {format(day, "d")}
               </span>
 
-              <div className="mt-1 space-y-1 overflow-hidden">
-                {dayEvents.slice(0, 2).map((e) => (
-                  <div
-                    key={e.id}
-                    className="text-xs bg-purple-100 border border-purple-300 rounded px-2 py-[2px] truncate"
-                  >
-                    {e.title}
-                  </div>
-                ))}
-              </div>
+              {/* EVENT COUNT BADGE */}
+              {dayEvents.length > 0 && (
+                <div className="absolute bottom-1 right-1 flex items-center gap-1 bg-orange-100 border border-orange-300 rounded-full px-2 py-[2px] text-xs text-orange-900">
+                  <CalendarDays size={12} />
+                  <span>{dayEvents.length}</span>
+                </div>
+              )}
             </div>
           );
         })}
