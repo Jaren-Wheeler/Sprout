@@ -1,4 +1,3 @@
-// frontend/src/pages/Login.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../../api/auth.js';
@@ -6,14 +5,12 @@ import { useTheme } from '../../theme/ThemeContext.jsx';
 
 export default function Login() {
   const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
-
-  const navigate = useNavigate();
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -39,17 +36,13 @@ export default function Login() {
 
       const user = await loginUser(emailTrimmed, password);
 
-      try {
-        localStorage.setItem(
-          'sprout_user',
-          JSON.stringify({
-            email: emailTrimmed,
-            ...(user?.id ? { id: user.id } : {}),
-          })
-        );
-      } catch {
-        // ignore
-      }
+      localStorage.setItem(
+        'sprout_user',
+        JSON.stringify({
+          email: emailTrimmed,
+          ...(user?.id && { id: user.id }),
+        })
+      );
 
       navigate('/dashboard');
     } catch (err) {
@@ -60,55 +53,79 @@ export default function Login() {
   };
 
   return (
-    <div className={`home ${theme}`}>
-      <div className="auth-container pop show">
-        <h1 className="pop show">Log In</h1>
+    <div className="sprout-bg flex items-center justify-center">
+      <div className="auth-card pop show">
+        <h1 className="text-3xl font-bold text-center">Log In</h1>
 
-        <form className="auth-form pop show delay-1" onSubmit={onSubmit}>
-          <div className="field-group">
+        <form onSubmit={onSubmit} className="space-y-4">
+          {/* EMAIL */}
+          <div>
             <input
               type="email"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
+              className="auth-input"
             />
-            <div className="field-error">{errors.email || ''}</div>
+            {errors.email && (
+              <p className="text-sm text-red-500 mt-1">{errors.email}</p>
+            )}
           </div>
 
-          <div className="field-group">
+          {/* PASSWORD */}
+          <div>
             <input
               type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
+              className="auth-input"
             />
-            <div className="field-error">{errors.password || ''}</div>
+            {errors.password && (
+              <p className="text-sm text-red-500 mt-1">{errors.password}</p>
+            )}
           </div>
 
-          {errors.form && <div className="error-box">{errors.form}</div>}
+          {/* FORM ERROR */}
+          {errors.form && (
+            <div className="text-red-500 text-center">{errors.form}</div>
+          )}
 
-          <button className="btn login" type="submit" disabled={submitting}>
+          {/* BUTTON */}
+          <button disabled={submitting} className="auth-button" type="submit">
             {submitting ? 'Logging in...' : 'Log In'}
           </button>
         </form>
 
-        <p className="auth-link pop show delay-2">
+        {/* NAV LINK */}
+        <p className="text-center text-sm">
           Don’t have an account?{' '}
-          <span onClick={() => navigate('/signup')}>Sign Up</span>
+          <span
+            onClick={() => navigate('/signup')}
+            className="font-semibold cursor-pointer hover:underline"
+          >
+            Sign Up
+          </span>
         </p>
 
-        <div className="theme-icons inline pop show delay-3">
+        {/* THEME TOGGLE */}
+        <div className="flex justify-center gap-6 text-2xl pt-2">
           <span
-            className={theme === 'light' ? 'active' : ''}
             onClick={() => setTheme('light')}
+            className={`cursor-pointer ${
+              theme === 'light' ? 'scale-125' : 'opacity-50'
+            }`}
           >
             ☀️
           </span>
+
           <span
-            className={theme === 'dark' ? 'active' : ''}
             onClick={() => setTheme('dark')}
+            className={`cursor-pointer ${
+              theme === 'dark' ? 'scale-125' : 'opacity-50'
+            }`}
           >
             🌙
           </span>

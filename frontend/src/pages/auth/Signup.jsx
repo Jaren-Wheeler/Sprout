@@ -84,68 +84,103 @@ export default function Signup() {
   };
 
   return (
-    <div className={`home ${theme}`}>
-      <div className="auth-container pop show">
-        <h1 className="pop show">Sign Up</h1>
+    <div className="sprout-bg flex items-center justify-center">
+      <div className="auth-card pop show">
+        <h1 className="text-3xl font-bold text-center">Sign Up</h1>
 
-        <form className="auth-form pop show delay-1" onSubmit={onSubmit}>
-          <input
-            type="text"
-            placeholder="Full Name"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-          />
-          <div className="field-error">{errors.fullName || ''}</div>
+        <form onSubmit={onSubmit} className="space-y-4">
+          {/* FULL NAME */}
+          <div>
+            <input
+              type="text"
+              placeholder="Full Name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className="auth-input"
+            />
+            {errors.fullName && (
+              <p className="text-sm text-red-500 mt-1">{errors.fullName}</p>
+            )}
+          </div>
 
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="email"
-          />
-          <div className="field-error">{errors.email || ''}</div>
+          {/* EMAIL */}
+          <div>
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="auth-input"
+            />
+            {errors.email && (
+              <p className="text-sm text-red-500 mt-1">{errors.email}</p>
+            )}
+          </div>
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="new-password"
-          />
-          <div className="field-error">{errors.password || ''}</div>
+          {/* PASSWORD */}
+          <div>
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="auth-input"
+            />
+            {errors.password && (
+              <p className="text-sm text-red-500 mt-1">{errors.password}</p>
+            )}
+          </div>
 
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            autoComplete="new-password"
-          />
-          <div className="field-error">{errors.confirmPassword || ''}</div>
+          {/* CONFIRM PASSWORD */}
+          <div>
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="auth-input"
+            />
+            {errors.confirmPassword && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.confirmPassword}
+              </p>
+            )}
+          </div>
 
-          {errors.form && <div className="error-box">{errors.form}</div>}
+          {errors.form && (
+            <div className="text-red-500 text-center">{errors.form}</div>
+          )}
 
-          <button className="btn signup" type="submit" disabled={submitting}>
+          <button type="submit" disabled={submitting} className="auth-button">
             {submitting ? 'Creating...' : 'Create Account'}
           </button>
         </form>
 
-        <p className="auth-link pop show delay-2">
+        <p className="text-center text-sm">
           Already have an account?{' '}
-          <span onClick={() => navigate('/login')}>Log In</span>
+          <span
+            onClick={() => navigate('/login')}
+            className="font-semibold cursor-pointer hover:underline"
+          >
+            Log In
+          </span>
         </p>
 
-        <div className="theme-icons pop show delay-3">
+        <div className="flex justify-center gap-6 text-2xl pt-2">
           <span
-            className={theme === 'light' ? 'active' : ''}
             onClick={() => setTheme('light')}
+            className={`cursor-pointer ${
+              theme === 'light' ? 'scale-125' : 'opacity-50'
+            }`}
           >
             ☀️
           </span>
+
           <span
-            className={theme === 'dark' ? 'active' : ''}
             onClick={() => setTheme('dark')}
+            className={`cursor-pointer ${
+              theme === 'dark' ? 'scale-125' : 'opacity-50'
+            }`}
           >
             🌙
           </span>
