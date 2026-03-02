@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { updateBudget, deleteBudget, createBudget } from '../../api/finance';
+import { Trash2 } from 'lucide-react';
 
 export default function CategoryEditorModal({ category, onClose, onSaved }) {
   const isNew = category === 'new';
@@ -11,9 +12,6 @@ export default function CategoryEditorModal({ category, onClose, onSaved }) {
   );
   const [loading, setLoading] = useState(false);
 
-  /* =========================
-     SCROLL LOCK + ESC CLOSE
-  ========================== */
   useEffect(() => {
     document.body.style.overflow = 'hidden';
 
@@ -29,9 +27,6 @@ export default function CategoryEditorModal({ category, onClose, onSaved }) {
     };
   }, [onClose]);
 
-  /* =========================
-     ACTION HANDLERS
-  ========================== */
   async function handleSave() {
     if (!name || !limitAmount) return;
 
@@ -74,16 +69,10 @@ export default function CategoryEditorModal({ category, onClose, onSaved }) {
     }
   }
 
-  /* =========================
-     RENDER
-  ========================== */
   return createPortal(
-    <div
-      className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn"
-      onClick={onClose}
-    >
+    <div className="sprout-modal-backdrop animate-fadeIn" onClick={onClose}>
       <div
-        className="bg-panel border border-border text-primary rounded-xl p-6 w-full max-w-md space-y-5 shadow-lg animate-scaleIn"
+        className="sprout-panel p-6 w-full max-w-md space-y-5 shadow-lg animate-scaleIn"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-xl font-semibold">
@@ -91,7 +80,7 @@ export default function CategoryEditorModal({ category, onClose, onSaved }) {
         </h2>
 
         <input
-          className="w-full p-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition"
+          className="sprout-input"
           placeholder="Category name"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -99,34 +88,32 @@ export default function CategoryEditorModal({ category, onClose, onSaved }) {
 
         <input
           type="number"
-          className="w-full p-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition"
+          className="sprout-input"
           placeholder="Limit"
           value={limitAmount}
           onChange={(e) => setLimitAmount(e.target.value)}
         />
 
-        <div className="flex justify-between items-center pt-2">
+        <div className="flex justify-between items-center pt-3">
           {!isNew && (
             <button
               onClick={handleDelete}
-              className="text-red-500 hover:text-red-400 transition"
+              className="sprout-icon-btn-danger"
+              title="Delete category"
             >
-              Delete
+              <Trash2 size={18} />
             </button>
           )}
 
           <div className="flex gap-2 ml-auto">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 rounded-lg text-muted hover:bg-background transition"
-            >
+            <button onClick={onClose} className="sprout-btn-muted px-4 py-2">
               Cancel
             </button>
 
             <button
               disabled={loading}
               onClick={handleSave}
-              className="bg-accent text-white px-5 py-2 rounded-lg hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="sprout-btn-primary px-5 py-2 disabled:opacity-50"
             >
               {loading ? 'Saving...' : 'Save'}
             </button>

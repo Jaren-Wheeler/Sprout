@@ -9,10 +9,8 @@ export default function CategoryCard({ category, onClick }) {
       onClick={() => onClick?.(category)}
       className={`
         min-w-[260px] max-w-[260px]
-        bg-white rounded-xl p-4 shadow-sm
-        cursor-pointer hover:shadow-md hover:scale-[1.02]
-        transition border-2
-        ${isOver ? 'border-red-400' : 'border-[#E8D9A8]'}
+        sprout-card p-4 hover:scale-[1.02]
+        ${isOver ? 'border-red-400' : ''}
       `}
     >
       {/* HEADER ROW */}

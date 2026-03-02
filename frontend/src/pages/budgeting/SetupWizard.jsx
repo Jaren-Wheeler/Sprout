@@ -1,56 +1,35 @@
-/**
- * SetupWizard
- *
- * First time budgeting setup.
- * Step 1: collect expected income
- * Step 2: configure spending categories
- */
-
-import { useState } from "react";
-import { updateExpectedIncome, createBudget } from "../../api/finance";
+import { useState } from 'react';
+import { updateExpectedIncome, createBudget } from '../../api/finance';
+import { Trash2 } from 'lucide-react';
 
 const defaultCategories = [
-  { id: 1, name: "Food", limitAmount: 400 },
-  { id: 2, name: "Housing", limitAmount: 1200 },
-  { id: 3, name: "Transport", limitAmount: 300 },
+  { id: 1, name: 'Food', limitAmount: 400 },
+  { id: 2, name: 'Housing', limitAmount: 1200 },
+  { id: 3, name: 'Transport', limitAmount: 300 },
 ];
 
 export default function SetupWizard({ onComplete }) {
   const [step, setStep] = useState(1);
-  const [income, setIncome] = useState("");
+  const [income, setIncome] = useState('');
   const [categories, setCategories] = useState(defaultCategories);
   const [loading, setLoading] = useState(false);
 
-  // ---------------------------
-  // Category helpers
-  // ---------------------------
-
   function updateCategory(id, field, value) {
-    setCategories(prev =>
-      prev.map(cat =>
-        cat.id === id ? { ...cat, [field]: value } : cat
-      )
+    setCategories((prev) =>
+      prev.map((cat) => (cat.id === id ? { ...cat, [field]: value } : cat))
     );
   }
 
   function addCategory() {
-    setCategories(prev => [
+    setCategories((prev) => [
       ...prev,
-      {
-        id: Date.now(),
-        name: "",
-        limitAmount: 0,
-      },
+      { id: Date.now(), name: '', limitAmount: 0 },
     ]);
   }
 
   function removeCategory(id) {
-    setCategories(prev => prev.filter(c => c.id !== id));
+    setCategories((prev) => prev.filter((c) => c.id !== id));
   }
-
-  // ---------------------------
-  // Finish setup
-  // ---------------------------
 
   async function finishSetup() {
     if (!income) return;
@@ -60,7 +39,6 @@ export default function SetupWizard({ onComplete }) {
     try {
       await updateExpectedIncome(Number(income));
 
-      // create budgets from category list
       for (const cat of categories) {
         if (!cat.name || !cat.limitAmount) continue;
 
@@ -71,23 +49,16 @@ export default function SetupWizard({ onComplete }) {
       }
 
       onComplete();
-
     } catch (err) {
-      alert(err.message || "Setup failed");
+      alert(err.message || 'Setup failed');
     } finally {
       setLoading(false);
     }
   }
 
-  // ---------------------------
-  // UI
-  // ---------------------------
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-bg">
-      <div className="w-full max-w-lg bg-panel p-8 rounded-xl border border-border">
-
-        {/* STEP 1 */}
+      <div className="sprout-panel w-full max-w-lg p-8">
         {step === 1 && (
           <>
             <h2 className="text-xl font-semibold mb-2">
@@ -101,13 +72,13 @@ export default function SetupWizard({ onComplete }) {
             <input
               type="number"
               placeholder="Monthly income"
-              className="w-full p-2 rounded bg-bg border border-border mb-6"
+              className="sprout-input mb-6"
               value={income}
               onChange={(e) => setIncome(e.target.value)}
             />
 
             <button
-              className="w-full py-2 rounded bg-accent text-black font-medium"
+              className="w-full sprout-btn-primary"
               onClick={() => setStep(2)}
               disabled={!income}
             >
@@ -116,7 +87,6 @@ export default function SetupWizard({ onComplete }) {
           </>
         )}
 
-        {/* STEP 2 */}
         {step === 2 && (
           <>
             <h2 className="text-xl font-semibold mb-2">
@@ -128,32 +98,33 @@ export default function SetupWizard({ onComplete }) {
             </p>
 
             <div className="space-y-3 mb-6">
-              {categories.map(cat => (
-                <div key={cat.id} className="flex gap-3">
+              {categories.map((cat) => (
+                <div key={cat.id} className="flex gap-3 items-center">
                   <input
-                    className="flex-1 p-2 rounded bg-bg border border-border"
+                    className="flex-1 sprout-input"
                     placeholder="Category"
                     value={cat.name}
                     onChange={(e) =>
-                      updateCategory(cat.id, "name", e.target.value)
+                      updateCategory(cat.id, 'name', e.target.value)
                     }
                   />
 
                   <input
                     type="number"
-                    className="w-28 p-2 rounded bg-bg border border-border"
+                    className="w-28 sprout-input"
                     placeholder="Limit"
                     value={cat.limitAmount}
                     onChange={(e) =>
-                      updateCategory(cat.id, "limitAmount", e.target.value)
+                      updateCategory(cat.id, 'limitAmount', e.target.value)
                     }
                   />
 
                   <button
                     onClick={() => removeCategory(cat.id)}
-                    className="px-3 text-red-400"
+                    className="sprout-icon-btn-danger"
+                    title="Remove category"
                   >
-                    ✕
+                    <Trash2 size={16} />
                   </button>
                 </div>
               ))}
@@ -161,7 +132,7 @@ export default function SetupWizard({ onComplete }) {
 
             <button
               onClick={addCategory}
-              className="text-accent mb-6"
+              className="sprout-btn-muted mb-6 px-4 py-2"
             >
               + Add Category
             </button>
@@ -169,9 +140,9 @@ export default function SetupWizard({ onComplete }) {
             <button
               onClick={finishSetup}
               disabled={loading}
-              className="w-full py-2 rounded bg-accent text-black font-medium"
+              className="w-full sprout-btn-primary"
             >
-              {loading ? "Setting up…" : "Finish Setup"}
+              {loading ? 'Setting up…' : 'Finish Setup'}
             </button>
           </>
         )}

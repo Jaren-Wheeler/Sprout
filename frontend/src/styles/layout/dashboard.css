@@ -27,39 +27,39 @@
 
 /* --- Individual Positions based on your draft --- */
 
-#settings { 
-  top: 17%; 
-  left: 10%; 
-  width: 230px; 
-}
-
-#scheduler { 
-  top: 40%; 
-  left: 10%; 
-  width: 700px; /* Large Tent */
-}
-
-#expenses { 
-  bottom: 0%; 
-  left: 45%; 
-  width: 250px; /* Campfire */
-}
-
-#notes { 
-  bottom: 1%; 
-  right: 28%; 
-  width: 280px; /* Purple Chair */
-}
-
-#fitness { 
-  top: 18%; 
-  right: 12%; 
+#settings {
+  top: 17%;
+  left: 10%;
   width: 230px;
 }
 
-#ama { 
-  bottom: 11%; 
-  right: 7%; 
+#scheduler {
+  top: 40%;
+  left: 10%;
+  width: 700px; /* Large Tent */
+}
+
+#expenses {
+  bottom: 0%;
+  left: 45%;
+  width: 250px; /* Campfire */
+}
+
+#notes {
+  bottom: 1%;
+  right: 28%;
+  width: 280px; /* Purple Chair */
+}
+
+#fitness {
+  top: 18%;
+  right: 12%;
+  width: 230px;
+}
+
+#ama {
+  bottom: 11%;
+  right: 7%;
   width: 210px; /* Salamander */
 }
 
@@ -120,7 +120,7 @@
 
 /* Background Overlay for Dark Mode */
 .dashboard-bg::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   background: black;
@@ -142,10 +142,12 @@
   font-weight: bold;
   cursor: pointer;
   z-index: 100;
-  box-shadow: 5px 5px 0px rgba(0,0,0,0.2);
+  box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.2);
   transition: all 0.2s ease;
 }
-.theme-toggle-sticker:hover { transform: scale(1.1) rotate(5deg); }
+.theme-toggle-sticker:hover {
+  transform: scale(1.1) rotate(5deg);
+}
 
 /* Applying Dark Mode to Icons (if you don't have dark assets) */
 .icon-dark {
@@ -156,7 +158,9 @@
   height: 60px;
   background: var(--footer-bg);
   color: var(--footer-text);
-  transition: background 0.5s ease, color 0.5s ease;
+  transition:
+    background 0.5s ease,
+    color 0.5s ease;
   /* ... rest of footer styles ... */
 }
 
