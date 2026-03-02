@@ -82,10 +82,30 @@ export default function EventSidebar({
   return (
     <>
       <div className="sprout-paper p-6 w-[350px]">
-        <h3 className="text-lg font-semibold mb-6 text-amber-900">
-          {format(selectedDate, "MMMM d, yyyy")}
-        </h3>
 
+        {/* === AGENDA HEADER === */}
+        <div className="flex items-center gap-4 mb-6">
+
+          {/* Date badge */}
+          <div className="w-12 h-12 rounded-xl bg-orange-200 border border-orange-400 flex flex-col items-center justify-center text-orange-900">
+            <span className="text-lg font-bold">
+              {format(selectedDate, "d")}
+            </span>
+          </div>
+
+          {/* Context text */}
+          <div>
+            <h3 className="text-lg font-semibold text-amber-900 leading-tight">
+              Agenda for {format(selectedDate, "MMMM yyyy")}
+            </h3>
+            <p className="text-sm text-amber-700">
+              Your plans for this day
+            </p>
+          </div>
+
+        </div>
+
+        {/* ADD EVENT BUTTON */}
         <button
           onClick={openCreate}
           className="sprout-btn-primary w-full mb-6"
@@ -93,10 +113,16 @@ export default function EventSidebar({
           + Add Event
         </button>
 
+        {/* === EMPTY STATE === */}
         {events.length === 0 ? (
-          <p className="text-amber-700 text-center">
-            No events scheduled
-          </p>
+          <div className="text-center text-amber-700 space-y-2 mt-10">
+            <p className="font-medium text-lg">
+              Nothing planned yet 
+            </p>
+            <p className="text-sm">
+              Start by adding an event for this day.
+            </p>
+          </div>
         ) : (
           <div className="space-y-3">
             {events.map((e) => {

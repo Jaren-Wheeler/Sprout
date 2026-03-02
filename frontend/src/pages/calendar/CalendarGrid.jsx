@@ -5,7 +5,12 @@ import {
   eachDayOfInterval,
   getDay,
 } from "date-fns";
-import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  CalendarDays,
+  CalendarCheck,
+} from "lucide-react";
 
 export default function CalendarGrid({
   currentMonth,
@@ -31,21 +36,48 @@ export default function CalendarGrid({
       new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1)
     );
 
+  const today = new Date();
+
+  const isViewingTodayMonth =
+    format(currentMonth, "yyyy-MM") === format(today, "yyyy-MM");
+
+  const goToToday = () => {
+    setCurrentMonth(today);
+    setSelectedDate(today);
+  };
+
   return (
     <div className="sprout-paper p-6 w-[700px]">
+
       {/* HEADER */}
-      <div className="flex items-center justify-between mb-6">
-        <button onClick={prevMonth} className="sprout-icon-btn">
-          <ChevronLeft size={18} />
-        </button>
+      <div className="flex flex-col items-center mb-6">
 
-        <h2 className="text-2xl font-semibold text-amber-900 tracking-wide">
-          {format(currentMonth, "MMMM yyyy")}
-        </h2>
+        {/* Month navigation row */}
+        <div className="flex items-center justify-between w-full">
+          <button onClick={prevMonth} className="sprout-icon-btn">
+            <ChevronLeft size={18} />
+          </button>
 
-        <button onClick={nextMonth} className="sprout-icon-btn">
-          <ChevronRight size={18} />
-        </button>
+          <h2 className="text-2xl font-semibold text-amber-900 tracking-wide">
+            {format(currentMonth, "MMMM yyyy")}
+          </h2>
+
+          <button onClick={nextMonth} className="sprout-icon-btn">
+            <ChevronRight size={18} />
+          </button>
+        </div>
+
+        {/* Today button (only when useful) */}
+        {!isViewingTodayMonth && (
+          <button
+            onClick={goToToday}
+            className="flex items-center gap-1 text-sm text-orange-700 hover:text-orange-900 font-medium mt-2 transition"
+          >
+            <CalendarCheck size={16} />
+            Today
+          </button>
+        )}
+
       </div>
 
       {/* WEEK LABELS */}
@@ -66,9 +98,9 @@ export default function CalendarGrid({
 
           const isSelected =
             key === format(selectedDate, "yyyy-MM-dd");
-          
+
           const isToday =
-            key === format(new Date(), "yyyy-MM-dd");
+            key === format(today, "yyyy-MM-dd");
 
           const dayEvents = eventsByDate[key] || [];
 
@@ -78,12 +110,14 @@ export default function CalendarGrid({
               onClick={() => setSelectedDate(day)}
               className={`sprout-day-cell relative ${
                 isSelected ? "sprout-day-cell-selected" : ""
-              }${isToday && !isSelected ? "ring-2 ring-orange-400" : ""}`}
+              } ${isToday && !isSelected ? "ring-2 ring-orange-400" : ""}`}
             >
               {/* DAY NUMBER */}
-              <span className={`text-sm text-amber-900 ${
-              isToday ? "font-bold" : "font-medium"
-                }`}>
+              <span
+                className={`text-sm text-amber-900 ${
+                  isToday ? "font-bold" : "font-medium"
+                }`}
+              >
                 {format(day, "d")}
               </span>
 
@@ -98,6 +132,7 @@ export default function CalendarGrid({
           );
         })}
       </div>
+
     </div>
   );
 }
