@@ -4,8 +4,7 @@ export default function NotesToolbar({ onAdd }) {
       <button
         type="button"
         onClick={onAdd}
-        className="inline-flex items-center gap-3 px-7 py-4 rounded-xl border-2 border-green-700/70 bg-green-500/95 text-white text-[18px]
-                   shadow-[0_14px_24px_rgba(0,0,0,0.14)] hover:-translate-y-[1px] transition"
+        className="sprout-btn-success inline-flex items-center gap-3 px-7 py-4 text-[18px] shadow-[0_14px_24px_rgba(0,0,0,0.14)] hover:-translate-y-[1px]"
       >
         <span className="text-[22px] leading-none">+</span>
         <span>Add New Note</span>

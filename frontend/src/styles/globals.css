@@ -4,13 +4,9 @@
 
 /* ========================================================
    Base Layer
-   --------------------------------------------------------
-   Global document-level styling.
-   Keep this minimal.
 ======================================================== */
 
 @layer base {
-  /* Default application font */
   body {
     @apply font-sprout;
   }
@@ -18,96 +14,129 @@
 
 /* ========================================================
    Component Layer
-   --------------------------------------------------------
-   Reusable UI building blocks.
-   These represent consistent design patterns, not layout.
+   Reusable UI building blocks
 ======================================================== */
 
 @layer components {
-  /* Primary landing buttons */
+
+  /* =====================================================
+     Landing / Auth Components
+  ===================================================== */
+
   .sprout-btn {
     @apply px-10 py-5 text-xl font-semibold rounded-full border-4
       transition-transform duration-200 hover:scale-110;
   }
 
-  /* Signup variant */
   .sprout-btn.signup {
     @apply text-purple-900 bg-purple-200/30 border-purple-300;
   }
 
-  /* Login variant */
   .sprout-btn.login {
     @apply text-blue-900 bg-blue-200/30 border-blue-300;
   }
 
-  /* Glass-style auth card container */
   .auth-card {
-    @apply w-full max-w-lg
-           rounded-3xl
-           bg-blue-500/80
-           dark:bg-blue-900/80
-           backdrop-blur-md
-           shadow-2xl
-           p-10
-           space-y-6
-           text-black dark:text-white;
+    @apply w-full max-w-lg rounded-3xl
+           bg-blue-500/80 dark:bg-blue-900/80
+           backdrop-blur-md shadow-2xl
+           p-10 space-y-6 text-black dark:text-white;
   }
 
-  /* Standard input styling for auth forms */
   .auth-input {
-    @apply w-full px-4 py-3
-           rounded-xl
-           bg-white
-           text-black
-           placeholder-gray-400
-           focus:outline-none
-           focus:ring-4 focus:ring-white/60;
+    @apply w-full px-4 py-3 rounded-xl
+           bg-white text-black placeholder-gray-400
+           focus:outline-none focus:ring-4 focus:ring-white/60;
   }
 
-  /* Standard primary form button */
   .auth-button {
-    @apply w-full py-3
-           rounded-full
-           border-2 border-black
-           font-semibold
-           bg-blue-400
-           hover:bg-blue-500
-           transition;
+    @apply w-full py-3 rounded-full border-2 border-black
+           font-semibold bg-blue-400 hover:bg-blue-500 transition;
   }
-  /* ===============================
-   Sprout App Panel Surface
-   =============================== */
+
+  /* =====================================================
+     Sprout Core Surfaces
+  ===================================================== */
+
+  /* General app panel */
   .sprout-panel {
     @apply bg-white border-2 border-[#E8D9A8] rounded-xl shadow-sm;
   }
 
-  /* ===============================
-   Interactive Content Card
-   =============================== */
+  /* Interactive content card */
   .sprout-card {
     @apply bg-white rounded-xl border-2 border-[#E8D9A8] shadow-sm
-         transition hover:shadow-md cursor-pointer;
+           transition hover:shadow-md cursor-pointer;
   }
 
-  /* ===============================
-   Add New Item Card
-   =============================== */
+  /* Add item card */
   .sprout-add-card {
     @apply border-2 border-dashed border-green-400 rounded-xl
-         flex flex-col items-center justify-center
-         cursor-pointer hover:bg-green-50 transition;
+           flex flex-col items-center justify-center
+           cursor-pointer hover:bg-green-50 transition;
   }
 
-  /* ===============================
-   Standard Form Input
-   =============================== */
+  /* =====================================================
+     Sprout Paper Surface
+     Used everywhere (notes, modals, panels)
+  ===================================================== */
+
+  .sprout-paper {
+    @apply rounded-xl border-2 border-yellow-400/70
+           bg-yellow-100/60
+           shadow-[0_14px_24px_rgba(0,0,0,0.10)];
+  }
+
+  /* =====================================================
+     Sticky Note Card
+  ===================================================== */
+
+  .sprout-note-card {
+    @apply relative rounded-xl border-2 border-yellow-400/90 p-5
+           shadow-[0_18px_30px_rgba(0,0,0,0.12)]
+           cursor-pointer overflow-hidden
+           hover:-translate-y-[2px] transition;
+  }
+
+  /* =====================================================
+     Individual Calendar Cells
+  ===================================================== */
+  .sprout-day-cell {
+  @apply h-20 rounded-xl border-2 flex flex-col p-2
+         cursor-pointer transition-all duration-150
+         bg-white border-[#E8D9A8]
+         hover:bg-yellow-50;
+}
+
+.sprout-day-cell-selected {
+  @apply bg-yellow-200 border-yellow-400 shadow-sm;
+}
+
+  /* =====================================================
+     Page Typography System
+  ===================================================== */
+
+  .sprout-title {
+    @apply text-[44px] leading-none text-amber-900/95 tracking-[0.5px];
+  }
+
+  .sprout-subtitle {
+    @apply text-[16px] text-orange-600/90;
+  }
+
+  /* =====================================================
+     Forms
+  ===================================================== */
+
   .sprout-input {
     @apply w-full p-3 rounded-lg bg-[#F9F6EC] border border-[#E8D9A8]
-         focus:outline-none focus:ring-2 focus:ring-yellow-300;
+           focus:outline-none focus:ring-2 focus:ring-yellow-300;
   }
-  /* ===============================
-   Base Button
-   =============================== */
+
+  /* =====================================================
+     Buttons
+  ===================================================== */
+
   .sprout-btn-base {
     @apply rounded-lg font-medium transition;
   }
@@ -130,34 +159,57 @@
 
   .sprout-icon-btn {
     @apply w-9 h-9 rounded-lg flex items-center justify-center
-         bg-white border border-gray-200
-         transition hover:bg-gray-100;
+           bg-white border border-gray-200
+           transition hover:bg-gray-100;
   }
 
-  /* Danger variant */
   .sprout-icon-btn-danger {
     @apply sprout-icon-btn text-red-500 hover:text-red-600;
   }
 
-  /* ===============================
-   Modal Stuff
-   =============================== */
-  /* Modal backdrop */
-  .sprout-modal-backdrop {
-    @apply fixed inset-0 bg-black/30 backdrop-blur-sm
-         flex items-center justify-center z-50;
+  /* =====================================================
+     Editor Toolbar Buttons
+  ===================================================== */
+
+  .sprout-toolbar-btn {
+    @apply px-3 py-2 rounded-xl text-[14px] font-semibold
+           border-2 transition-all duration-150
+           focus:outline-none focus:ring-2 focus:ring-yellow-400/60
+           active:translate-y-[1px]
+           bg-white border-yellow-300 text-amber-900
+           hover:bg-yellow-100 hover:border-yellow-400
+           hover:-translate-y-[1px] shadow-sm;
   }
+
+  .sprout-toolbar-btn-active {
+    @apply bg-yellow-400 border-yellow-500 text-amber-950
+           shadow-[inset_0_2px_6px_rgba(0,0,0,0.15)];
+  }
+
+  /* =====================================================
+     Modal System
+  ===================================================== */
+
+  .sprout-modal-backdrop {
+  @apply fixed inset-0 bg-black/40 backdrop-blur-sm
+         flex items-center justify-center;
+  z-index: 50;
+}
+
+/* Higher level modal (confirm dialogs, alerts) */
+.sprout-modal-backdrop-top {
+  @apply fixed inset-0 bg-black/40 backdrop-blur-sm
+         flex items-center justify-center;
+  z-index: 60;
+}
 }
 
 /* ========================================================
    Utility Layer
-   --------------------------------------------------------
-   Small helper classes.
-   These are just behavior helpers.
 ======================================================== */
 
 @layer utilities {
-  /* Global background for app pages (light/dark aware) */
+
   .sprout-bg {
     @apply min-h-screen bg-cover bg-center;
     background-image: url('/src/assets/bg-light.png');
@@ -167,7 +219,6 @@
     background-image: url('/src/assets/bg-dark.png');
   }
 
-  /* Hide scrollbars while preserving scroll functionality */
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
@@ -177,7 +228,6 @@
     scrollbar-width: none;
   }
 
-  /* Soft edge fade for horizontal carousels */
   .carousel-fade::before,
   .carousel-fade::after {
     content: '';
@@ -201,18 +251,13 @@
 }
 
 /* ========================================================
-   Third-Party Library Overrides
-   --------------------------------------------------------
-   Styles required for external libraries.
-   Keep separate from Tailwind layers.
+   Third Party Overrides
 ======================================================== */
 
-/* Remove focus outline from Recharts SVG wrapper */
 .recharts-wrapper:focus {
   outline: none;
 }
 
-/* TipTap / ProseMirror editor default styling */
 .ProseMirror {
   outline: none;
 }
