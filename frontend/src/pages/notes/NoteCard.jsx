@@ -1,3 +1,5 @@
+import { Trash2 } from 'lucide-react';
+
 const VARIANTS = [
   { bg: 'bg-violet-200/55', rotate: -1.2 },
   { bg: 'bg-rose-200/55', rotate: 0.8 },
@@ -22,9 +24,7 @@ export default function NoteCard({ note, variant = 1, onOpen, onDelete }) {
 
   return (
     <article
-      className={`relative rounded-xl border-2 border-yellow-400/90 p-5
-                  shadow-[0_18px_30px_rgba(0,0,0,0.12)] cursor-pointer overflow-hidden
-                  hover:-translate-y-[2px] transition ${v.bg}`}
+      className={`sprout-note-card ${v.bg}`}
       style={{ transform: `rotate(${v.rotate}deg)` }}
       onClick={onOpen}
       role="button"
@@ -33,10 +33,12 @@ export default function NoteCard({ note, variant = 1, onOpen, onDelete }) {
         if (e.key === 'Enter' || e.key === ' ') onOpen();
       }}
     >
-      {/*  card layout */}
+      {/* Card Layout */}
       <div className="h-[170px] flex flex-col">
+
+        {/* Header */}
         <div className="flex items-start justify-between gap-3 mb-3">
-          <h3 className="m-0 text-[20px] text-amber-900/95 line-clamp-1">
+          <h3 className="text-[20px] text-amber-900/95 line-clamp-1">
             {note.title}
           </h3>
 
@@ -45,6 +47,7 @@ export default function NoteCard({ note, variant = 1, onOpen, onDelete }) {
           </div>
         </div>
 
+        {/* Content */}
         <div className="text-[14px] leading-relaxed text-amber-800/95 line-clamp-4 overflow-hidden">
           {note.content ? (
             <div
@@ -56,7 +59,7 @@ export default function NoteCard({ note, variant = 1, onOpen, onDelete }) {
           )}
         </div>
 
-        {/* Footer pinned to bottom */}
+        {/* Footer */}
         <div
           className="mt-auto pt-3 flex justify-end"
           onClick={(e) => e.stopPropagation()}
@@ -64,12 +67,12 @@ export default function NoteCard({ note, variant = 1, onOpen, onDelete }) {
           <button
             type="button"
             onClick={() => onDelete(note.id)}
-            className="px-3 py-2 rounded-xl border border-red-700/30 bg-white/50 text-red-800/90 text-[13px]
-                       hover:bg-white/75 transition"
+            className="sprout-icon-btn-danger "
           >
-            Delete
+           <Trash2 size={18} />
           </button>
         </div>
+
       </div>
     </article>
   );

@@ -1,105 +1,195 @@
-import { useState } from 'react';
-import { format } from 'date-fns';
-import { createEvent } from '../../api/scheduler';
-import { getEventColor } from '../../utils/date';
+import { useState } from "react";
+import { format } from "date-fns";
+import { createEvent, deleteEvent } from "../../api/scheduler";
+import { getEventColor } from "../../utils/date";
+import { Trash2 } from "lucide-react";
+
+import SproutModal from "../../components/ui/SproutModal";
+import ConfirmModal from "../../components/ui/ConfirmModal";
 
 export default function EventSidebar({
   selectedDate,
   eventsByDate,
   onEventCreated,
 }) {
-  const key = format(selectedDate, 'yyyy-MM-dd');
+  const key = format(selectedDate, "yyyy-MM-dd");
   const events = eventsByDate[key] || [];
 
-  const [showForm, setShowForm] = useState(false);
-  const [title, setTitle] = useState('');
-  const [time, setTime] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const [title, setTitle] = useState("");
+  const [time, setTime] = useState("");
+
+  const isNew = !selectedEvent;
+
+  // ================= OPEN MODAL =================
+
+  function openCreate() {
+    setSelectedEvent(null);
+    setTitle("");
+    setTime("");
+    setShowModal(true);
+  }
+
+  function openEdit(event) {
+    setSelectedEvent(event);
+    setTitle(event.title);
+    setTime(event.startTime?.slice(11, 16) || "");
+    setShowModal(true);
+  }
+
+  // ================= SAVE =================
 
   async function handleSave() {
     if (!title) return;
 
+    setLoading(true);
+
     try {
       await createEvent({
+        id: selectedEvent?.id,
         title,
-        startTime: `${key}T${time || '00:00'}`,
+        startTime: `${key}T${time || "00:00"}`,
       });
 
-      setTitle('');
-      setTime('');
-      setShowForm(false);
-
+      setShowModal(false);
       onEventCreated();
-    } catch (err) {
-      alert('Failed to create event');
+    } finally {
+      setLoading(false);
     }
   }
 
+  // ================= DELETE =================
+
+  async function confirmDelete() {
+    if (!selectedEvent) return;
+
+    try {
+      await deleteEvent(selectedEvent.id);
+      setConfirmDeleteOpen(false);
+      setShowModal(false);
+      onEventCreated();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  // ================= UI =================
+
   return (
-    <div className="bg-[#FAF6E8] rounded-3xl shadow-md p-6 w-[350px] border-2 border-purple-200">
-      {/* DATE HEADER */}
-      <h3 className="text-lg font-semibold mb-6">
-        {format(selectedDate, 'MMMM d, yyyy')}
-      </h3>
+    <>
+      <div className="sprout-paper p-6 w-[350px]">
+        <h3 className="text-lg font-semibold mb-6 text-amber-900">
+          {format(selectedDate, "MMMM d, yyyy")}
+        </h3>
 
-      {/* ADD BUTTON */}
-      <button
-        onClick={() => setShowForm(!showForm)}
-        className="w-full bg-purple-600 text-white rounded-xl py-3 mb-6 shadow"
-      >
-        + Add Event
-      </button>
+        <button
+          onClick={openCreate}
+          className="sprout-btn-primary w-full mb-6"
+        >
+          + Add Event
+        </button>
 
-      {/* FORM */}
-      {showForm && (
-        <div className="border-2 border-purple-200 rounded-xl p-4 mb-6 space-y-3 bg-white">
-          <input
-            placeholder="Event Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="sprout-input"
-          />
+        {events.length === 0 ? (
+          <p className="text-amber-700 text-center">
+            No events scheduled
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {events.map((e) => {
+              const colorClass = getEventColor(e.id);
 
-          <input
-            type="time"
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
-            className="sprout-input"
-          />
+              return (
+                <div
+                  key={e.id}
+                  onClick={() => openEdit(e)}
+                  className={`sprout-card p-3 cursor-pointer ${colorClass}`}
+                >
+                  <p className="font-semibold">{e.title}</p>
 
-          <button
-            onClick={handleSave}
-            className="w-full bg-purple-600 text-white rounded-lg py-2"
-          >
-            Save Event
-          </button>
-        </div>
-      )}
+                  {e.startTime && (
+                    <p className="text-sm text-amber-800">
+                      {format(new Date(e.startTime), "hh:mm a")}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
-      {/* EVENT LIST */}
-      {events.length === 0 ? (
-        <p className="text-[#6B5E5E] text-center">No events scheduled</p>
-      ) : (
-        <div className="space-y-3">
-          {events.map((e) => {
-            const colorClass = getEventColor(e.id);
+      {/* ================= MAIN MODAL ================= */}
 
-            return (
-              <div
-                key={e.id}
-                className={`rounded-lg p-3 shadow-sm border ${colorClass}`}
-              >
-                <p className="font-semibold">{e.title}</p>
+      {showModal && (
+        <SproutModal onClose={() => setShowModal(false)}>
+          <div className="sprout-panel p-6 w-full max-w-md space-y-5 shadow-lg">
 
-                {e.startTime && (
-                  <p className="text-sm text-gray-700">
-                    {format(new Date(e.startTime), 'hh:mm a')}
-                  </p>
-                )}
+            <h2 className="text-xl font-semibold">
+              {isNew ? "Add Event" : "Edit Event"}
+            </h2>
+
+            <input
+              className="sprout-input"
+              placeholder="Event title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+
+            <input
+              type="time"
+              className="sprout-input"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+            />
+
+            <div className="flex justify-between items-center pt-3">
+              {!isNew && (
+                <button
+                  onClick={() => setConfirmDeleteOpen(true)}
+                  className="sprout-icon-btn-danger"
+                  title="Delete event"
+                >
+                  <Trash2 size={18} />
+                </button>
+              )}
+
+              <div className="flex gap-2 ml-auto">
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="sprout-btn-muted px-4 py-2"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  disabled={loading}
+                  onClick={handleSave}
+                  className="sprout-btn-primary px-5 py-2 disabled:opacity-50"
+                >
+                  {loading ? "Saving..." : "Save"}
+                </button>
               </div>
-            );
-          })}
-        </div>
+            </div>
+
+          </div>
+        </SproutModal>
       )}
-    </div>
+
+      {/* ================= DELETE CONFIRM ================= */}
+
+      {confirmDeleteOpen && (
+        <ConfirmModal
+          title="Delete Event"
+          message="Are you sure you want to delete this event?"
+          confirmText="Delete"
+          onConfirm={confirmDelete}
+          onCancel={() => setConfirmDeleteOpen(false)}
+        />
+      )}
+    </>
   );
 }

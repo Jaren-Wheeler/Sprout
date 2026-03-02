@@ -32,7 +32,7 @@ export default function NoteEditorPanel({
     editorProps: {
       attributes: {
         class:
-          'w-full rounded-xl border-2 border-yellow-400/70 bg-white/85 px-4 py-3 text-[16px] text-amber-900/95 min-h-[220px] max-h-[400px] overflow-y-auto break-all whitespace-pre-wrap focus:outline-none',
+          'sprout-input min-h-[220px] max-h-[400px] overflow-y-auto break-all whitespace-pre-wrap',
       },
     },
   });
@@ -62,31 +62,9 @@ export default function NoteEditorPanel({
           e.preventDefault();
           onClick();
         }}
-        className={`
-        relative px-3 py-2 rounded-xl text-[14px] font-semibold
-        border-2 transition-all duration-150
-        focus:outline-none focus:ring-2 focus:ring-yellow-400/60
-        active:translate-y-[1px]
-        ${
-          active
-            ? `
-              bg-yellow-400
-              border-yellow-500
-              text-amber-950
-              shadow-[inset_0_2px_6px_rgba(0,0,0,0.15)]
-            `
-            : `
-              bg-white
-              border-yellow-300
-              text-amber-900
-              hover:bg-yellow-100
-              hover:border-yellow-400
-              hover:-translate-y-[1px]
-              shadow-sm
-            `
-        }
-        disabled:opacity-40 disabled:cursor-not-allowed
-      `}
+        className={`sprout-toolbar-btn ${
+          active ? 'sprout-toolbar-btn-active' : ''
+        } disabled:opacity-40 disabled:cursor-not-allowed`}
       >
         {children}
       </button>
@@ -109,11 +87,12 @@ export default function NoteEditorPanel({
   if (!editor) return null;
 
   return (
-    <section className="p-6 rounded-2xl bg-[#FFF9E8] border-4 border-yellow-400 shadow-[0_20px_40px_rgba(0,0,0,0.25)]">
+    <section className="sprout-paper p-6 rounded-2xl">
       <form className="grid gap-4" onSubmit={submit}>
+
         {/* Title */}
         <input
-          className="w-full rounded-xl border-2 border-yellow-400/70 bg-white/85 px-4 py-3 text-[16px] outline-none text-amber-900/95 placeholder:text-amber-900/45"
+          className="sprout-input text-[16px] text-amber-900/95 placeholder:text-amber-900/45"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Note title..."
@@ -122,18 +101,9 @@ export default function NoteEditorPanel({
         />
 
         {/* Toolbar */}
-        <div
-          className="
-  flex flex-wrap justify-center items-center gap-3
-  max-w-fit mx-auto
-  bg-gradient-to-b from-yellow-100 to-yellow-50
-  border-2 border-yellow-300
-  rounded-2xl
-  p-3
-  shadow-[inset_0_2px_6px_rgba(0,0,0,0.08)]
-"
-        >
-          {/* TEXT FORMATTING GROUP */}
+        <div className="flex flex-wrap justify-center items-center gap-3 max-w-fit mx-auto bg-gradient-to-b from-yellow-100 to-yellow-50 border-2 border-yellow-300 rounded-2xl p-3 shadow-[inset_0_2px_6px_rgba(0,0,0,0.08)]">
+
+          {/* TEXT GROUP */}
           <div className="flex gap-2 px-2 py-1 bg-white/60 rounded-xl border border-yellow-200">
             <ToolbarButton
               active={editor.isActive('bold')}
@@ -150,7 +120,6 @@ export default function NoteEditorPanel({
             </ToolbarButton>
           </div>
 
-          {/* DIVIDER */}
           <div className="w-px h-7 bg-yellow-300/80" />
 
           {/* LIST GROUP */}
@@ -170,7 +139,6 @@ export default function NoteEditorPanel({
             </ToolbarButton>
           </div>
 
-          {/* DIVIDER */}
           <div className="w-px h-7 bg-yellow-300/80" />
 
           {/* HEADINGS GROUP */}
@@ -193,6 +161,7 @@ export default function NoteEditorPanel({
               <Heading2 size={16} />
             </ToolbarButton>
           </div>
+
         </div>
 
         {/* Editor */}
@@ -203,7 +172,7 @@ export default function NoteEditorPanel({
           <button
             type="submit"
             disabled={saving}
-            className="px-5 py-2 rounded-xl border-2 border-green-700/70 bg-green-500/95 text-white text-[16px] hover:-translate-y-[1px] transition disabled:opacity-60 disabled:hover:translate-y-0"
+            className="sprout-btn-success px-5 py-2 text-[16px]"
           >
             {saving ? 'Saving...' : 'Save'}
           </button>
@@ -212,7 +181,7 @@ export default function NoteEditorPanel({
             type="button"
             onClick={onCancel}
             disabled={saving}
-            className="px-5 py-2 rounded-xl border-2 border-zinc-300/90 bg-zinc-200/90 text-zinc-900/95 text-[16px] hover:-translate-y-[1px] transition disabled:opacity-60 disabled:hover:translate-y-0"
+            className="sprout-btn-muted px-5 py-2 text-[16px]"
           >
             Cancel
           </button>
@@ -221,6 +190,7 @@ export default function NoteEditorPanel({
             {mode === 'edit' ? 'Editing existing note' : 'Creating new note'}
           </div>
         </div>
+
       </form>
     </section>
   );
