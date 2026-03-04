@@ -3,6 +3,9 @@ const { buildSystemPrompt } = require("../prompts/chatbotPrompts.js");
 const financeService  = require("../services/finance.service.js");
 const { extractAiOutput } = require("../utils/extractAiOutput.js");
 
+const conversations = new Map();
+const MAX_HISTORY = 20;
+
 async function runChatbot(messages, user) {
   try {
     // Build system prompt
@@ -11,12 +14,28 @@ async function runChatbot(messages, user) {
       enableCalendar: true
     });
 
+    // Load existing conversation
+    let history = conversations.get(user.id);
+
+    if (!history) {
+      history = [];
+      conversations.set(user.id, history);
+    }
+
+    // Add new user messages to history
+    history.push(...messages);
+
+    // Trim history
+    if (history.length > MAX_HISTORY) {
+      history.splice(0, history.length - MAX_HISTORY);
+    }
+    
     // Call OpenAI
     const response = await openai.responses.create({
       model: "gpt-4o-mini",
       input: [
         { role: "system", content: systemPrompt },
-        ...messages
+        ...history
       ]
     });
 
@@ -37,21 +56,30 @@ async function runChatbot(messages, user) {
 
   
     if (ai.type === "message") {
-        return {
+        const reply = {
             role: "assistant",
             content: ai.content
         };
+
+        history.push(reply);
+        return reply;
     }
       // Handle actions   
     if (ai.type === "action") {
-      return await executeAction(ai, user);
+      const result = await executeAction(ai, user);
+
+      history.push(result);
+      return result;
     }
 
     // Fallback (should rarely happen)
-    return {
+    const fallback = {
       role: "assistant",
       content: "I’m not sure how to help with that."
     };
+
+    history.push(fallback);
+    return fallback;
 
   } catch (err) {
     console.error("Chatbot error:", err);
@@ -65,13 +93,13 @@ async function runChatbot(messages, user) {
 async function executeAction(ai, user) {
   switch (ai.name) {
 
-    case "create_budget": {
+    case "create_category": {
       const { name, limitAmount } = ai.params || {};
 
       if (!name || !Number.isFinite(limitAmount) || limitAmount <= 0) {
         return {
           role: "assistant",
-          content: "I need a valid budget name and amount."
+          content: "I need a valid category name and amount."
         };
       }
 
@@ -83,11 +111,11 @@ async function executeAction(ai, user) {
 
       return {
         role: "assistant",
-        content: `Got it. I’ve created a "${name}" budget with a limit of $${limitAmount}.`
+        content: `Got it. I’ve created a "${name}" category with a limit of $${limitAmount}.`
       };
     }
 
-   case "delete_budget": {
+   case "delete_category": {
         const { budgetId, name } = ai.params || {};
 
         let idToDelete = budgetId;
@@ -104,7 +132,7 @@ async function executeAction(ai, user) {
             if (matches.length === 0) {
             return {
                 role: "assistant",
-                content: `I couldn’t find a budget named "${name}".`
+                content: `I couldn’t find a category named "${name}".`
             };
             }
 
@@ -112,7 +140,7 @@ async function executeAction(ai, user) {
             if (matches.length > 1) {
             return {
                 role: "assistant",
-                content: `I found multiple budgets named "${name}". Please rename them or be more specific.`
+                content: `I found multiple categories named "${name}". Please rename them or be more specific.`
             };
             }
 
@@ -124,7 +152,7 @@ async function executeAction(ai, user) {
         if (!idToDelete) {
             return {
             role: "assistant",
-            content: "Which budget would you like to delete?"
+            content: "Which category would you like to delete?"
             };
         }
 
@@ -137,48 +165,47 @@ async function executeAction(ai, user) {
         if (!deleted) {
             return {
             role: "assistant",
-            content: "That budget no longer exists or was already deleted."
+            content: "That category no longer exists or was already deleted."
             };
         }
 
         return {
             role: "assistant",
-            content: `The budget "${deleted.name}" has been deleted.`
+            content: `The category "${deleted.name}" has been deleted.`
         };
     
     }
 
     case "add_expense": {
-        const { expenseName, amount , category , description, budgetName, expenseDate} = ai.params || {};
+        const {amount , category, description, expenseDate} = ai.params || {};
 
-        if (!budgetName) {
+        if (!category) {
             return {
             role: "assistant",
-            content: "Which budget should this expense go into?"
+            content: "Which category should this expense go into?"
             };
         }
 
-        if (!expenseName || !Number.isFinite(amount) || !category || !expenseDate) {
-            console.log(expenseName, amount, category, expenseDate);
+        if (!description || !Number.isFinite(amount) || !expenseDate) {
+            console.log(description, amount, category, expenseDate);
             return {
                 role: "assistant",
-                content: "I need a valid expense name, amount, and category, and date."
+                content: "I need a valid expense name, amount and date."
             };
         }
 
         const budgets = await financeService.getBudgets(user.id); // grab the budget object
         const budget = budgets.find(
-            b => b.name.toLowerCase() === budgetName.toLowerCase()
+            b => b.name.toLowerCase() === category.toLowerCase()
         );
 
         if (!budget) {
             return {
                 role: "assistant",
-                content: `I couldn't find a budget named ${budgetName}.`
+                content: `I couldn't find a category named ${category}.`
             }
         }
         await financeService.createExpense(user.id, {
-            expenseName,
             amount,
             category,
             description,
@@ -188,9 +215,68 @@ async function executeAction(ai, user) {
 
         return {
             role: "assistant",
-            content: `Got it. I’ve added the expense "${expenseName}" of ${amount} to the budget ${budget.name}.`
+            content: `Got it. I’ve added the expense "${description}" of ${amount} to the budget ${budget.name}.`
         };
      }
+
+    case "delete_expense":
+      const {id, description, category} = ai.params || {};
+      
+      let idToDelete = id;
+
+      // Resolve by name if ID not provided
+      if (!idToDelete && description) {
+          const expenses = await financeService.getExpenses(user.id);
+
+          const matches = expenses.filter(
+          b => b.description?.toLowerCase() === description.toLowerCase()
+          );
+
+          // No match
+          if (matches.length === 0) {
+          return {
+              role: "assistant",
+              content: `I couldn’t find an expense named "${description}".`
+          };
+          }
+
+          // Multiple matches
+          if (matches.length > 1) {
+          return {
+              role: "assistant",
+              content: `I found multiple expenses named "${description}". Please rename them or be more specific.`
+          };
+          }
+
+          // Exactly one match
+          idToDelete = matches[0].id;
+      }
+
+      // Still no ID? Ask user
+      if (!idToDelete) {
+          return {
+          role: "assistant",
+          content: "Which expense would you like to delete?"
+          };
+      }
+
+      // Safe delete (scoped to user)
+      const deleted = await financeService.deleteExpense(
+          idToDelete,
+          user.id
+      );
+
+      if (!deleted) {
+          return {
+          role: "assistant",
+          content: "That expense no longer exists or was already deleted."
+          };
+      }
+
+      return {
+          role: "assistant",
+          content: `The expense "${deleted.description ?? "expense"}" has been deleted.`
+      };
 
     default:
         return {

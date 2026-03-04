@@ -7,14 +7,14 @@ JSON responses are INTERNAL ONLY and are never shown to the user.
 const BUDGET_ACTIONS = `
   BUDGET ACTIONS:
 
-  1. create_budget
+  1. create_category
     Params:
     {
       "name": string,
       "limitAmount": number
     }
 
-  2. delete_budget
+  2. delete_category
     Params:
     {
       "name": string
@@ -23,18 +23,17 @@ const BUDGET_ACTIONS = `
   3. add_expense
     Params:
     {
-      "expenseName": string,
       "amount": number,
       "category": string,    
       "description": string,
       "expenseDate": string (ISO date, e.g. "2026-01-15")
-      "budgetName": string
     }
 
   4. delete_expense
     Params:
     {
-      "expenseName": string
+      "description": string
+      "category": string
     }
 
   `;
@@ -53,6 +52,7 @@ function buildSystemPrompt({ enableBudget = false, enableCalendar = false }) {
       - Do NOT explain actions in prose.
       - Do NOT include comments.
       - Do NOT invent, guess, or request internal IDs.
+      - Budgets are now called categories. So whenever it says to delete a category, delete the budget.
 
       GENERAL RULES:
       - Never guess missing information.
@@ -79,12 +79,36 @@ function buildSystemPrompt({ enableBudget = false, enableCalendar = false }) {
       }
 
       DELETE RULES (CRITICAL):
-      - Users refer to budgets by NAME, not ID.
+      - Users refer to categories by NAME, not ID.
       - Users refer to expenses by NAME, not ID.
       - You MUST NOT invent or request a budgetId or expense ID.
       - You MUST NOT include placeholder values.
       - When deleting a budget or expense, include ONLY the budget name.
 
+      PARAMETER MEMORY RULES:
+      If the user provides missing parameters across multiple messages,
+      you MUST combine them using the conversation history.
+
+      Example:
+
+      User: create category
+      Assistant: What name and limit amount?
+      User: Food
+      Assistant: What limit amount for "Food"?
+      User: 200
+
+      Final action must be:
+
+      {
+        "type": "action",
+        "name": "create_category",
+        "params": {
+          "name": "Food",
+          "limitAmount": 200
+        }
+      }
+
+      Do NOT ask again for information that was already provided earlier in the conversation.
       ----------------------------------
       ${enableBudget ? BUDGET_ACTIONS : ""}
       ----------------------------------
