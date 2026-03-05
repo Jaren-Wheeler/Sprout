@@ -1,144 +1,144 @@
 import { useState, useEffect } from 'react';
+import SproutModal from '../../components/ui/SproutModal';
 
 export default function CreateFitnessProfileModal({
   onClose,
   onDelete,
   onSubmit,
-  onEditGoals
+  initialValues,
 }) {
-
   const [form, setForm] = useState({
-    currentWeight: "",
-    goalWeight: "",
-    calorieGoal: "",
-    age: "",
-    heightFt: ""
+    currentWeight: '',
+    goalWeight: '',
+    calorieGoal: '',
+    age: '',
+    heightFt: '',
   });
 
-  // Prefill when editing
   useEffect(() => {
-    if (onEditGoals) {
-      setForm({
-        currentWeight: onEditGoals.currentWeight ?? "",
-        goalWeight: onEditGoals.goalWeight ?? "",
-        calorieGoal: onEditGoals.calorieGoal ?? "",
-        age: onEditGoals.age ?? "",
-        heightFt: onEditGoals.heightFt ?? ""
-      });
-    }
-  }, [onEditGoals])
-  
+    if (!initialValues) return;
+
+    setForm({
+      currentWeight: initialValues.currentWeight ?? '',
+      goalWeight: initialValues.goalWeight ?? '',
+      calorieGoal: initialValues.calorieGoal ?? '',
+      age: initialValues.age ?? '',
+      heightFt: initialValues.heightFt ?? '',
+    });
+  }, [initialValues]);
+
+  function handleChange(field, value) {
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    onSubmit({
+      currentWeight: Number(form.currentWeight),
+      goalWeight: Number(form.goalWeight),
+      calorieGoal: Number(form.calorieGoal),
+      age: Number(form.age),
+      heightFt: Number(form.heightFt),
+    });
+  }
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      {/* Modal */}
-      <div className="w-full max-w-lg rounded-2xl border bg-white p-6 shadow-lg">
+    <SproutModal onClose={onClose}>
+      <div className="sprout-panel p-6 w-full max-w-lg space-y-5 shadow-lg">
+        <h2 className="text-xl font-semibold text-amber-900">
+          Update your fitness profile
+        </h2>
 
-        {onEditGoals ? (
-          <h1 className="mb-4 text-lg font-semibold text-gray-800">
-            Update your fitness goals!
-          </h1>
-         ) : (
-          <h1 className="mb-4 text-lg font-semibold text-gray-800">
-            Start your fitness journey by creating a fitness profile!
-          </h1>
-         )}
-        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="text-sm text-amber-900/70">
+              Current Weight (lbs)
+            </label>
+            <input
+              className="sprout-input"
+              type="number"
+              value={form.currentWeight}
+              onChange={(e) => handleChange('currentWeight', e.target.value)}
+            />
+          </div>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
+          <div>
+            <label className="text-sm text-amber-900/70">
+              Goal Weight (lbs)
+            </label>
+            <input
+              className="sprout-input"
+              type="number"
+              value={form.goalWeight}
+              onChange={(e) => handleChange('goalWeight', e.target.value)}
+            />
+          </div>
 
-            onSubmit({
-              currentWeight: Number(formData.get("currentWeight")),
-              goalWeight: Number(formData.get("goalWeight")),
-              calorieGoal: Number(formData.get("calorieGoal")),
-              age: Number(formData.get("age")),
-              heightFt: Number(formData.get("height"))
-            });
-          }}
-          className="space-y-4"
-        >
-        <label className="mb-1 block text-sm font-medium text-gray-700">
-            Current Weight (lbs)
-        </label>
-        <input
-            name="currentWeight"
-            type="number"
-            required
-            value={form.currentWeight}
-            onChange={(e) => setForm({...form, currentWeight: e.target.value})}
-            className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
-        <label className="mb-1 block text-sm font-medium text-gray-700">
-            Goal Weight (lbs)
-        </label>
-        <input
-            name="goalWeight"
-            type="number"
-            required
-            value={form.goalWeight}
-            onChange={(e) => setForm({...form, goalWeight: e.target.value})}
-            className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
-        <label className="mb-1 block text-sm font-medium text-gray-700">
-            Daily Calorie Goal
-        </label>
-        <input
-            name="calorieGoal"
-            type="number"
-            required
-            value={form.calorieGoal}
-            onChange={(e) => setForm({...form, calorieGoal: e.target.value})}
-            className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
-        <label className="mb-1 block text-sm font-medium text-gray-700">
-            Age
-        </label>
-        <input
-            name="age"
-            type="number"
-            required
-            value={form.age}
-            onChange={(e) => setForm({...form, age: e.target.value})}
-            className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
-        <label className="mb-1 block text-sm font-medium text-gray-700">
-            Height (ft)
-        </label>
-        <input
-            name="height"
-            type="number"
-            required
-            value={form.height}
-            onChange={(e) => setForm({...form, height: e.target.value})}
-            className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
-          {/* Actions */}
-          <div className="mt-6 flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg border px-4 py-2 text-sm hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
+          <div>
+            <label className="text-sm text-amber-900/70">
+              Daily Calorie Goal
+            </label>
+            <input
+              className="sprout-input"
+              type="number"
+              value={form.calorieGoal}
+              onChange={(e) => handleChange('calorieGoal', e.target.value)}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm text-amber-900/70">Age</label>
+              <input
+                className="sprout-input"
+                type="number"
+                value={form.age}
+                onChange={(e) => handleChange('age', e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-amber-900/70">Height (ft)</label>
+              <input
+                className="sprout-input"
+                type="number"
+                value={form.heightFt}
+                onChange={(e) => handleChange('heightFt', e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-between pt-3">
+            {onDelete && (
+              <button
                 type="button"
                 onClick={onDelete}
-                className="rounded-lg bg-red-600 border px-4 py-2 text-sm hover:bg-gray-50"
-                >
+                className="sprout-btn-danger px-4"
+              >
                 Delete profile
-            </button>
-            <button
-              type="submit"
-              className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
-            >
-              Save profile
-            </button>
+              </button>
+            )}
+
+            <div className="flex gap-3 ml-auto">
+              <button
+                type="button"
+                onClick={onClose}
+                className="sprout-btn-muted px-4"
+              >
+                Cancel
+              </button>
+
+              <button type="submit" className="sprout-btn-primary px-4">
+                Save profile
+              </button>
+            </div>
           </div>
         </form>
       </div>
-    </div>
+    </SproutModal>
   );
 }

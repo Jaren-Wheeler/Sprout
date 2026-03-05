@@ -1,13 +1,6 @@
-import { useEffect, useState } from 'react';
-import {
-  getDiets,
-  createDiet,
-  deleteDiet,
-  getFitnessInfo,
-  getDietItems,
-  updateFitnessInfo,
-  getWeightHistory,
-} from '../../api/health';
+import { useState } from 'react';
+import useDiet from './useDiet';
+
 import Sprout from '../../components/chatbot/Sprout';
 import DietStats from './DietStats';
 import CreateDietModal from './CreateDietModal';
@@ -15,89 +8,22 @@ import DietPage from './DietPage';
 import CreateFitnessProfileModal from './CreateFitnessProfileModal';
 
 export default function DietDashboard() {
-  const [diets, setDiets] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    diets,
+    selectedDiet,
+    setSelectedDiet,
+    dietItems,
+    setDietItems,
+    stats,
+    weightHistory,
+    loading,
+    createNewDiet,
+    deleteDietById,
+    updateGoals,
+  } = useDiet();
+
   const [showModal, setShowModal] = useState(false);
-  const [stats, setStats] = useState([]);
-  const [selectedDiet, setSelectedDiet] = useState(null);
-  const [dietItems, setDietItems] = useState([]);
   const [showGoalsModal, setShowGoalsModal] = useState(false);
-  const [weightHistory, setWeightHistory] = useState([]);
-
-  async function handleDeleteDiet(id) {
-    try {
-      await deleteDiet(id);
-      setDiets((prev) => prev.filter((d) => d.id !== id));
-    } catch (err) {
-      console.error('Failed to delete diet', err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    async function handleFitnessInfo() {
-      try {
-        const info = await getFitnessInfo();
-        setStats(info || []);
-      } catch (err) {
-        console.error('Failed to fetch stats');
-      }
-    }
-
-    handleFitnessInfo();
-  }, []);
-
-  useEffect(() => {
-    async function loadDiets() {
-      try {
-        const data = await getDiets();
-        console.log(data);
-        setDiets(data || []);
-      } catch (err) {
-        console.error('Failed to load diets', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadDiets();
-  }, []);
-
-  useEffect(() => {
-    if (diets.length > 0 && !selectedDiet) {
-      setSelectedDiet(diets[0]);
-    }
-  }, [diets]);
-
-  useEffect(() => {
-    async function loadItems() {
-      if (!selectedDiet?.id) return;
-
-      try {
-        const items = await getDietItems(selectedDiet.id);
-        setDietItems(items || []);
-      } catch (err) {
-        console.error('Failed to load diet items', err);
-      }
-    }
-
-    loadItems();
-  }, [selectedDiet]);
-
-  useEffect(() => {
-    async function loadWeightHistory() {
-      try {
-        const data = await getWeightHistory();
-        console.log('Fetched weight history:', data); // debug
-        setWeightHistory(data || []);
-      } catch (err) {
-        console.error('Failed to load weight history', err);
-      }
-    }
-
-    loadWeightHistory();
-  }, []);
 
   if (loading) return <div className="p-6">Loading diets...</div>;
 
@@ -115,6 +41,7 @@ export default function DietDashboard() {
         </button>
       </div>
 
+      {/* STATS */}
       <DietStats
         stats={stats}
         diet={selectedDiet}
@@ -122,21 +49,18 @@ export default function DietDashboard() {
         onEditGoals={() => setShowGoalsModal(true)}
       />
 
+      {/* GOALS MODAL */}
       {showGoalsModal && (
         <CreateFitnessProfileModal
           onClose={() => setShowGoalsModal(false)}
           onSubmit={async (data) => {
-            await updateFitnessInfo(data);
-
-            const updatedHistory = await getWeightHistory();
-            setWeightHistory(updatedHistory);
-
+            await updateGoals(data);
             setShowGoalsModal(false);
           }}
         />
       )}
 
-      {/*DIET*/}
+      {/* EMPTY STATE */}
       {diets.length === 0 && (
         <div className="flex flex-col items-center justify-center mt-20">
           <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-lg border p-10 text-center w-[420px]">
@@ -156,29 +80,29 @@ export default function DietDashboard() {
         </div>
       )}
 
+      {/* CREATE DIET MODAL */}
       <CreateDietModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         onCreate={async (data) => {
-          const newDiet = await createDiet(data);
-
-          //add new card instantly
-          setDiets((prev) => [...prev, newDiet]);
+          await createNewDiet(data);
           setShowModal(false);
         }}
       />
 
+      {/* DIET PAGE */}
       <DietPage
         diet={selectedDiet}
         diets={diets}
         dietItems={dietItems}
         setDietItems={setDietItems}
-        onDeleteDiet={handleDeleteDiet}
+        onDeleteDiet={deleteDietById}
         onSelectDiet={setSelectedDiet}
         weightHistory={weightHistory}
       />
 
-      <Sprout></Sprout>
+      {/* CHATBOT */}
+      <Sprout />
     </div>
   );
 }

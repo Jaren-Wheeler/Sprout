@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import LogFoodCard from './LogFoodCard';
 import MealPlanningCard from './MealPlanningCard';
 import DietCharts from './DietCharts';
@@ -17,31 +16,42 @@ export default function DietPage({
   if (!diet) return null;
 
   return (
-    <div className="rounded-2xl border bg-white w-[100%] p-5 mt-8 m-auto flex flex-col gap-5">
-      <div className="flex space-between">
-        <h1 className="text-2xl font-bold">{diet.name}</h1>
+    <div className="space-y-6">
+      {/* HEADER */}
+      <div className="flex items-center justify-between">
+        <h1 className="sprout-title text-[32px]">{diet.name}</h1>
+
         <DietCard diets={diets} selectedDiet={diet} onSelect={onSelectDiet} />
       </div>
-      <div className="flex gap-5">
-        <LogFoodCard diet={diet}></LogFoodCard>
-        <FoodListCard
+
+      {/* MAIN LAYOUT */}
+      <div className="grid grid-cols-[220px_1fr_1.3fr] gap-6 items-start">
+        {/* LEFT COLUMN */}
+        <LogFoodCard
           diet={diet}
-          items={dietItems}
-          setItems={setDietItems}
-        ></FoodListCard>
-        <div className=" w-[95%] flex flex-col gap-5 self-start h-full">
+          onItemCreated={(newItem) => {
+            setDietItems((prev) => [newItem, ...prev]);
+          }}
+        />
+
+        {/* CENTER COLUMN */}
+        <FoodListCard diet={diet} items={dietItems} setItems={setDietItems} />
+
+        {/* RIGHT COLUMN */}
+        <div className="flex flex-col gap-6 h-full">
           <MealPlanningCard
             diet={diet}
             onAddDietItem={(item) => {
-              setDietItems((prev) => [...prev, item]);
+              setDietItems((prev) => [item, ...prev]);
             }}
-          ></MealPlanningCard>
-          <div className="mt-auto">
+          />
+
+          <div className="flex-1">
             <DietCharts
               diet={diet}
               dietItems={dietItems}
               weightHistory={weightHistory}
-            ></DietCharts>
+            />
           </div>
         </div>
       </div>

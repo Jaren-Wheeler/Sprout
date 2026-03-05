@@ -1,27 +1,32 @@
+import { Trash2 } from 'lucide-react';
+
 export default function FoodItem({ item, onDelete }) {
-    return (
-        <div className="flex items-center justify-between bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition">
-            
-            {/* LEFT SIDE */}
-            <div className="flex flex-col">
-                <h3 className="text-xl font-semibold">{item.name}</h3>
-                <p className="text-xs text-gray-500">
-                    {item.meal.charAt(0).toUpperCase() + item.meal.slice(1).toLowerCase()}
-                </p>
-            </div>
+  const mealLabel =
+    item.meal?.charAt(0).toUpperCase() + item.meal?.slice(1).toLowerCase();
 
-            {/* RIGHT SIDE */}
-            <div className="flex items-center gap-4">
-                <p className="text-xl font-medium">{item.calories} cal</p>
+  return (
+    <div className="sprout-panel p-4 flex items-center justify-between">
+      {/* LEFT */}
+      <div className="min-w-0">
+        <h3 className="font-semibold text-amber-900 truncate">{item.name}</h3>
+        <p className="text-xs text-amber-900/60">{mealLabel}</p>
+      </div>
 
-                <button
-                    onClick={() => onDelete(item.id)}
-                    className="text-gray-400 hover:text-red-500 text-xl transition"
-                >
-                    ✕
-                </button>
-            </div>
+      {/* RIGHT */}
+      <div className="flex items-center gap-3">
+        <p className="font-semibold text-amber-900 whitespace-nowrap">
+          {item.calories} cal
+        </p>
 
-        </div>
-    );
+        <button
+          onClick={onDelete}
+          className="sprout-icon-btn-danger"
+          aria-label="Delete food item"
+          title="Delete"
+        >
+          <Trash2 size={18} />
+        </button>
+      </div>
+    </div>
+  );
 }

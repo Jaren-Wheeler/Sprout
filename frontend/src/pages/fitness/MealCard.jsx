@@ -1,13 +1,22 @@
+import { Trash2 } from 'lucide-react';
 
-export default function MealCard({item, onDelete}) {
+export default function MealCard({ item, onDelete }) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      {/* Meal name */}
+      <h3 className="font-semibold text-amber-900 truncate">{item.name}</h3>
 
-    return (
-        <div className='flex gap-5'>
-            <h2>{item.name}</h2>
-            <button onClick={(e) => {
-                e.stopPropagation();
-                onDelete(item.id);
-            }}>x</button>
-        </div>
-    )
+      {/* Delete button */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete(item.id);
+        }}
+        className="sprout-icon-btn-danger"
+        title="Delete preset"
+      >
+        <Trash2 size={16} />
+      </button>
+    </div>
+  );
 }
