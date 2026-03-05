@@ -10,6 +10,21 @@ import {
   Heading2,
 } from 'lucide-react';
 
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { noteSchema } from '../../validation/notesSchemas';
+
+function isHtmlEffectivelyEmpty(html) {
+  const textOnly = html
+    .replace(/<br\s*\/?>/gi, '')
+    .replace(/<\/?p[^>]*>/gi, '')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/<[^>]+>/g, '')
+    .trim();
+
+  return textOnly.length === 0;
+}
+
 export default function NoteEditorPanel({
   initialTitle,
   initialContent,
@@ -18,22 +33,52 @@ export default function NoteEditorPanel({
   onSave,
   onCancel,
 }) {
-  const [title, setTitle] = useState(initialTitle || '');
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    setError,
+    clearErrors,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(noteSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+    defaultValues: {
+      title: initialTitle || '',
+      content: initialContent || '',
+    },
+  });
+
+  const title = watch('title');
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        heading: {
-          levels: [1, 2, 3],
-        },
+        heading: { levels: [1, 2, 3] },
       }),
     ],
     content: initialContent || '',
     editorProps: {
       attributes: {
         class:
-          'sprout-input min-h-[220px] max-h-[400px] overflow-y-auto break-all whitespace-pre-wrap',
+          `sprout-input min-h-[220px] max-h-[400px] overflow-y-auto break-all whitespace-pre-wrap ` +
+          `${errors.content ? 'sprout-input-error' : ''}`,
       },
+    },
+    onUpdate: ({ editor }) => {
+      const html = editor.getHTML() || '';
+      setValue('content', html, { shouldValidate: true, shouldDirty: true });
+
+      if (isHtmlEffectivelyEmpty(html)) {
+        setError('content', {
+          type: 'manual',
+          message: 'Note cannot be empty',
+        });
+      } else {
+        clearErrors('content');
+      }
     },
   });
 
@@ -72,38 +117,49 @@ export default function NoteEditorPanel({
   }
 
   useEffect(() => {
-    setTitle(initialTitle || '');
+    setValue('title', initialTitle || '', { shouldDirty: false });
+    setValue('content', initialContent || '', { shouldDirty: false });
+
     if (editor && initialContent !== undefined) {
       editor.commands.setContent(initialContent || '');
     }
-  }, [initialTitle, initialContent, editor]);
+  }, [initialTitle, initialContent, editor, setValue]);
 
-  const submit = (e) => {
-    e.preventDefault();
-    const content = editor?.getHTML() || '';
-    onSave({ title, content });
+  const onSubmit = (data) => {
+    if (isHtmlEffectivelyEmpty(data.content || '')) {
+      setError('content', { type: 'manual', message: 'Note cannot be empty' });
+      return;
+    }
+
+    onSave({
+      title: data.title.trim(),
+      content: data.content || '',
+    });
   };
 
   if (!editor) return null;
 
   return (
     <section className="sprout-paper p-6 rounded-2xl">
-      <form className="grid gap-4" onSubmit={submit}>
-
+      <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
         {/* Title */}
-        <input
-          className="sprout-input text-[16px] text-amber-900/95 placeholder:text-amber-900/45"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Note title..."
-          maxLength={120}
-          disabled={saving}
-        />
+        <div>
+          <input
+            className={`sprout-input text-[16px] text-amber-900/95 placeholder:text-amber-900/45 ${
+              errors.title ? 'sprout-input-error' : ''
+            }`}
+            placeholder="Note title..."
+            maxLength={120}
+            disabled={saving || isSubmitting}
+            {...register('title')}
+          />
+          <p className="sprout-error-text min-h-[18px]">
+            {errors.title?.message || ''}
+          </p>
+        </div>
 
         {/* Toolbar */}
         <div className="flex flex-wrap justify-center items-center gap-3 max-w-fit mx-auto bg-gradient-to-b from-yellow-100 to-yellow-50 border-2 border-yellow-300 rounded-2xl p-3 shadow-[inset_0_2px_6px_rgba(0,0,0,0.08)]">
-
-          {/* TEXT GROUP */}
           <div className="flex gap-2 px-2 py-1 bg-white/60 rounded-xl border border-yellow-200">
             <ToolbarButton
               active={editor.isActive('bold')}
@@ -122,7 +178,6 @@ export default function NoteEditorPanel({
 
           <div className="w-px h-7 bg-yellow-300/80" />
 
-          {/* LIST GROUP */}
           <div className="flex gap-2 px-2 py-1 bg-white/60 rounded-xl border border-yellow-200">
             <ToolbarButton
               active={editor.isActive('bulletList')}
@@ -141,7 +196,6 @@ export default function NoteEditorPanel({
 
           <div className="w-px h-7 bg-yellow-300/80" />
 
-          {/* HEADINGS GROUP */}
           <div className="flex gap-2 px-2 py-1 bg-white/60 rounded-xl border border-yellow-200">
             <ToolbarButton
               active={editor.isActive('heading', { level: 1 })}
@@ -161,17 +215,21 @@ export default function NoteEditorPanel({
               <Heading2 size={16} />
             </ToolbarButton>
           </div>
-
         </div>
 
         {/* Editor */}
-        <EditorContent editor={editor} />
+        <div>
+          <EditorContent editor={editor} />
+          <p className="sprout-error-text min-h-[18px]">
+            {errors.content?.message || ''}
+          </p>
+        </div>
 
         {/* Actions */}
         <div className="flex items-center gap-3 flex-wrap">
           <button
             type="submit"
-            disabled={saving}
+            disabled={saving || isSubmitting}
             className="sprout-btn-success px-5 py-2 text-[16px]"
           >
             {saving ? 'Saving...' : 'Save'}
@@ -180,7 +238,7 @@ export default function NoteEditorPanel({
           <button
             type="button"
             onClick={onCancel}
-            disabled={saving}
+            disabled={saving || isSubmitting}
             className="sprout-btn-muted px-5 py-2 text-[16px]"
           >
             Cancel
@@ -190,7 +248,6 @@ export default function NoteEditorPanel({
             {mode === 'edit' ? 'Editing existing note' : 'Creating new note'}
           </div>
         </div>
-
       </form>
     </section>
   );

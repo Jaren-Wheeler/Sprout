@@ -1,18 +1,22 @@
-import { useState } from "react";
-import { format } from "date-fns";
-import { createEvent, deleteEvent } from "../../api/scheduler";
-import { getEventColor } from "../../utils/date";
-import { Trash2 } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { format } from 'date-fns';
+import { createEvent, deleteEvent } from '../../api/scheduler';
+import { getEventColor } from '../../utils/date';
+import { Trash2 } from 'lucide-react';
 
-import SproutModal from "../../components/ui/SproutModal";
-import ConfirmModal from "../../components/ui/ConfirmModal";
+import SproutModal from '../../components/ui/SproutModal';
+import ConfirmModal from '../../components/ui/ConfirmModal';
+
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { eventSchema } from '../../validation/calendarSchemas';
 
 export default function EventSidebar({
   selectedDate,
   eventsByDate,
   onEventCreated,
 }) {
-  const key = format(selectedDate, "yyyy-MM-dd");
+  const key = format(selectedDate, 'yyyy-MM-dd');
   const events = eventsByDate[key] || [];
 
   const [showModal, setShowModal] = useState(false);
@@ -20,42 +24,59 @@ export default function EventSidebar({
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const [title, setTitle] = useState("");
-  const [time, setTime] = useState("");
-
   const isNew = !selectedEvent;
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(eventSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+    defaultValues: {
+      title: '',
+      time: '',
+    },
+  });
 
   // ================= OPEN MODAL =================
 
   function openCreate() {
     setSelectedEvent(null);
-    setTitle("");
-    setTime("");
+    reset({ title: '', time: '' });
     setShowModal(true);
   }
 
   function openEdit(event) {
     setSelectedEvent(event);
-    setTitle(event.title);
-    setTime(event.startTime?.slice(11, 16) || "");
+    reset({
+      title: event.title || '',
+      time: event.startTime?.slice(11, 16) || '',
+    });
     setShowModal(true);
+  }
+
+  function closeModal() {
+    setShowModal(false);
+    // optional: clear selected event when closing
+    // setSelectedEvent(null);
   }
 
   // ================= SAVE =================
 
-  async function handleSave() {
-    if (!title) return;
-
+  async function onSubmit(data) {
     setLoading(true);
 
     try {
       await createEvent({
         id: selectedEvent?.id,
-        title,
-        startTime: `${key}T${time || "00:00"}`,
+        title: data.title.trim(),
+        startTime: `${key}T${data.time || '00:00'}`,
       });
 
-      setShowModal(false);
+      closeModal();
       onEventCreated();
     } finally {
       setLoading(false);
@@ -83,20 +104,15 @@ export default function EventSidebar({
     <>
       <div className="sprout-paper p-6 w-[350px]">
         <h3 className="text-lg font-semibold mb-6 text-amber-900">
-          {format(selectedDate, "MMMM d, yyyy")}
+          {format(selectedDate, 'MMMM d, yyyy')}
         </h3>
 
-        <button
-          onClick={openCreate}
-          className="sprout-btn-primary w-full mb-6"
-        >
+        <button onClick={openCreate} className="sprout-btn-primary w-full mb-6">
           + Add Event
         </button>
 
         {events.length === 0 ? (
-          <p className="text-amber-700 text-center">
-            No events scheduled
-          </p>
+          <p className="text-amber-700 text-center">No events scheduled</p>
         ) : (
           <div className="space-y-3">
             {events.map((e) => {
@@ -112,7 +128,9 @@ export default function EventSidebar({
 
                   {e.startTime && (
                     <p className="text-sm text-amber-800">
-                      {format(new Date(e.startTime), "hh:mm a")}
+                      {format(new Date(e.startTime), 'HH:mm') === '00:00'
+                        ? 'All day'
+                        : format(new Date(e.startTime), 'hh:mm a')}
                     </p>
                   )}
                 </div>
@@ -125,30 +143,46 @@ export default function EventSidebar({
       {/* ================= MAIN MODAL ================= */}
 
       {showModal && (
-        <SproutModal onClose={() => setShowModal(false)}>
-          <div className="sprout-panel p-6 w-full max-w-md space-y-5 shadow-lg">
-
+        <SproutModal onClose={closeModal}>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            noValidate
+            className="sprout-panel p-6 w-full max-w-md space-y-5 shadow-lg"
+          >
             <h2 className="text-xl font-semibold">
-              {isNew ? "Add Event" : "Edit Event"}
+              {isNew ? 'Add Event' : 'Edit Event'}
             </h2>
 
-            <input
-              className="sprout-input"
-              placeholder="Event title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
+            {/* Title */}
+            <div>
+              <input
+                className={`sprout-input ${errors.title ? 'sprout-input-error' : ''}`}
+                placeholder="Event title"
+                disabled={loading || isSubmitting}
+                {...register('title')}
+              />
+              <p className="sprout-error-text min-h-[18px]">
+                {errors.title?.message || ''}
+              </p>
+            </div>
 
-            <input
-              type="time"
-              className="sprout-input"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-            />
+            {/* Time */}
+            <div>
+              <input
+                type="time"
+                className={`sprout-input ${errors.time ? 'sprout-input-error' : ''}`}
+                disabled={loading || isSubmitting}
+                {...register('time')}
+              />
+              <p className="sprout-error-text min-h-[18px]">
+                {errors.time?.message || ''}
+              </p>
+            </div>
 
             <div className="flex justify-between items-center pt-3">
               {!isNew && (
                 <button
+                  type="button"
                   onClick={() => setConfirmDeleteOpen(true)}
                   className="sprout-icon-btn-danger"
                   title="Delete event"
@@ -159,23 +193,24 @@ export default function EventSidebar({
 
               <div className="flex gap-2 ml-auto">
                 <button
-                  onClick={() => setShowModal(false)}
+                  type="button"
+                  onClick={closeModal}
                   className="sprout-btn-muted px-4 py-2"
+                  disabled={loading || isSubmitting}
                 >
                   Cancel
                 </button>
 
                 <button
-                  disabled={loading}
-                  onClick={handleSave}
+                  type="submit"
+                  disabled={loading || isSubmitting}
                   className="sprout-btn-primary px-5 py-2 disabled:opacity-50"
                 >
-                  {loading ? "Saving..." : "Save"}
+                  {loading ? 'Saving...' : 'Save'}
                 </button>
               </div>
             </div>
-
-          </div>
+          </form>
         </SproutModal>
       )}
 
