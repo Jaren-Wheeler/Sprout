@@ -21,9 +21,9 @@ async function execute(ai, user) {
     case "create_diet":
     case "delete_diet":
     case "log_food":
-        return healthActions.handle(ai, user);
     case "delete_food":
     case "create_preset_meal":
+    case "delete_preset_meal":
       return healthActions.handle(ai, user);
 
 

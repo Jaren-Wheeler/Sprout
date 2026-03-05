@@ -26,6 +26,8 @@ async function handle(ai, user) {
     case "create_preset_meal":
       return createPresetMeal(ai, user);
 
+      case "delete_preset_meal":
+        return deletePresetMeal(ai, user);
     default:
         
       return {
@@ -307,6 +309,60 @@ async function createPresetMeal(ai, user) {
   return {
     role: "assistant",
     content: `Preset meal "${name}" has been created for the "${dietName}" diet.`
+  };
+}
+
+async function deletePresetMeal(ai, user) {
+
+  const { dietName, name } = ai.params || {};
+
+  if (!dietName || !name) {
+    return {
+      role: "assistant",
+      content: "I need the diet name and preset meal name."
+    };
+  }
+
+  // Find the diet
+  const diets = await healthService.getDiets(user.id);
+
+  const diet = diets.find(
+    d => d.name?.toLowerCase() === dietName.toLowerCase()
+  );
+
+  if (!diet) {
+    return {
+      role: "assistant",
+      content: `I couldn't find a diet named "${dietName}".`
+    };
+  }
+
+  // Get preset meals
+  const presets = await healthService.getPresetItems(diet.id);
+
+  const matches = presets.filter(
+    p => p.name?.toLowerCase() === name.toLowerCase()
+  );
+
+  if (matches.length === 0) {
+    return {
+      role: "assistant",
+      content: `I couldn’t find a preset meal named "${name}".`
+    };
+  }
+
+  if (matches.length > 1) {
+    return {
+      role: "assistant",
+      content: `I found multiple preset meals named "${name}". Please rename them or be more specific.`
+    };
+  }
+
+  await healthService.deletePresetItem(matches[0].id);
+
+  return {
+    role: "assistant",
+    content: `The preset meal "${name}" has been deleted.`
   };
 }
 

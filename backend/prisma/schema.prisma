@@ -253,7 +253,7 @@ model DietItem {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   dietId String @map("diet_id")
-  diet  Diet @relation(fields: [dietId], references: [id])
+  diet  Diet @relation(fields: [dietId], references: [id], onDelete: Cascade)
 }
 
 model PresetMealItems {
@@ -268,7 +268,7 @@ model PresetMealItems {
   sugar       Float?
 
   dietId String @map("diet_id")
-  diet  Diet @relation(fields: [dietId], references: [id])
+  diet  Diet @relation(fields: [dietId], references: [id], onDelete: Cascade)
 }
 
 // =====================================================

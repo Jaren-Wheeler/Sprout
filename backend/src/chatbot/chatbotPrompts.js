@@ -118,6 +118,15 @@ Params:
   "fat": number (optional),
   "sugar": number (optional)
 }
+
+8. delete_preset_meal
+Delete a preset meal.
+
+Params:
+{
+  "dietName": string,
+  "name": string
+}
 `;
 
 function buildSystemPrompt({
