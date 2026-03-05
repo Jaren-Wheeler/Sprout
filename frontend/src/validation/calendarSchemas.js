@@ -5,7 +5,7 @@ export const eventSchema = z.object({
     .string()
     .trim()
     .min(1, 'Event title is required')
-    .max(80, 'Max 80 characters'),
+    .max(20, 'Max 20 characters'),
 
   time: z
     .string()
