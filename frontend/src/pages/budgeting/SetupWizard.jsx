@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { updateExpectedIncome, createBudget } from '../../api/finance';
 import { Trash2 } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { incomeSchema, categorySchema } from '../../validation/budgetSchema';
 
 const defaultCategories = [
   { id: 1, name: 'Food', limitAmount: 400 },
@@ -13,6 +16,15 @@ export default function SetupWizard({ onComplete }) {
   const [income, setIncome] = useState('');
   const [categories, setCategories] = useState(defaultCategories);
   const [loading, setLoading] = useState(false);
+  const [categoryErrors, setCategoryErrors] = useState({});
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(incomeSchema),
+  });
 
   function updateCategory(id, field, value) {
     setCategories((prev) =>
@@ -32,18 +44,40 @@ export default function SetupWizard({ onComplete }) {
   }
 
   async function finishSetup() {
-    if (!income) return;
+    const newErrors = {};
 
+    categories.forEach((cat) => {
+      const result = categorySchema.safeParse({
+        name: cat.name,
+        limitAmount: String(cat.limitAmount),
+      });
+
+      if (!result.success) {
+        const fieldErrors = {};
+
+        result.error.issues.forEach((err) => {
+          fieldErrors[err.path[0]] = err.message;
+        });
+
+        newErrors[cat.id] = fieldErrors;
+      }
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      console.log('ERRORS:', newErrors);
+      setCategoryErrors(newErrors);
+      return;
+    }
+
+    setCategoryErrors({});
     setLoading(true);
 
     try {
       await updateExpectedIncome(Number(income));
 
       for (const cat of categories) {
-        if (!cat.name || !cat.limitAmount) continue;
-
         await createBudget({
-          name: cat.name,
+          name: cat.name.trim(),
           limitAmount: Number(cat.limitAmount),
         });
       }
@@ -69,21 +103,37 @@ export default function SetupWizard({ onComplete }) {
               Let’s start by setting your expected monthly income.
             </p>
 
-            <input
-              type="number"
-              placeholder="Monthly income"
-              className="sprout-input mb-6"
-              value={income}
-              onChange={(e) => setIncome(e.target.value)}
-            />
-
-            <button
-              className="w-full sprout-btn-primary"
-              onClick={() => setStep(2)}
-              disabled={!income}
+            <form
+              onSubmit={handleSubmit((data) => {
+                setIncome(data.income);
+                setStep(2);
+              })}
+              noValidate
             >
-              Continue
-            </button>
+              <input
+                type="text"
+                inputMode="decimal"
+                placeholder="Monthly income"
+                {...register('income')}
+                className={`sprout-input mb-2 ${
+                  errors.income ? 'sprout-input-error' : ''
+                }`}
+              />
+
+              {errors.income && (
+                <p className="sprout-error-text mb-4">
+                  {errors.income.message}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                className="w-full sprout-btn-primary"
+                disabled={isSubmitting}
+              >
+                Continue
+              </button>
+            </form>
           </>
         )}
 
@@ -97,37 +147,60 @@ export default function SetupWizard({ onComplete }) {
               Adjust limits or add your own categories.
             </p>
 
-            <div className="space-y-3 mb-6">
-              {categories.map((cat) => (
-                <div key={cat.id} className="flex gap-3 items-center">
-                  <input
-                    className="flex-1 sprout-input"
-                    placeholder="Category"
-                    value={cat.name}
-                    onChange={(e) =>
-                      updateCategory(cat.id, 'name', e.target.value)
-                    }
-                  />
+            <div className="space-y-1 mb-6">
+              {categories.map((cat) => {
+                const rowError =
+                  categoryErrors[cat.id]?.name ||
+                  categoryErrors[cat.id]?.limitAmount;
 
-                  <input
-                    type="number"
-                    className="w-28 sprout-input"
-                    placeholder="Limit"
-                    value={cat.limitAmount}
-                    onChange={(e) =>
-                      updateCategory(cat.id, 'limitAmount', e.target.value)
-                    }
-                  />
+                return (
+                  <div key={cat.id} className="flex flex-col">
+                    <div className="flex gap-3 items-center">
+                      {/* Category Name */}
+                      <input
+                        type="text"
+                        maxLength={30}
+                        className={`flex-1 sprout-input ${
+                          rowError ? 'sprout-input-error' : ''
+                        }`}
+                        placeholder="Category"
+                        value={cat.name}
+                        onChange={(e) =>
+                          updateCategory(cat.id, 'name', e.target.value)
+                        }
+                      />
 
-                  <button
-                    onClick={() => removeCategory(cat.id)}
-                    className="sprout-icon-btn-danger"
-                    title="Remove category"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ))}
+                      {/* Limit Amount */}
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        className={`w-28 sprout-input ${
+                          rowError ? 'sprout-input-error' : ''
+                        }`}
+                        placeholder="Limit"
+                        value={cat.limitAmount}
+                        onChange={(e) =>
+                          updateCategory(cat.id, 'limitAmount', e.target.value)
+                        }
+                      />
+
+                      {/* Remove Button */}
+                      <button
+                        onClick={() => removeCategory(cat.id)}
+                        className="sprout-icon-btn-danger"
+                        title="Remove category"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+
+                    {/* Row Error */}
+                    <p className="sprout-error-text min-h-[18px]">
+                      {rowError || ''}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
 
             <button

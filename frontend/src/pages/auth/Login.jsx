@@ -1,40 +1,28 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from '../../api/auth.js';
-import { useTheme } from '../../theme/ThemeContext.jsx';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { loginSchema } from '../../validation/authSchemas';
+import { loginUser } from '../../api/auth';
+import { useTheme } from '../../theme/ThemeContext';
 
 export default function Login() {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState({});
-  const [submitting, setSubmitting] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+  });
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    if (submitting) return;
-
-    const newErrors = {};
-    const emailTrimmed = email.trim().toLowerCase();
-
-    if (!emailTrimmed) newErrors.email = 'Email is required';
-    else if (!/^\S+@\S+\.\S+$/.test(emailTrimmed))
-      newErrors.email = 'Please enter a valid email';
-
-    if (!password) newErrors.password = 'Password is required';
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
+  const onSubmit = async (data) => {
     try {
-      setSubmitting(true);
-      setErrors({});
+      const emailTrimmed = data.email.trim().toLowerCase();
 
-      const user = await loginUser(emailTrimmed, password);
+      const user = await loginUser(emailTrimmed, data.password);
 
       localStorage.setItem(
         'sprout_user',
@@ -46,9 +34,9 @@ export default function Login() {
 
       navigate('/dashboard');
     } catch (err) {
-      setErrors({ form: err.message || 'Login failed' });
-    } finally {
-      setSubmitting(false);
+      setError('root', {
+        message: err?.response?.data?.error || err.message || 'Login failed',
+      });
     }
   };
 
@@ -57,19 +45,24 @@ export default function Login() {
       <div className="auth-card pop show">
         <h1 className="text-3xl font-bold text-center">Log In</h1>
 
-        <form onSubmit={onSubmit} className="space-y-4">
+        <form
+          noValidate
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4"
+        >
           {/* EMAIL */}
           <div>
             <input
               type="email"
               placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
-              className="auth-input"
+              {...register('email')}
+              className={`auth-input ${
+                errors.email ? 'sprout-input-error' : ''
+              }`}
             />
             {errors.email && (
-              <p className="text-sm text-red-500 mt-1">{errors.email}</p>
+              <p className="sprout-error-text">{errors.email.message}</p>
             )}
           </div>
 
@@ -78,28 +71,30 @@ export default function Login() {
             <input
               type="password"
               placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
-              className="auth-input"
+              {...register('password')}
+              className={`auth-input ${
+                errors.password ? 'sprout-input-error' : ''
+              }`}
             />
             {errors.password && (
-              <p className="text-sm text-red-500 mt-1">{errors.password}</p>
+              <p className="sprout-error-text">{errors.password.message}</p>
             )}
           </div>
 
           {/* FORM ERROR */}
-          {errors.form && (
-            <div className="text-red-500 text-center">{errors.form}</div>
+          {errors.root && (
+            <div className="sprout-error-text text-center">
+              {errors.root.message}
+            </div>
           )}
 
-          {/* BUTTON */}
-          <button disabled={submitting} className="auth-button" type="submit">
-            {submitting ? 'Logging in...' : 'Log In'}
+          <button disabled={isSubmitting} className="auth-button" type="submit">
+            {isSubmitting ? 'Logging in...' : 'Log In'}
           </button>
         </form>
 
-        {/* NAV LINK */}
+        {/* NAV LINK  */}
         <p className="text-center text-sm">
           Don’t have an account?{' '}
           <span
