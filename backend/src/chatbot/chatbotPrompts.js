@@ -129,9 +129,35 @@ Params:
 }
 `;
 
+const NOTES_ACTIONS = `
+NOTES ACTIONS:
+
+1. create_note
+Params:
+{
+  "title": string,
+  "content": string
+}
+
+2. update_note
+Params:
+{
+  "title": string,
+  "newTitle": string (optional),
+  "content": string (optional)
+}
+
+3. delete_note
+Params:
+{
+  "title": string
+}
+`;
+
 function buildSystemPrompt({
   enableBudget = true,
   enableHealth = true,
+  enableNotes = true,
   enableCalendar = false
 }) {
   return `
@@ -219,7 +245,13 @@ ${enableBudget ? BUDGET_ACTIONS : ""}
 ----------------------------------
 ${enableHealth ? HEALTH_ACTIONS : ""}
 ----------------------------------
+
+
+----------------------------------
+${enableNotes ? NOTES_ACTIONS : ""}
+----------------------------------
 `;
+
 }
 
 module.exports = {

@@ -1,5 +1,6 @@
 const financeActions = require("./actions/finance.actions");
 const healthActions = require("./actions/health.actions");
+const notesActions = require("./actions/notes.actions");
 
 async function execute(ai, user) {
 
@@ -26,7 +27,13 @@ async function execute(ai, user) {
     case "delete_preset_meal":
       return healthActions.handle(ai, user);
 
+    /* ================= NOTES ================= */
 
+    case "create_note":
+    case "update_note":
+    case "delete_note":
+      return notesActions.handle(ai, user);
+      
     /* ================= DEFAULT ================= */
 
     default:
