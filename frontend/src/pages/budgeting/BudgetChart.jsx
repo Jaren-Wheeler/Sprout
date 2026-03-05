@@ -45,7 +45,7 @@ export default function BudgetChart({ categoryStats }) {
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-[#E8D9A8] h-full flex flex-col">
+    <div className="sprout-panel p-6 rounded-xl  h-full flex flex-col">
       <h2 className="font-semibold mb-6 text-[#3B2F2F]">
         Spending by Category
       </h2>
