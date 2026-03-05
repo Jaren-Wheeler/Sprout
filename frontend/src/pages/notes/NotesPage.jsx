@@ -6,6 +6,8 @@ import NotesToolbar from './NotesToolbar';
 import NotesGrid from './NotesGrid';
 import NoteEditorPanel from './NoteEditorPanel';
 import ConfirmModal from '../../components/ui/ConfirmModal';
+import Sprout from '../../components/chatbot/Sprout';
+import { sendChatMessage } from '../../api/chatbot';
 
 export default function NotesPage() {
   const { notes, loading, error, setError, add, edit, remove } = useNotes();
@@ -149,7 +151,7 @@ export default function NotesPage() {
           onCancel={() => setConfirmingId(null)}
         />
       )}
-
+      <Sprout onSend={sendChatMessage}></Sprout>
     </div>
   );
 }
