@@ -3,6 +3,8 @@ import { getEvents } from '../../api/scheduler';
 import CalendarGrid from './CalendarGrid';
 import EventSidebar from './EventSidebar';
 import { groupEventsByDate } from '../../utils/date';
+import Sprout from '../../components/chatbot/Sprout';
+import { sendChatMessage } from '../../api/chatbot';
 import TodayAgenda from "./TodayAgenda";
 
 export default function CalendarPage() {
@@ -61,6 +63,7 @@ export default function CalendarPage() {
 </div>
 
   </div>
+  <Sprout onSend={sendChatMessage}></Sprout>
 </div>
   );
 }

@@ -13,6 +13,7 @@ import DietStats from './DietStats';
 import CreateDietModal from './CreateDietModal';
 import DietPage from './DietPage';
 import CreateFitnessProfileModal from './CreateFitnessProfileModal';
+import { sendChatMessage } from '../../api/chatbot';
 
 export default function DietDashboard() {
   const [diets, setDiets] = useState([]);
@@ -178,7 +179,7 @@ export default function DietDashboard() {
         weightHistory={weightHistory}
       />
 
-      <Sprout></Sprout>
+      <Sprout onSend={sendChatMessage}></Sprout>
     </div>
   );
 }
