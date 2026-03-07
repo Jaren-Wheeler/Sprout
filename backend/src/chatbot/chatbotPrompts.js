@@ -154,11 +154,34 @@ Params:
 }
 `;
 
+const SCHEDULER_ACTIONS = `
+SCHEDULER ACTIONS:
+
+1. create_event
+Create a calendar event.
+
+Params:
+{
+  "title": string,
+  "description": string (optional),
+  "startTime": string (ISO datetime),
+  "endTime": string (optional ISO datetime)
+}
+
+2. delete_event
+Delete a calendar event.
+
+Params:
+{
+  "title": string
+}
+`;
+
 function buildSystemPrompt({
   enableBudget = true,
   enableHealth = true,
   enableNotes = true,
-  enableCalendar = false
+  enableScheduler = true
 }) {
   return `
 You are an assistant embedded inside a personal productivity and health application.
@@ -246,9 +269,12 @@ ${enableBudget ? BUDGET_ACTIONS : ""}
 ${enableHealth ? HEALTH_ACTIONS : ""}
 ----------------------------------
 
-
 ----------------------------------
 ${enableNotes ? NOTES_ACTIONS : ""}
+----------------------------------
+
+----------------------------------
+${enableScheduler ? SCHEDULER_ACTIONS : ""}
 ----------------------------------
 `;
 

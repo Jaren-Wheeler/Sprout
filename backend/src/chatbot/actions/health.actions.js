@@ -26,8 +26,8 @@ async function handle(ai, user) {
     case "create_preset_meal":
       return createPresetMeal(ai, user);
 
-      case "delete_preset_meal":
-        return deletePresetMeal(ai, user);
+    case "delete_preset_meal":
+      return deletePresetMeal(ai, user);
     default:
         
       return {

@@ -1,6 +1,7 @@
 const financeActions = require("./actions/finance.actions");
 const healthActions = require("./actions/health.actions");
 const notesActions = require("./actions/notes.actions");
+const schedulerActions = require("./actions/scheduler.actions");
 
 async function execute(ai, user) {
 
@@ -33,6 +34,12 @@ async function execute(ai, user) {
     case "update_note":
     case "delete_note":
       return notesActions.handle(ai, user);
+
+    /* ================= SCHEDULER ================= */
+
+    case "create_event":
+    case "delete_event":
+      return schedulerActions.handle(ai, user);
       
     /* ================= DEFAULT ================= */
 
