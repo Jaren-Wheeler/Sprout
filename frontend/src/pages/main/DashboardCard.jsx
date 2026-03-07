@@ -7,16 +7,23 @@ export default function DashboardCard({ title, route, children }) {
 
   return (
     <div
-      className="dashboard-card"
+      className="sprout-dashboard-card"
       onClick={() => navigate(route)}
     >
 
-      <div className="dashboard-card-header">
-        <h2>{title}</h2>
-        <span className="dashboard-card-link">View →</span>
+      <div className="sprout-dashboard-card-header">
+
+        <h2 className="sprout-dashboard-card-title">
+          {title}
+        </h2>
+
+        <span className="sprout-dashboard-card-link">
+          View →
+        </span>
+
       </div>
 
-      <div className="dashboard-card-body">
+      <div className="sprout-dashboard-card-content">
         {children}
       </div>
 

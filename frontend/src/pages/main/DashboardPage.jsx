@@ -8,18 +8,20 @@ import NotesDashboardCard from "./NotesDashboardCard";
 export default function DashboardPage() {
 
   return (
-    <div className="dashboard">
+    <div className="sprout-dashboard">
 
-      <h1>Dashboard</h1>
+      <div className="sprout-dashboard-header">
+        <h1 className="sprout-title">Dashboard</h1>
+        <p className="sprout-subtitle">
+          Overview of your activity
+        </p>
+      </div>
 
-      <div className="dashboard-grid">
+      <div className="sprout-dashboard-grid">
 
         <BudgetDashboardCard />
-
         <DietDashboardCard />
-
         <ScheduleDashboardCard />
-
         <NotesDashboardCard />
 
       </div>
