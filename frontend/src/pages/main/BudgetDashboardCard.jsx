@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import DashboardCard from "./DashboardCard";
-
+import DashboardEmptyState from "./DashboardEmptyState";
 import { getBudgets, getExpenses } from "../../api/finance";
 
 import {
@@ -14,6 +14,7 @@ export default function BudgetDashboardCard() {
 
   const [spent, setSpent] = useState(0);
   const [budgetTotal, setBudgetTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadSummary();
@@ -40,7 +41,25 @@ export default function BudgetDashboardCard() {
 
     } catch (err) {
       console.error("Budget dashboard load error:", err);
+    } finally {
+      setLoading(false);
     }
+  }
+
+  if (loading) {
+    return (
+      <DashboardCard title="Budget" route="/budget">
+        Loading...
+      </DashboardCard>
+    );
+  }
+
+  if (budgetTotal === 0 && spent === 0) {
+    return (
+      <DashboardCard title="Budget" route="/budget">
+        <DashboardEmptyState message="No budgets created yet" />
+      </DashboardCard>
+    );
   }
 
   const remaining = Math.max(budgetTotal - spent, 0);
@@ -56,7 +75,6 @@ export default function BudgetDashboardCard() {
   return (
     <DashboardCard title="Budget" route="/budget">
 
-      {/* totals */}
       <div className="flex items-baseline justify-between">
 
         <span className="text-2xl font-semibold text-amber-900">
@@ -69,7 +87,6 @@ export default function BudgetDashboardCard() {
 
       </div>
 
-      {/* mini donut chart */}
       <div className="w-full h-28">
 
         <ResponsiveContainer width="100%" height="100%">
@@ -95,7 +112,6 @@ export default function BudgetDashboardCard() {
 
       </div>
 
-      {/* progress bar */}
       <div className="w-full h-2 bg-[#E8D9A8] rounded-full overflow-hidden">
 
         <div
