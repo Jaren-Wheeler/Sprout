@@ -7,7 +7,7 @@ export default function DashboardCard({ title, route, children }) {
 
   return (
     <div
-      className="sprout-dashboard-card"
+      className="sprout-card p-5 flex flex-col h-[260px]"
       onClick={() => navigate(route)}
     >
 

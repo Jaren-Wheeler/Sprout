@@ -35,7 +35,7 @@ export default function ScheduleDashboardCard() {
 
   if (loading) {
     return (
-      <DashboardCard title="Schedule" route="/schedule">
+      <DashboardCard title="Schedule" route="/calendar">
         Loading...
       </DashboardCard>
     );
@@ -43,7 +43,7 @@ export default function ScheduleDashboardCard() {
 
   if (!events.length) {
     return (
-      <DashboardCard title="Schedule" route="/schedule">
+      <DashboardCard title="Schedule" route="/calendar">
         <DashboardEmptyState message="No upcoming events" />
       </DashboardCard>
     );
@@ -51,35 +51,53 @@ export default function ScheduleDashboardCard() {
 
   const nextEvents = events.slice(0, 3);
 
+  const colors = [
+    "bg-blue-100 border-blue-300 text-blue-900",
+    "bg-green-100 border-green-300 text-green-900",
+    "bg-purple-100 border-purple-300 text-purple-900"
+    ];
   return (
-    <DashboardCard title="Schedule" route="/schedule">
+    <DashboardCard title="Schedule" route="/calendar">
 
-      <div className="flex flex-col gap-2 text-sm">
+        <div className="flex flex-col justify-between h-full gap-3">
 
-        {nextEvents.map(event => {
+            {nextEvents.map((event, index) => {
 
-          const date = new Date(event.startTime);
+                const date = new Date(event.startTime);
 
-          return (
-            <div key={event.id} className="flex justify-between">
+                return (
+                    <div
+                        key={event.id}
+                        className={`flex flex-col px-3 py-2 rounded-lg border
+                                    shadow-sm text-sm w-full
+                                    ${colors[index % colors.length]}`}
+                    >
 
-              <span className="text-amber-900 font-medium">
-                {event.title}
-              </span>
+                        <div className="font-semibold">
+                            {event.title}
+                        </div>
 
-              <span className="text-amber-700 text-xs">
-                {date.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit"
-                })}
-              </span>
+                        <div className="text-xs opacity-80">
 
-            </div>
-          );
+                            {date.toLocaleDateString([], {
+                                weekday: "short"
+                            })}
 
-        })}
+                            {" • "}
 
-      </div>
+                            {date.toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit"
+                            })}
+
+                        </div>
+
+                    </div>
+                );
+
+            })}
+
+        </div>
 
     </DashboardCard>
   );
