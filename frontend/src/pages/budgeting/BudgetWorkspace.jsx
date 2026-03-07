@@ -1,41 +1,67 @@
 import { useState } from 'react';
 import { createExpense, createIncomeEntry } from '../../api/finance';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { transactionSchema } from '../../validation/budgetSchema';
+import SproutCurrencyInput from '../../components/ui/SproutCurrencyInput';
+import { stripCurrencyFormatting } from '../../utils/format';
 
 export default function BudgetWorkspace({ categories, expenses, refreshData }) {
-  const [description, setDescription] = useState('');
-  const [amount, setAmount] = useState('');
-  const [categoryId, setCategoryId] = useState('');
-  const [type, setType] = useState('expense');
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    if (!amount) return;
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(transactionSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+    defaultValues: {
+      description: '',
+      amount: '',
+      categoryId: '',
+      type: 'expense',
+    },
+  });
 
+  const type = watch('type');
+
+  async function onSubmit(data) {
     setLoading(true);
 
     try {
-      if (type === 'income') {
+      const cleanAmount = Number(stripCurrencyFormatting(data.amount));
+
+      if (data.type === 'income') {
         await createIncomeEntry({
-          amount: Number(amount),
-          note: description,
+          amount: cleanAmount,
+          note: data.description,
           incomeDate: new Date().toISOString(),
         });
       } else {
-        const selectedCategory = categories.find((c) => c.id === categoryId);
+        const selectedCategory = categories.find(
+          (c) => String(c.id) === String(data.categoryId)
+        );
 
         await createExpense({
-          amount: Number(amount),
-          description,
+          amount: cleanAmount,
+          description: data.description,
           category: selectedCategory?.name || 'Other',
           expenseDate: new Date().toISOString(),
-          budgetId: categoryId,
+          budgetId: data.categoryId,
         });
       }
 
-      setDescription('');
-      setAmount('');
-      setCategoryId('');
+      reset({
+        description: '',
+        amount: '',
+        categoryId: '',
+        type: data.type,
+      });
 
       await refreshData();
     } catch (err) {
@@ -51,38 +77,59 @@ export default function BudgetWorkspace({ categories, expenses, refreshData }) {
         Add Transaction
       </h2>
 
-      <form onSubmit={handleSubmit} className="flex flex-col flex-1">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+        className="flex flex-col flex-1"
+      >
+        {/* Hidden type field for schema */}
+        <input type="hidden" {...register('type')} />
+
         {/* Inputs */}
         <div className="space-y-4">
-          <input
-            className="sprout-input"
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
+          {/* Description */}
+          <div>
+            <input
+              className={`sprout-input ${
+                errors.description ? 'sprout-input-error' : ''
+              }`}
+              placeholder="Description"
+              {...register('description')}
+            />
+            {errors.description && (
+              <p className="sprout-error-text">{errors.description.message}</p>
+            )}
+          </div>
 
-          <input
-            type="number"
-            className="sprout-input"
+          {/* Amount */}
+          <SproutCurrencyInput
+            register={register}
+            name="amount"
+            error={errors.amount}
             placeholder="Amount"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
           />
 
+          {/* Category */}
           {type === 'expense' && (
-            <select
-              className="sprout-input"
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              required
-            >
-              <option value="">Select Category</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+            <div>
+              <select
+                className={`sprout-input ${
+                  errors.categoryId ? 'sprout-input-error' : ''
+                }`}
+                {...register('categoryId')}
+              >
+                <option value="">Select Category</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+
+              {errors.categoryId && (
+                <p className="sprout-error-text">{errors.categoryId.message}</p>
+              )}
+            </div>
           )}
         </div>
 
@@ -91,7 +138,7 @@ export default function BudgetWorkspace({ categories, expenses, refreshData }) {
           <div className="flex gap-3">
             <button
               type="button"
-              onClick={() => setType('expense')}
+              onClick={() => setValue('type', 'expense')}
               className={`flex-1 ${
                 type === 'expense'
                   ? 'sprout-btn-base sprout-btn-danger'
@@ -103,7 +150,7 @@ export default function BudgetWorkspace({ categories, expenses, refreshData }) {
 
             <button
               type="button"
-              onClick={() => setType('income')}
+              onClick={() => setValue('type', 'income')}
               className={`flex-1 ${
                 type === 'income'
                   ? 'sprout-btn-base sprout-btn-success'
@@ -114,7 +161,10 @@ export default function BudgetWorkspace({ categories, expenses, refreshData }) {
             </button>
           </div>
 
-          <button disabled={loading} className="w-full sprout-btn-primary">
+          <button
+            disabled={loading || isSubmitting}
+            className="w-full sprout-btn-primary"
+          >
             {loading ? 'Adding…' : '+ Add Transaction'}
           </button>
         </div>

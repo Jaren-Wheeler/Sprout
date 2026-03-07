@@ -5,6 +5,7 @@ import EventSidebar from './EventSidebar';
 import { groupEventsByDate } from '../../utils/date';
 import Sprout from '../../components/chatbot/Sprout';
 import { sendChatMessage } from '../../api/chatbot';
+import TodayAgenda from "./TodayAgenda";
 
 export default function CalendarPage() {
   const [events, setEvents] = useState([]);
@@ -39,21 +40,27 @@ export default function CalendarPage() {
 
     <div className="flex gap-8 items-start">
 
-      <CalendarGrid
-        currentMonth={currentMonth}
-        setCurrentMonth={setCurrentMonth}
-        selectedDate={selectedDate}
-        setSelectedDate={setSelectedDate}
-        eventsByDate={eventsByDate}
-      />
+  <CalendarGrid
+    currentMonth={currentMonth}
+    setCurrentMonth={setCurrentMonth}
+    selectedDate={selectedDate}
+    setSelectedDate={setSelectedDate}
+    eventsByDate={eventsByDate}
+  />
 
-      <EventSidebar
-        selectedDate={selectedDate}
-        eventsByDate={eventsByDate}
-        onEventCreated={loadEvents}
-      />
+  <div className="flex flex-col gap-6">
 
-    </div>
+    <TodayAgenda eventsByDate={eventsByDate} />
+
+    <EventSidebar
+      selectedDate={selectedDate}
+      eventsByDate={eventsByDate}
+      onEventCreated={loadEvents}
+    />
+
+  </div>
+
+</div>
 
   </div>
   <Sprout onSend={sendChatMessage}></Sprout>

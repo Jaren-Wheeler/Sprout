@@ -1,67 +1,39 @@
-// frontend/src/pages/Signup.jsx
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { registerUser, loginUser } from '../../api/auth.js';
-import { useTheme } from '../../theme/ThemeContext.jsx';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { signupSchema } from '../../validation/authSchemas';
+import { registerUser, loginUser } from '../../api/auth';
+import { useTheme } from '../../theme/ThemeContext';
 
 export default function Signup() {
   const { theme, setTheme } = useTheme();
-
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-
-  const [errors, setErrors] = useState({});
-  const [submitting, setSubmitting] = useState(false);
-
   const navigate = useNavigate();
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    if (submitting) return;
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(signupSchema),
+  });
 
-    const newErrors = {};
-
-    const fullNameTrimmed = fullName.trim();
-    const emailTrimmed = email.trim().toLowerCase();
-
-    if (!fullNameTrimmed) newErrors.fullName = 'Full name is required';
-
-    if (!emailTrimmed) newErrors.email = 'Email is required';
-    else if (!/^\S+@\S+\.\S+$/.test(emailTrimmed))
-      newErrors.email = 'Please enter a valid email';
-
-    if (!password) newErrors.password = 'Password is required';
-    else if (password.length < 8)
-      newErrors.password = 'Password must be at least 8 characters';
-
-    if (!confirmPassword)
-      newErrors.confirmPassword = 'Please confirm your password';
-    else if (password !== confirmPassword)
-      newErrors.confirmPassword = 'Passwords do not match';
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
+  const onSubmit = async (data) => {
     try {
-      setSubmitting(true);
-      setErrors({});
+      const fullNameTrimmed = data.fullName.trim();
+      const emailTrimmed = data.email.trim().toLowerCase();
 
       const created = await registerUser(
         fullNameTrimmed,
         emailTrimmed,
-        password
+        data.password
       );
 
       let user = created;
+
       try {
-        user = await loginUser(emailTrimmed, password);
-      } catch {
-        // ignore
-      }
+        user = await loginUser(emailTrimmed, data.password);
+      } catch {}
 
       try {
         localStorage.setItem(
@@ -71,15 +43,13 @@ export default function Signup() {
             ...(user?.id ? { id: user.id } : {}),
           })
         );
-      } catch {
-        // ignore
-      }
+      } catch {}
 
       navigate('/dashboard');
     } catch (err) {
-      setErrors({ form: err.message || 'Signup failed' });
-    } finally {
-      setSubmitting(false);
+      setError('root', {
+        message: err?.response?.data?.error || err.message || 'Signup failed',
+      });
     }
   };
 
@@ -88,18 +58,23 @@ export default function Signup() {
       <div className="auth-card pop show">
         <h1 className="text-3xl font-bold text-center">Sign Up</h1>
 
-        <form onSubmit={onSubmit} className="space-y-4">
+        <form
+          noValidate
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4"
+        >
           {/* FULL NAME */}
           <div>
             <input
               type="text"
               placeholder="Full Name"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="auth-input"
+              {...register('fullName')}
+              className={`auth-input ${
+                errors.fullName ? 'sprout-input-error' : ''
+              }`}
             />
             {errors.fullName && (
-              <p className="text-sm text-red-500 mt-1">{errors.fullName}</p>
+              <p className="sprout-error-text">{errors.fullName.message}</p>
             )}
           </div>
 
@@ -108,12 +83,13 @@ export default function Signup() {
             <input
               type="email"
               placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="auth-input"
+              {...register('email')}
+              className={`auth-input ${
+                errors.email ? 'sprout-input-error' : ''
+              }`}
             />
             {errors.email && (
-              <p className="text-sm text-red-500 mt-1">{errors.email}</p>
+              <p className="sprout-error-text">{errors.email.message}</p>
             )}
           </div>
 
@@ -122,12 +98,13 @@ export default function Signup() {
             <input
               type="password"
               placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="auth-input"
+              {...register('password')}
+              className={`auth-input ${
+                errors.password ? 'sprout-input-error' : ''
+              }`}
             />
             {errors.password && (
-              <p className="text-sm text-red-500 mt-1">{errors.password}</p>
+              <p className="sprout-error-text">{errors.password.message}</p>
             )}
           </div>
 
@@ -136,23 +113,27 @@ export default function Signup() {
             <input
               type="password"
               placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="auth-input"
+              {...register('confirmPassword')}
+              className={`auth-input ${
+                errors.confirmPassword ? 'sprout-input-error' : ''
+              }`}
             />
             {errors.confirmPassword && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.confirmPassword}
+              <p className="sprout-error-text">
+                {errors.confirmPassword.message}
               </p>
             )}
           </div>
 
-          {errors.form && (
-            <div className="text-red-500 text-center">{errors.form}</div>
+          {/* FORM LEVEL ERROR */}
+          {errors.root && (
+            <div className="sprout-error-text text-center">
+              {errors.root.message}
+            </div>
           )}
 
-          <button type="submit" disabled={submitting} className="auth-button">
-            {submitting ? 'Creating...' : 'Create Account'}
+          <button type="submit" disabled={isSubmitting} className="auth-button">
+            {isSubmitting ? 'Creating...' : 'Create Account'}
           </button>
         </form>
 
