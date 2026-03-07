@@ -9,14 +9,15 @@ import NotesPage from './pages/notes/NotesPage';
 import BudgetPage from './pages/budgeting/BudgetPage';
 import Calendar from './pages/calendar/Calendar';
 import DietDashboard from './pages/fitness/DietDashboard';
-
+import DashboardPage from './pages/main/DashboardPage';
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
-      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/dashboard" element={<DashboardPage />} />
+      {/*<Route path="/dashboard" element={<Dashboard />} /> */}
 
       <Route path="/notes" element={<NotesPage />} />
      
