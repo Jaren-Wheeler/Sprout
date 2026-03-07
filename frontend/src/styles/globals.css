@@ -300,3 +300,45 @@
   font-size: 1.05rem;
   font-weight: 600;
 }
+
+/* =====================================================
+   Dashboard
+===================================================== */
+
+.sprout-dashboard {
+  @apply w-full min-h-screen mx-auto px-6 py-8 pb-24 bg-[#f3eed9];
+}
+
+.sprout-dashboard-header {
+  @apply flex flex-col mb-6;
+}
+
+.sprout-dashboard-grid {
+  @apply grid gap-12
+         grid-cols-1
+         md:grid-cols-2
+         max-w-6xl
+         mx-auto;
+}
+
+/* Dashboard cards extend the main card style */
+
+.sprout-dashboard-card {
+  @apply sprout-card p-5 flex flex-col gap-3;
+}
+
+.sprout-dashboard-card-header {
+  @apply flex items-center justify-between;
+}
+
+.sprout-dashboard-card-title {
+  @apply text-lg font-semibold text-amber-900;
+}
+
+.sprout-dashboard-card-link {
+  @apply text-sm text-orange-600 opacity-70;
+}
+
+.sprout-dashboard-card-content {
+  @apply text-sm text-amber-800 space-y-1;
+}
