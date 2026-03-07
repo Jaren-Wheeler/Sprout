@@ -1,12 +1,12 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function ExploreHabitatButton() {
 
+  const navigate = useNavigate();
+
   function handleClick() {
-    window.scrollTo({
-      top: document.body.scrollHeight,
-      behavior: "smooth"
-    });
+    navigate("/habitat");
   }
 
   return (
@@ -16,7 +16,6 @@ export default function ExploreHabitatButton() {
         fixed bottom-6 right-6
         flex items-center gap-2
         px-5 py-3
-        mt-5
         bg-green-500 text-white
         rounded-full
         shadow-lg
