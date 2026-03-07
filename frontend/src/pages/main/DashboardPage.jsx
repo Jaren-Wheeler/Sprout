@@ -4,6 +4,7 @@ import BudgetDashboardCard from "./BudgetDashboardCard";
 import DietDashboardCard from "./DietDashboardCard";
 import ScheduleDashboardCard from "./ScheduleDashboardCard";
 import NotesDashboardCard from "./NotesDashboardCard";
+import ExploreHabitatButton from "./ExploreHabitatButton";
 
 export default function DashboardPage() {
 
@@ -25,7 +26,7 @@ export default function DashboardPage() {
         <NotesDashboardCard />
 
       </div>
-
+      <ExploreHabitatButton />
     </div>
   );
 }
