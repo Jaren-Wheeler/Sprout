@@ -154,27 +154,6 @@ Purpose:
 
 ---
 
-## Workout
-
-Primary Key:
-- id
-
-Foreign Keys:
-- user_id → Users.id
-
-Fields:
-- name (string, not null)
-- notes (text, optional)
-- created_at (timestamp)
-- updated_at (timestamp)
-
-Notes:
-- Represents a reusable workout template
-- Used by the workout builder feature
-- Exercises, sets, and performance tracking handled via related tables in future iterations
-
----
-
 ## Diet
 
 Primary Key:
@@ -219,7 +198,6 @@ Notes:
 
 The following concepts are anticipated but intentionally excluded from v1:
 - Exercise library
-- Workout performance tracking
 - Diet logging and nutrition breakdown
 - Media storage for expenses and possibly meals/diet
 
