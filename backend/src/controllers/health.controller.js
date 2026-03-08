@@ -36,40 +36,6 @@ const getWeightHistory = async (req, res, next) => {
   }
 };
 
-/* ================= WORKOUTS ================= */
-
-const createWorkout = async (req, res, next) => {
-  try {
-    const workout = await healthService.createWorkout(
-      req.user.id,
-      req.body.name,
-      req.body.notes
-    );
-    res.status(201).json(workout);
-  } catch (err) {
-    next(err);
-  }
-};
-
-const getWorkouts = async (req, res, next) => {
-  try {
-    const workouts = await healthService.getWorkouts(req.user.id);
-    res.json(workouts);
-  } catch (err) {
-    next(err);
-  }
-};
-
-const deleteWorkout = async (req, res, next) => {
-  try {
-    await healthService.deleteWorkout(req.params.id);
-    res.status(204).send();
-  } catch (err) {
-    next(err);
-  }
-};
-
-
 /* ================= DIETS ================= */
 
 const createDiet = async (req, res, next) => {
@@ -105,7 +71,7 @@ const deleteDiet = async (req, res, next) => {
 
 const addDietItem = async (req, res, next) => {
   try {
-    const {name, meal, calories,protein,carbs,fat,sugar} = req.body;
+    const { name, meal, calories, protein, carbs, fat, sugar } = req.body;
     const item = await healthService.addDietItem(
       req.params.id,
       name,
@@ -118,7 +84,7 @@ const addDietItem = async (req, res, next) => {
     );
     res.status(201).json(item);
   } catch (err) {
-    next(err)
+    next(err);
   }
 };
 
@@ -127,32 +93,31 @@ const deleteDietItem = async (req, res, next) => {
     await healthService.deleteDietItem(req.params.itemId);
     res.status(204).send();
   } catch (err) {
-    next(err)
+    next(err);
   }
 };
 
-const getDietItems = async(req,res,next) => {
+const getDietItems = async (req, res, next) => {
   try {
     const items = await healthService.getDietItems(req.params.id);
     res.json(items);
   } catch (err) {
     next(err);
   }
-}
+};
 
-const getPresetItems = async (req,res,next) => {
+const getPresetItems = async (req, res, next) => {
   try {
     const items = await healthService.getPresetItems(req.params.id);
     res.json(items);
   } catch (err) {
     next(err);
   }
-}
+};
 
-const addPresetItem = async (req,res,next) => {
-  
+const addPresetItem = async (req, res, next) => {
   try {
-    const {name, meal, calories,protein,carbs,fat,sugar} = req.body;
+    const { name, meal, calories, protein, carbs, fat, sugar } = req.body;
     const item = await healthService.addPresetItem(
       req.params.id,
       name,
@@ -165,25 +130,23 @@ const addPresetItem = async (req,res,next) => {
     );
     res.status(201).json(item);
   } catch (err) {
-    next(err)
+    next(err);
   }
-}
+};
 
-const deletePresetItem = async (req,res,next) => {
+const deletePresetItem = async (req, res, next) => {
   try {
     await healthService.deletePresetItem(req.params.itemId);
     res.status(204).send();
   } catch (err) {
     next(err);
   }
-}
+};
+
 module.exports = {
   getFitnessInfo,
   updateFitnessInfo,
   getWeightHistory,
-  createWorkout,
-  getWorkouts,
-  deleteWorkout,
   createDiet,
   getDiets,
   deleteDiet,

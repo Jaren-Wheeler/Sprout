@@ -4,8 +4,7 @@ const { MealType } = require("@prisma/client");
 // =====================================================
 // Health Service
 // =====================================================
-// Handles fitness info, workout templates, and diet
-// templates using Prisma ORM.
+// Handles fitness info and diet templates using Prisma ORM.
 // =====================================================
 
 /* ================= FITNESS INFO ================= */
@@ -23,7 +22,6 @@ const getFitnessInfo = async (userId) => {
  * Create or update fitness info
  */
 const updateFitnessInfo = async (userId, data) => {
-
   const existing = await prisma.fitnessInfo.findUnique({
     where: { userId }
   });
@@ -32,7 +30,6 @@ const updateFitnessInfo = async (userId, data) => {
   // CASE 1: PROFILE EXISTS
   // ----------------------------
   if (existing) {
-
     const updated = await prisma.fitnessInfo.update({
       where: { userId },
       data: {
@@ -40,7 +37,7 @@ const updateFitnessInfo = async (userId, data) => {
         goalWeight: data.goalWeight,
         calorieGoal: data.calorieGoal,
         age: data.age,
-        heightFt: data.heightFt,
+        heightFt: data.heightFt
       }
     });
 
@@ -99,57 +96,12 @@ const getWeightHistory = async (userId) => {
   });
 };
 
-/* ================= WORKOUTS ================= */
-
-/**
- * Create workout template
- */
-const createWorkout = async (userId, name, notes) => {
-
-  if (!name) {
-    const err = new Error("Workout name is required");
-    err.status = 400;
-    throw err;
-  }
-
-  return prisma.workout.create({
-    data: {
-      name,
-      notes: notes || null,
-      user: {
-        connect: { id: userId }
-      }
-    }
-  });
-};
-
-/**
- * Get workouts
- */
-const getWorkouts = async (userId) => {
-  return prisma.workout.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" }
-  });
-};
-
-/**
- * Delete workout
- */
-const deleteWorkout = async (id) => {
-  return prisma.workout.delete({
-    where: { id }
-  });
-};
-
-
 /* ================= DIETS ================= */
 
 /**
  * Create diet template
  */
 const createDiet = async (userId, name, description) => {
-
   if (!name) {
     const err = new Error("Diet name is required");
     err.status = 400;
@@ -190,18 +142,18 @@ const deleteDiet = async (id) => {
  * Add a diet item to the system
  */
 const addDietItem = async (dietId, name, meal, calories, protein, carbs, fat, sugar) => {
-
   if (!name || !meal || calories === undefined || calories === null) {
     const err = Error("Missing required inputs for diet item.");
     err.status = 400;
     throw err;
   }
-  
+
   if (!Object.values(MealType).includes(meal)) {
     const err = Error("Invalid meal type.");
     err.status = 400;
     throw err;
   }
+
   return prisma.dietItem.create({
     data: {
       name,
@@ -212,10 +164,10 @@ const addDietItem = async (dietId, name, meal, calories, protein, carbs, fat, su
       fat,
       sugar,
       diet: {
-        connect: {id: dietId}
+        connect: { id: dietId }
       }
     }
-  })
+  });
 };
 
 const getDietItems = async (dietId) => {
@@ -223,7 +175,7 @@ const getDietItems = async (dietId) => {
     where: { dietId },
     orderBy: { createdAt: "desc" }
   });
-}
+};
 
 const deleteDietItem = async (itemId) => {
   return prisma.dietItem.delete({
@@ -231,17 +183,17 @@ const deleteDietItem = async (itemId) => {
       id: itemId
     }
   });
-}
+};
 
 const getPresetItems = async (dietId) => {
   return prisma.presetMealItems.findMany({
     where: { dietId }
   });
-}
+};
 
 const addPresetItem = async (dietId, name, meal, calories, protein, carbs, fat, sugar) => {
   return prisma.presetMealItems.create({
-     data: {
+    data: {
       name,
       meal,
       calories,
@@ -250,27 +202,24 @@ const addPresetItem = async (dietId, name, meal, calories, protein, carbs, fat, 
       fat,
       sugar,
       diet: {
-        connect: {id: dietId}
+        connect: { id: dietId }
       }
     }
   });
-}
+};
 
 const deletePresetItem = async (itemId) => {
   return prisma.presetMealItems.delete({
     where: {
       id: itemId
     }
-  })
-}
+  });
+};
 
 module.exports = {
   getFitnessInfo,
   updateFitnessInfo,
   getWeightHistory,
-  createWorkout,
-  getWorkouts,
-  deleteWorkout,
   createDiet,
   getDiets,
   deleteDiet,
