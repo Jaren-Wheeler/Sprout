@@ -26,4 +26,11 @@ router.delete("/:id", UserController.deleteProfile);
  */
 router.put("/:id", UserController.editProfile);
 
+/**
+ * @route PATCH api/user/onboarding-complete
+ * @desc Mark onboarding as completed
+ * @access Private
+ */
+router.patch("/onboarding-complete", UserController.completeOnboarding);
+
 module.exports = router;

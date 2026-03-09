@@ -1,14 +1,17 @@
 import { useEffect } from "react";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
+import { completeOnboarding } from "../api/auth"; // your API function
 
-export default function OnboardingTour() {
+export default function OnboardingTour({ user }) {
 
   useEffect(() => {
 
-    const hasSeenTour = localStorage.getItem("hasSeenTour");
+    console.log("USER IN TOUR:", user);
+    
+    if (!user) return;
 
-    if (hasSeenTour) return;
+    if (user.hasSeenOnboarding) return;
 
     const driverObj = driver({
       showProgress: true,
@@ -53,20 +56,21 @@ export default function OnboardingTour() {
           element: ".explore-tour",
           popover: {
             title: "Explore Habitat",
-            description: "Accomplish goals, be consistent, and help Sprout grow his habitat. Explore the habitat for more."
+            description:
+              "Accomplish goals, be consistent, and help Sprout grow his habitat."
           }
         }
       ],
 
-      onDestroyed: () => {
-        localStorage.setItem("hasSeenTour", "true");
+      onDestroyed: async () => {
+        await completeOnboarding();
       }
 
     });
 
     driverObj.drive();
 
-  }, []);
+  }, [user]);
 
   return null;
 }

@@ -5,7 +5,7 @@ import { loginSchema } from '../../validation/authSchemas';
 import { loginUser } from '../../api/auth';
 import { useTheme } from '../../theme/ThemeContext';
 
-export default function Login() {
+export default function Login({ setUser }) {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
 

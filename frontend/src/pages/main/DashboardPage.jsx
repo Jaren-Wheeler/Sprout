@@ -7,12 +7,12 @@ import NotesDashboardCard from "./NotesDashboardCard";
 import ExploreHabitatButton from "./ExploreHabitatButton";
 import OnboardingTour from "../../components/OnboardingTour";
 
-export default function DashboardPage() {
+export default function DashboardPage({user}) {
 
   return (
     <div className="sprout-dashboard">
 
-      <OnboardingTour />
+      <OnboardingTour user={user} />
 
       <div className="sprout-dashboard-header">
         <h1 className="sprout-title">Dashboard</h1>
