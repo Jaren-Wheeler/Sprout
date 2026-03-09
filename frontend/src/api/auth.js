@@ -39,3 +39,16 @@ export const loginUser = (email, password) => {
     })
   });
 };
+
+/**
+ * Marks onboarding as completed for the user.
+ */
+export const completeOnboarding = () => {
+  return apiFetch("/api/user/onboarding-complete", {
+    method: "PATCH"
+  });
+};
+
+/**
+ * Marks onboarding as completed for the user.
+ */

@@ -9,7 +9,7 @@ const app = express();
 // =====================================================
 
 const healthRoutes = require('./routes/health.routes');
-const userRoutes = require('./routes/user.routes');
+const userRoutes = require('./routes/User.routes');
 const schedulerRoutes = require('./routes/scheduler.routes');
 const notesRoutes = require('./routes/notes.routes');
 const financeRoutes = require('./routes/finance.routes');

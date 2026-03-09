@@ -5,11 +5,14 @@ import DietDashboardCard from "./DietDashboardCard";
 import ScheduleDashboardCard from "./ScheduleDashboardCard";
 import NotesDashboardCard from "./NotesDashboardCard";
 import ExploreHabitatButton from "./ExploreHabitatButton";
+import OnboardingTour from "../../components/OnboardingTour";
 
-export default function DashboardPage() {
+export default function DashboardPage({user}) {
 
   return (
     <div className="sprout-dashboard">
+
+      <OnboardingTour user={user} />
 
       <div className="sprout-dashboard-header">
         <h1 className="sprout-title">Dashboard</h1>
@@ -20,13 +23,26 @@ export default function DashboardPage() {
 
       <div className="sprout-dashboard-grid">
 
-        <BudgetDashboardCard />
-        <DietDashboardCard />
-        <ScheduleDashboardCard />
-        <NotesDashboardCard />
+        <div className="budget-tour">
+          <BudgetDashboardCard />
+        </div>
+
+        <div className="diet-tour">
+          <DietDashboardCard />
+        </div>
+
+        <div className="schedule-tour">
+          <ScheduleDashboardCard />
+        </div>
+
+        <div className="notes-tour">
+          <NotesDashboardCard />
+        </div>
 
       </div>
-      <ExploreHabitatButton />
+
+        <ExploreHabitatButton className="explore-tour"/>
+
     </div>
   );
 }

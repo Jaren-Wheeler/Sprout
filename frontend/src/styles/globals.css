@@ -342,3 +342,28 @@
 .sprout-dashboard-card-content {
   @apply text-sm text-amber-800 space-y-1;
 }
+
+
+/* =====================================================
+   Dashboard Onboarding
+===================================================== */
+.sprout-tour-popover {
+  border-radius: 14px !important;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15) !important;
+  padding: 14px !important;
+}
+
+.sprout-tour-popover .driver-popover-title {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  text-align: center;
+}
+
+.sprout-tour-popover .driver-popover-description {
+  margin-top: 6px;
+}
+
+.driver-popover-footer button {
+  border-radius: 8px !important;
+  padding: 6px 12px !important;
+}

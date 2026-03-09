@@ -36,6 +36,7 @@ model User {
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
   expectedIncome Decimal? @map("expected_income")
+  hasSeenOnboarding Boolean @default(false)
 
   budgets         Budget[]
   expenses        Expense[]
