@@ -31,7 +31,8 @@ export default function Login({ setUser }) {
           ...(user?.id && { id: user.id }),
         })
       );
-
+        
+      setUser(user);
       navigate('/dashboard');
     } catch (err) {
       setError('root', {

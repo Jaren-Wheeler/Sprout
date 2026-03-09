@@ -41,9 +41,7 @@ export default function DashboardPage({user}) {
 
       </div>
 
-      <div className="explore-tour">
-        <ExploreHabitatButton />
-      </div>
+        <ExploreHabitatButton className="explore-tour"/>
 
     </div>
   );
