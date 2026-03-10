@@ -37,8 +37,8 @@ const updateFitnessInfo = async (userId, data) => {
         goalWeight: data.goalWeight,
         calorieGoal: data.calorieGoal,
         age: data.age,
-        heightFt: data.heightFt
-      }
+        heightFt: data.heightFt,
+      },
     });
 
     // Log weight history only if changed
@@ -141,15 +141,31 @@ const deleteDiet = async (id) => {
 /**
  * Add a diet item to the system
  */
-const addDietItem = async (dietId, name, meal, calories, protein, carbs, fat, sugar) => {
+const addDietItem = async (dietId, data) => {
+  const {
+    name,
+    meal,
+    calories,
+    protein,
+    carbs,
+    fat,
+    sugar,
+    fdcId,
+    brandName,
+    servingSize,
+    servingUnit,
+    quantity,
+    source,
+  } = data;
+
   if (!name || !meal || calories === undefined || calories === null) {
-    const err = Error("Missing required inputs for diet item.");
+    const err = new Error('Missing required inputs for diet item.');
     err.status = 400;
     throw err;
   }
 
   if (!Object.values(MealType).includes(meal)) {
-    const err = Error('Invalid meal type.');
+    const err = new Error('Invalid meal type.');
     err.status = 400;
     throw err;
   }
@@ -175,9 +191,23 @@ const addDietItem = async (dietId, name, meal, calories, protein, carbs, fat, su
       source: source ?? 'manual',
 
       diet: {
-        connect: { id: dietId }
-      }
-    }
+        connect: { id: dietId },
+      },
+    },
+  });
+};
+
+const getRecentFoods = async (userId) => {
+  return prisma.dietItem.findMany({
+    where: {
+      diet: {
+        userId,
+      },
+    },
+    orderBy: {
+      loggedAt: 'desc',
+    },
+    take: 10,
   });
 };
 
@@ -222,17 +252,17 @@ const addPresetItem = async (
       fat,
       sugar,
       diet: {
-        connect: { id: dietId }
-      }
-    }
+        connect: { id: dietId },
+      },
+    },
   });
 };
 
 const deletePresetItem = async (itemId) => {
   return prisma.presetMealItems.delete({
     where: {
-      id: itemId
-    }
+      id: itemId,
+    },
   });
 };
 
@@ -248,5 +278,6 @@ module.exports = {
   deleteDietItem,
   getPresetItems,
   addPresetItem,
-  deletePresetItem
+  deletePresetItem,
+  getRecentFoods,
 };
