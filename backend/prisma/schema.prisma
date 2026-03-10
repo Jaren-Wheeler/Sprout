@@ -234,6 +234,8 @@ model DietItem {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  loggedAt    DateTime @default(now()) @map("logged_at")
+
   dietId String @map("diet_id")
   diet   Diet   @relation(fields: [dietId], references: [id], onDelete: Cascade)
 }

@@ -1,150 +1,137 @@
-import { useState } from "react";
+import { useEffect, useState } from 'react';
+import SproutModal from '../../components/ui/SproutModal';
 
 export default function AddDietItemModal({ isOpen, meal, onClose, onCreate }) {
-    const [name, setName] = useState("");
-    const [calories, setCalories] = useState("");
-    const [protein, setProtein] = useState("");
-    const [carbs, setCarbs] = useState("");
-    const [fat, setFat] = useState("");
-    const [sugar, setSugar] = useState("");
+  const [name, setName] = useState('');
+  const [calories, setCalories] = useState('');
+  const [protein, setProtein] = useState('');
+  const [carbs, setCarbs] = useState('');
+  const [fat, setFat] = useState('');
+  const [sugar, setSugar] = useState('');
 
-    if (!isOpen) return null;
+  useEffect(() => {
+    if (!isOpen) return;
+    setName('');
+    setCalories('');
+    setProtein('');
+    setCarbs('');
+    setFat('');
+    setSugar('');
+  }, [isOpen]);
 
-    function handleSubmit(e, isPreset) {
-        e.preventDefault();
+  if (!isOpen) return null;
 
-        if (!name || !calories) return;
+  async function submit(isPreset) {
+    if (!name.trim() || !calories) return;
 
-        onCreate({
-            name,
-            meal,
-            calories: Number(calories),
-            protein: Number(protein),
-            carbs: Number(carbs),
-            fat: Number(fat),
-            sugar: Number(sugar),
-            isPreset
-        });
+    await onCreate({
+      name: name.trim(),
+      meal,
+      calories: Number(calories),
+      protein: Number(protein || 0),
+      carbs: Number(carbs || 0),
+      fat: Number(fat || 0),
+      sugar: Number(sugar || 0),
+      isPreset,
+    });
+  }
 
-        // reset fields
-        setName("");
-        setCalories("");
-        setProtein("");
-        setCarbs("");
-        setFat("");
-        setSugar("");
-    
-    }
+  return (
+    <SproutModal onClose={onClose}>
+      <div className="sprout-panel p-6 w-full max-w-md space-y-5 shadow-lg">
+        <h2 className="text-xl font-semibold text-amber-900">
+          Log a food item
+        </h2>
 
-    
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+        <div className="space-y-3">
+          <div>
+            <label className="text-sm text-amber-900/70">Food Name</label>
+            <input
+              className="sprout-input"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Chicken breast"
+            />
+          </div>
 
-            {/* Modal Card */}
-            <div className="bg-white rounded-3xl shadow-xl w-[420px] p-8">
+          <div>
+            <label className="text-sm text-amber-900/70">Calories</label>
+            <input
+              className="sprout-input"
+              value={calories}
+              onChange={(e) => setCalories(e.target.value)}
+              inputMode="numeric"
+              placeholder="200"
+            />
+          </div>
 
-                <h2 className="text-xl font-semibold mb-6">
-                    Log a food item
-                </h2>
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-
-                    {/* Food Name */}
-                    <div>
-                        <label className="text-sm text-gray-600">Food Name</label>
-                        <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="w-full border rounded-lg p-3 mt-1"
-                        />
-                    </div>
-
-                     {/* Calorie Amount */}
-                    <div>
-                        <label className="text-sm text-gray-600">Calories (kCal)</label>
-                        <input
-                        type="text"
-                        value={calories}
-                        onChange={(e) => setCalories(e.target.value)}
-                        className="w-full border rounded-lg p-3 mt-1"
-                        />
-                    </div>
-
-                     {/* Protein Amount */}
-                    <div>
-                        <label className="text-sm text-gray-600">Protein (g)</label>
-                        <input
-                        type="text"
-                        value={protein}
-                        onChange={(e) => setProtein(e.target.value)}
-                        className="w-full border rounded-lg p-3 mt-1"
-                        />
-                    </div>
-
-                     {/* Carb Amount */}
-                    <div>
-                        <label className="text-sm text-gray-600">Carbs (g)</label>
-                        <input
-                        type="text"
-                        value={carbs}
-                        onChange={(e) => setCarbs(e.target.value)}
-                        className="w-full border rounded-lg p-3 mt-1"
-                        />
-                    </div>
-
-                     {/* Fat Amount */}
-                    <div>
-                        <label className="text-sm text-gray-600">Fat (g)</label>
-                        <input
-                        type="text"
-                        value={fat}
-                        onChange={(e) => setFat(e.target.value)}
-                        className="w-full border rounded-lg p-3 mt-1"
-                        />
-                    </div>
-
-                     {/* Sugar Amount */}
-                    <div>
-                        <label className="text-sm text-gray-600">Sugar (g)</label>
-                        <input
-                        type="text"
-                        value={sugar}
-                        onChange={(e) => setSugar(e.target.value)}
-                        className="w-full border rounded-lg p-3 mt-1"
-                        />
-                    </div>
-
-                    {/* Buttons */}
-                    <div className="flex justify-end gap-3 pt-4">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="px-4 py-2 rounded-lg border"
-                        >
-                        Cancel
-                        </button>
-
-                        <button
-                            type="submit"
-                            value="create"
-                            onClick={(e) => handleSubmit(e, false)}
-                            className="bg-gray-900 text-white px-5 py-2 rounded-lg"
-                        >
-                            Create
-                        </button>
-                        <button
-                            type="submit"
-                            value="preset"
-                            onClick={(e) => handleSubmit(e,true)}
-                            className="bg-gray-900 text-white px-5 py-2 rounded-lg"
-                        >
-                            Save as preset
-                        </button>
-                    </div>
-
-                </form>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm text-amber-900/70">Protein</label>
+              <input
+                className="sprout-input"
+                value={protein}
+                onChange={(e) => setProtein(e.target.value)}
+                inputMode="numeric"
+                placeholder="30"
+              />
             </div>
+
+            <div>
+              <label className="text-sm text-amber-900/70">Carbs</label>
+              <input
+                className="sprout-input"
+                value={carbs}
+                onChange={(e) => setCarbs(e.target.value)}
+                inputMode="numeric"
+                placeholder="0"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-amber-900/70">Fat</label>
+              <input
+                className="sprout-input"
+                value={fat}
+                onChange={(e) => setFat(e.target.value)}
+                inputMode="numeric"
+                placeholder="5"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-amber-900/70">Sugar</label>
+              <input
+                className="sprout-input"
+                value={sugar}
+                onChange={(e) => setSugar(e.target.value)}
+                inputMode="numeric"
+                placeholder="0"
+              />
+            </div>
+          </div>
         </div>
-    );
+
+        <div className="flex justify-end gap-3 pt-2">
+          <button onClick={onClose} className="sprout-btn-muted px-4">
+            Cancel
+          </button>
+
+          <button
+            onClick={() => submit(false)}
+            className="sprout-btn-primary px-4"
+          >
+            Create
+          </button>
+
+          <button
+            onClick={() => submit(true)}
+            className="sprout-btn-success px-4"
+          >
+            Save preset
+          </button>
+        </div>
+      </div>
+    </SproutModal>
+  );
 }

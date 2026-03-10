@@ -1,29 +1,69 @@
-import { useState, useEffect } from 'react';
-import {getDietItems, deleteDietItem} from '../../api/health';
+import { useState } from 'react';
+import { deleteDietItem } from '../../api/health';
+import ConfirmModal from '../../components/ui/ConfirmModal';
 import FoodItem from './FoodItem';
-export default function FoodListCard({diet, items, setItems}) {
 
-    // delete a diet item
-    async function handleDelete(id) {
-        try {
-            await deleteDietItem(diet.id, id);
+export default function FoodListCard({ diet, items, setItems }) {
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
 
-            setItems(prev => prev.filter(item => item.id !== id));
-        } catch (err) {
-            return err;
-        }
+  function requestDelete(id) {
+    setPendingDeleteId(id);
+    setConfirmOpen(true);
+  }
+
+  async function handleConfirmDelete() {
+    if (!pendingDeleteId) return;
+
+    try {
+      await deleteDietItem(diet.id, pendingDeleteId);
+      setItems((prev) => prev.filter((item) => item.id !== pendingDeleteId));
+    } catch (err) {
+      console.error('Failed to delete diet item', err);
+    } finally {
+      setConfirmOpen(false);
+      setPendingDeleteId(null);
     }
+  }
 
-    return (
-        <div className="rounded-2xl border bg-[red] w-[30%] pt-5 pl-1 pr-1 max-h-[520px] overflow-y-auto ">
-            <h2 className="mb-2 text-center">Your Daily Log</h2>
-            <div className="rounded-2xl w-[95%] m-auto flex flex-col gap-5">
-                {(items || []).map(item => (
-                <div key={item.id}>
-                    <FoodItem item={item} onDelete={handleDelete}></FoodItem>
-                </div>
-                ))}
-            </div>
-        </div>
-    )
+  return (
+    <div className="sprout-paper p-5 w-full max-w-[420px] max-h-[520px] overflow-y-auto">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="font-semibold text-amber-900">Your Daily Log</h2>
+        <p className="text-sm text-amber-900/60">
+          {(items || []).length} items
+        </p>
+      </div>
+
+      <div className="space-y-3">
+        {(items || []).length === 0 ? (
+          <div className="sprout-panel p-4 text-amber-900/70">
+            Nothing logged yet. Add something from the meal buttons.
+          </div>
+        ) : (
+          (items || []).map((item) => (
+            <FoodItem
+              key={item.id}
+              item={item}
+              onDelete={() => requestDelete(item.id)}
+            />
+          ))
+        )}
+      </div>
+
+      {confirmOpen && (
+        <ConfirmModal
+          title="Delete food item?"
+          message="This will remove the item from your daily log."
+          confirmText="Delete"
+          cancelText="Cancel"
+          onCancel={() => {
+            setConfirmOpen(false);
+            setPendingDeleteId(null);
+          }}
+          onConfirm={handleConfirmDelete}
+        />
+      )}
+    </div>
+  );
 }

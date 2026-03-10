@@ -1,69 +1,78 @@
-import { useState } from "react";
+import { useEffect, useState } from 'react';
+import SproutModal from '../../components/ui/SproutModal';
 
 export default function CreateDietModal({ isOpen, onClose, onCreate }) {
-    const [name, setName] = useState("");
-    const [description, setDescription] = useState("");
-    if (!isOpen) return null;
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
 
-    function handleSubmit(e) {
-        e.preventDefault();
-
-        if (!name) return;
-
-        onCreate({
-            name,
-            description
-        });
-
-        // reset fields
-        setName("");
-        setDescription("");
+  useEffect(() => {
+    if (!isOpen) {
+      setName('');
+      setDescription('');
     }
+  }, [isOpen]);
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+  if (!isOpen) return null;
 
-            {/* Modal Card */}
-            <div className="bg-white rounded-3xl shadow-xl w-[420px] p-8">
+  function handleSubmit(e) {
+    e.preventDefault();
 
-                <h2 className="text-xl font-semibold mb-6">
-                Create New Diet
-                </h2>
+    if (!name.trim()) return;
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+    onCreate({
+      name: name.trim(),
+      description: description.trim(),
+    });
+  }
 
-                    {/* Diet Name */}
-                    <div>
-                        <label className="text-sm text-gray-600">Diet Name</label>
-                        <input
-                        type="text"
-                        placeholder="Lean Bulk"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="w-full border rounded-lg p-3 mt-1"
-                        />
-                    </div>
+  return (
+    <SproutModal onClose={onClose}>
+      <div className="sprout-panel p-6 w-full max-w-md space-y-5 shadow-lg">
+        <h2 className="text-xl font-semibold text-amber-900">
+          Create New Diet
+        </h2>
 
-                    {/* Buttons */}
-                    <div className="flex justify-end gap-3 pt-4">
-                        <button
-                        type="button"
-                        onClick={onClose}
-                        className="px-4 py-2 rounded-lg border"
-                        >
-                        Cancel
-                        </button>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Diet Name */}
+          <div>
+            <label className="text-sm text-amber-900/70">Diet Name</label>
 
-                        <button
-                        type="submit"
-                        className="bg-gray-900 text-white px-5 py-2 rounded-lg"
-                        >
-                            Create
-                        </button>
-                    </div>
+            <input
+              className="sprout-input"
+              placeholder="Lean Bulk"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
 
-                </form>
-            </div>
-        </div>
-    );
+          {/* Description */}
+          <div>
+            <label className="text-sm text-amber-900/70">Description</label>
+
+            <input
+              className="sprout-input"
+              placeholder="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+
+          {/* Buttons */}
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="sprout-btn-muted px-4"
+            >
+              Cancel
+            </button>
+
+            <button type="submit" className="sprout-btn-primary px-4">
+              Create
+            </button>
+          </div>
+        </form>
+      </div>
+    </SproutModal>
+  );
 }

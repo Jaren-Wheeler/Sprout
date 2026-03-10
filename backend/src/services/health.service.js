@@ -1,5 +1,5 @@
-const prisma = require("../clients/prisma.client");
-const { MealType } = require("@prisma/client");
+const prisma = require('../clients/prisma.client');
+const { MealType } = require('@prisma/client');
 
 // =====================================================
 // Health Service
@@ -14,7 +14,7 @@ const { MealType } = require("@prisma/client");
  */
 const getFitnessInfo = async (userId) => {
   return prisma.fitnessInfo.findUnique({
-    where: { userId }
+    where: { userId },
   });
 };
 
@@ -23,7 +23,7 @@ const getFitnessInfo = async (userId) => {
  */
 const updateFitnessInfo = async (userId, data) => {
   const existing = await prisma.fitnessInfo.findUnique({
-    where: { userId }
+    where: { userId },
   });
 
   // ----------------------------
@@ -49,8 +49,8 @@ const updateFitnessInfo = async (userId, data) => {
       await prisma.weightEntry.create({
         data: {
           weight: data.currentWeight,
-          userId
-        }
+          userId,
+        },
       });
     }
 
@@ -68,9 +68,9 @@ const updateFitnessInfo = async (userId, data) => {
       age: data.age,
       heightFt: data.heightFt,
       user: {
-        connect: { id: userId }
-      }
-    }
+        connect: { id: userId },
+      },
+    },
   });
 
   // Log initial weight
@@ -78,8 +78,8 @@ const updateFitnessInfo = async (userId, data) => {
     await prisma.weightEntry.create({
       data: {
         weight: data.currentWeight,
-        userId
-      }
+        userId,
+      },
     });
   }
 
@@ -92,7 +92,7 @@ const updateFitnessInfo = async (userId, data) => {
 const getWeightHistory = async (userId) => {
   return prisma.weightEntry.findMany({
     where: { userId },
-    orderBy: { createdAt: "asc" }
+    orderBy: { createdAt: 'asc' },
   });
 };
 
@@ -103,7 +103,7 @@ const getWeightHistory = async (userId) => {
  */
 const createDiet = async (userId, name, description) => {
   if (!name) {
-    const err = new Error("Diet name is required");
+    const err = new Error('Diet name is required');
     err.status = 400;
     throw err;
   }
@@ -113,9 +113,9 @@ const createDiet = async (userId, name, description) => {
       name,
       description: description || null,
       user: {
-        connect: { id: userId }
-      }
-    }
+        connect: { id: userId },
+      },
+    },
   });
 };
 
@@ -125,7 +125,7 @@ const createDiet = async (userId, name, description) => {
 const getDiets = async (userId) => {
   return prisma.diet.findMany({
     where: { userId },
-    orderBy: { createdAt: "desc" }
+    orderBy: { createdAt: 'desc' },
   });
 };
 
@@ -134,7 +134,7 @@ const getDiets = async (userId) => {
  */
 const deleteDiet = async (id) => {
   return prisma.diet.delete({
-    where: { id }
+    where: { id },
   });
 };
 
@@ -149,7 +149,7 @@ const addDietItem = async (dietId, name, meal, calories, protein, carbs, fat, su
   }
 
   if (!Object.values(MealType).includes(meal)) {
-    const err = Error("Invalid meal type.");
+    const err = Error('Invalid meal type.');
     err.status = 400;
     throw err;
   }
@@ -158,11 +158,22 @@ const addDietItem = async (dietId, name, meal, calories, protein, carbs, fat, su
     data: {
       name,
       meal,
+
       calories,
       protein,
       carbs,
       fat,
       sugar,
+
+      fdcId: fdcId ?? null,
+      brandName: brandName ?? null,
+
+      servingSize: servingSize ?? null,
+      servingUnit: servingUnit ?? null,
+      quantity: quantity ?? 1,
+
+      source: source ?? 'manual',
+
       diet: {
         connect: { id: dietId }
       }
@@ -173,25 +184,34 @@ const addDietItem = async (dietId, name, meal, calories, protein, carbs, fat, su
 const getDietItems = async (dietId) => {
   return prisma.dietItem.findMany({
     where: { dietId },
-    orderBy: { createdAt: "desc" }
+    orderBy: { loggedAt: 'desc' },
   });
 };
 
 const deleteDietItem = async (itemId) => {
   return prisma.dietItem.delete({
     where: {
-      id: itemId
-    }
+      id: itemId,
+    },
   });
 };
 
 const getPresetItems = async (dietId) => {
   return prisma.presetMealItems.findMany({
-    where: { dietId }
+    where: { dietId },
   });
 };
 
-const addPresetItem = async (dietId, name, meal, calories, protein, carbs, fat, sugar) => {
+const addPresetItem = async (
+  dietId,
+  name,
+  meal,
+  calories,
+  protein,
+  carbs,
+  fat,
+  sugar
+) => {
   return prisma.presetMealItems.create({
     data: {
       name,

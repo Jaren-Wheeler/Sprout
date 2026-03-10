@@ -1,4 +1,4 @@
-const healthService = require("../services/health.service");
+const healthService = require('../services/health.service');
 
 // =====================================================
 // Health Controller
@@ -31,6 +31,39 @@ const getWeightHistory = async (req, res, next) => {
   try {
     const weights = await healthService.getWeightHistory(req.user.id);
     res.json(weights);
+  } catch (err) {
+    next(err);
+  }
+};
+
+/* ================= WORKOUTS ================= */
+
+const createWorkout = async (req, res, next) => {
+  try {
+    const workout = await healthService.createWorkout(
+      req.user.id,
+      req.body.name,
+      req.body.notes
+    );
+    res.status(201).json(workout);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getWorkouts = async (req, res, next) => {
+  try {
+    const workouts = await healthService.getWorkouts(req.user.id);
+    res.json(workouts);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const deleteWorkout = async (req, res, next) => {
+  try {
+    await healthService.deleteWorkout(req.params.id);
+    res.status(204).send();
   } catch (err) {
     next(err);
   }
@@ -88,10 +121,10 @@ const addDietItem = async (req, res, next) => {
   }
 };
 
-const deleteDietItem = async (req, res, next) => {
+const getDietItems = async (req, res, next) => {
   try {
-    await healthService.deleteDietItem(req.params.itemId);
-    res.status(204).send();
+    const items = await healthService.getDietItems(req.params.id);
+    res.json(items);
   } catch (err) {
     next(err);
   }
@@ -99,8 +132,8 @@ const deleteDietItem = async (req, res, next) => {
 
 const getDietItems = async (req, res, next) => {
   try {
-    const items = await healthService.getDietItems(req.params.id);
-    res.json(items);
+    await healthService.deleteDietItem(req.params.itemId);
+    res.status(204).send();
   } catch (err) {
     next(err);
   }

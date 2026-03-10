@@ -18,89 +18,22 @@ import sproutLogo from '../../assets/Logo.png';
 import { sendChatMessage } from '../../api/chatbot';
 
 export default function DietDashboard() {
-  const [diets, setDiets] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    diets,
+    selectedDiet,
+    setSelectedDiet,
+    dietItems,
+    setDietItems,
+    stats,
+    weightHistory,
+    loading,
+    createNewDiet,
+    deleteDietById,
+    updateGoals,
+  } = useDiet();
+
   const [showModal, setShowModal] = useState(false);
-  const [stats, setStats] = useState([]);
-  const [selectedDiet, setSelectedDiet] = useState(null);
-  const [dietItems, setDietItems] = useState([]);
   const [showGoalsModal, setShowGoalsModal] = useState(false);
-  const [weightHistory, setWeightHistory] = useState([]);
-
-  async function handleDeleteDiet(id) {
-    try {
-      await deleteDiet(id);
-      setDiets((prev) => prev.filter((d) => d.id !== id));
-    } catch (err) {
-      console.error('Failed to delete diet', err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    async function handleFitnessInfo() {
-      try {
-        const info = await getFitnessInfo();
-        setStats(info || []);
-      } catch (err) {
-        console.error('Failed to fetch stats');
-      }
-    }
-
-    handleFitnessInfo();
-  }, []);
-
-  useEffect(() => {
-    async function loadDiets() {
-      try {
-        const data = await getDiets();
-        console.log(data);
-        setDiets(data || []);
-      } catch (err) {
-        console.error('Failed to load diets', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadDiets();
-  }, []);
-
-  useEffect(() => {
-    if (diets.length > 0 && !selectedDiet) {
-      setSelectedDiet(diets[0]);
-    }
-  }, [diets]);
-
-  useEffect(() => {
-    async function loadItems() {
-      if (!selectedDiet?.id) return;
-
-      try {
-        const items = await getDietItems(selectedDiet.id);
-        setDietItems(items || []);
-      } catch (err) {
-        console.error('Failed to load diet items', err);
-      }
-    }
-
-    loadItems();
-  }, [selectedDiet]);
-
-  useEffect(() => {
-    async function loadWeightHistory() {
-      try {
-        const data = await getWeightHistory();
-        console.log('Fetched weight history:', data); // debug
-        setWeightHistory(data || []);
-      } catch (err) {
-        console.error('Failed to load weight history', err);
-      }
-    }
-
-    loadWeightHistory();
-  }, []);
 
   if (loading) return <div className="p-6">Loading diets...</div>;
 
