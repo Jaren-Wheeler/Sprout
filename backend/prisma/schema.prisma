@@ -240,8 +240,47 @@ model Diet {
 
 model DietItem {
   id          String   @id @default(uuid()) @map("id")
+
   name        String   @map("name")
   meal        MealType
+
+  // Nutrition snapshot
+  calories    Int
+  protein     Float?
+  carbs       Float?
+  fat         Float?
+  sugar       Float?
+
+  // USDA integration
+  fdcId       Int?     @map("fdc_id")
+  brandName   String?  @map("brand_name")
+
+  // Serving metadata
+  servingSize Float?   @map("serving_size")
+  servingUnit String?  @map("serving_unit")
+  quantity    Float?   @default(1) @map("quantity")
+
+  // Source tracking
+  source      String?  @default("manual") @map("source")
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  loggedAt    DateTime @default(now()) @map("logged_at")
+
+  dietId String @map("diet_id")
+  diet   Diet   @relation(fields: [dietId], references: [id])
+}
+
+model FoodCache {
+  id          String   @id @default(uuid())
+  
+  fdcId       Int      @unique
+  name        String
+  brandName   String?
+
+  servingSize Float?
+  servingUnit String?
 
   calories    Int
   protein     Float?
@@ -249,11 +288,9 @@ model DietItem {
   fat         Float?
   sugar       Float?
 
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt   DateTime @default(now())
 
-  dietId String @map("diet_id")
-  diet  Diet @relation(fields: [dietId], references: [id])
+  @@map("food_cache")
 }
 
 model PresetMealItems {

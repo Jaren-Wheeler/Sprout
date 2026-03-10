@@ -1,5 +1,5 @@
-const prisma = require("../clients/prisma.client");
-const { MealType } = require("@prisma/client");
+const prisma = require('../clients/prisma.client');
+const { MealType } = require('@prisma/client');
 
 // =====================================================
 // Health Service
@@ -15,7 +15,7 @@ const { MealType } = require("@prisma/client");
  */
 const getFitnessInfo = async (userId) => {
   return prisma.fitnessInfo.findUnique({
-    where: { userId }
+    where: { userId },
   });
 };
 
@@ -23,16 +23,14 @@ const getFitnessInfo = async (userId) => {
  * Create or update fitness info
  */
 const updateFitnessInfo = async (userId, data) => {
-
   const existing = await prisma.fitnessInfo.findUnique({
-    where: { userId }
+    where: { userId },
   });
 
   // ----------------------------
   // CASE 1: PROFILE EXISTS
   // ----------------------------
   if (existing) {
-
     const updated = await prisma.fitnessInfo.update({
       where: { userId },
       data: {
@@ -41,7 +39,7 @@ const updateFitnessInfo = async (userId, data) => {
         calorieGoal: data.calorieGoal,
         age: data.age,
         heightFt: data.heightFt,
-      }
+      },
     });
 
     // Log weight history only if changed
@@ -52,8 +50,8 @@ const updateFitnessInfo = async (userId, data) => {
       await prisma.weightEntry.create({
         data: {
           weight: data.currentWeight,
-          userId
-        }
+          userId,
+        },
       });
     }
 
@@ -71,9 +69,9 @@ const updateFitnessInfo = async (userId, data) => {
       age: data.age,
       heightFt: data.heightFt,
       user: {
-        connect: { id: userId }
-      }
-    }
+        connect: { id: userId },
+      },
+    },
   });
 
   // Log initial weight
@@ -81,8 +79,8 @@ const updateFitnessInfo = async (userId, data) => {
     await prisma.weightEntry.create({
       data: {
         weight: data.currentWeight,
-        userId
-      }
+        userId,
+      },
     });
   }
 
@@ -95,7 +93,7 @@ const updateFitnessInfo = async (userId, data) => {
 const getWeightHistory = async (userId) => {
   return prisma.weightEntry.findMany({
     where: { userId },
-    orderBy: { createdAt: "asc" }
+    orderBy: { createdAt: 'asc' },
   });
 };
 
@@ -105,9 +103,8 @@ const getWeightHistory = async (userId) => {
  * Create workout template
  */
 const createWorkout = async (userId, name, notes) => {
-
   if (!name) {
-    const err = new Error("Workout name is required");
+    const err = new Error('Workout name is required');
     err.status = 400;
     throw err;
   }
@@ -117,9 +114,9 @@ const createWorkout = async (userId, name, notes) => {
       name,
       notes: notes || null,
       user: {
-        connect: { id: userId }
-      }
-    }
+        connect: { id: userId },
+      },
+    },
   });
 };
 
@@ -129,7 +126,7 @@ const createWorkout = async (userId, name, notes) => {
 const getWorkouts = async (userId) => {
   return prisma.workout.findMany({
     where: { userId },
-    orderBy: { createdAt: "desc" }
+    orderBy: { createdAt: 'desc' },
   });
 };
 
@@ -138,10 +135,9 @@ const getWorkouts = async (userId) => {
  */
 const deleteWorkout = async (id) => {
   return prisma.workout.delete({
-    where: { id }
+    where: { id },
   });
 };
-
 
 /* ================= DIETS ================= */
 
@@ -149,9 +145,8 @@ const deleteWorkout = async (id) => {
  * Create diet template
  */
 const createDiet = async (userId, name, description) => {
-
   if (!name) {
-    const err = new Error("Diet name is required");
+    const err = new Error('Diet name is required');
     err.status = 400;
     throw err;
   }
@@ -161,9 +156,9 @@ const createDiet = async (userId, name, description) => {
       name,
       description: description || null,
       user: {
-        connect: { id: userId }
-      }
-    }
+        connect: { id: userId },
+      },
+    },
   });
 };
 
@@ -173,7 +168,7 @@ const createDiet = async (userId, name, description) => {
 const getDiets = async (userId) => {
   return prisma.diet.findMany({
     where: { userId },
-    orderBy: { createdAt: "desc" }
+    orderBy: { createdAt: 'desc' },
   });
 };
 
@@ -182,27 +177,101 @@ const getDiets = async (userId) => {
  */
 const deleteDiet = async (id) => {
   return prisma.diet.delete({
-    where: { id }
+    where: { id },
   });
 };
 
 /**
  * Add a diet item to the system
  */
-const addDietItem = async (dietId, name, meal, calories, protein, carbs, fat, sugar) => {
+const addDietItem = async (dietId, data) => {
+  const {
+    name,
+    meal,
+    calories,
+    protein,
+    carbs,
+    fat,
+    sugar,
+    fdcId,
+    brandName,
+    servingSize,
+    servingUnit,
+    quantity,
+    source,
+  } = data;
 
-  if (!name || !meal || calories === undefined || calories === null) {
-    const err = Error("Missing required inputs for diet item.");
+  if (!name || !meal || calories == null) {
+    const err = Error('Missing required inputs for diet item.');
     err.status = 400;
     throw err;
   }
-  
+
   if (!Object.values(MealType).includes(meal)) {
-    const err = Error("Invalid meal type.");
+    const err = Error('Invalid meal type.');
     err.status = 400;
     throw err;
   }
+
   return prisma.dietItem.create({
+    data: {
+      name,
+      meal,
+
+      calories,
+      protein,
+      carbs,
+      fat,
+      sugar,
+
+      fdcId: fdcId ?? null,
+      brandName: brandName ?? null,
+
+      servingSize: servingSize ?? null,
+      servingUnit: servingUnit ?? null,
+      quantity: quantity ?? 1,
+
+      source: source ?? 'manual',
+
+      diet: {
+        connect: { id: dietId },
+      },
+    },
+  });
+};
+
+const getDietItems = async (dietId) => {
+  return prisma.dietItem.findMany({
+    where: { dietId },
+    orderBy: { loggedAt: 'desc' },
+  });
+};
+
+const deleteDietItem = async (itemId) => {
+  return prisma.dietItem.delete({
+    where: {
+      id: itemId,
+    },
+  });
+};
+
+const getPresetItems = async (dietId) => {
+  return prisma.presetMealItems.findMany({
+    where: { dietId },
+  });
+};
+
+const addPresetItem = async (
+  dietId,
+  name,
+  meal,
+  calories,
+  protein,
+  carbs,
+  fat,
+  sugar
+) => {
+  return prisma.presetMealItems.create({
     data: {
       name,
       meal,
@@ -212,57 +281,19 @@ const addDietItem = async (dietId, name, meal, calories, protein, carbs, fat, su
       fat,
       sugar,
       diet: {
-        connect: {id: dietId}
-      }
-    }
-  })
+        connect: { id: dietId },
+      },
+    },
+  });
 };
-
-const getDietItems = async (dietId) => {
-  return prisma.dietItem.findMany({
-    where: { dietId },
-    orderBy: { createdAt: "desc" }
-  });
-}
-
-const deleteDietItem = async (itemId) => {
-  return prisma.dietItem.delete({
-    where: {
-      id: itemId
-    }
-  });
-}
-
-const getPresetItems = async (dietId) => {
-  return prisma.presetMealItems.findMany({
-    where: { dietId }
-  });
-}
-
-const addPresetItem = async (dietId, name, meal, calories, protein, carbs, fat, sugar) => {
-  return prisma.presetMealItems.create({
-     data: {
-      name,
-      meal,
-      calories,
-      protein,
-      carbs,
-      fat,
-      sugar,
-      diet: {
-        connect: {id: dietId}
-      }
-    }
-  });
-}
 
 const deletePresetItem = async (itemId) => {
   return prisma.presetMealItems.delete({
     where: {
-      id: itemId
-    }
-  })
-}
+      id: itemId,
+    },
+  });
+};
 
 module.exports = {
   getFitnessInfo,
@@ -279,5 +310,5 @@ module.exports = {
   deleteDietItem,
   getPresetItems,
   addPresetItem,
-  deletePresetItem
+  deletePresetItem,
 };

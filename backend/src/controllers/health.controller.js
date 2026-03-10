@@ -1,4 +1,4 @@
-const healthService = require("../services/health.service");
+const healthService = require('../services/health.service');
 
 // =====================================================
 // Health Controller
@@ -69,7 +69,6 @@ const deleteWorkout = async (req, res, next) => {
   }
 };
 
-
 /* ================= DIETS ================= */
 
 const createDiet = async (req, res, next) => {
@@ -105,20 +104,20 @@ const deleteDiet = async (req, res, next) => {
 
 const addDietItem = async (req, res, next) => {
   try {
-    const {name, meal, calories,protein,carbs,fat,sugar} = req.body;
-    const item = await healthService.addDietItem(
-      req.params.id,
-      name,
-      meal,
-      calories,
-      protein,
-      carbs,
-      fat,
-      sugar
-    );
+    const item = await healthService.addDietItem(req.params.id, req.body);
+
     res.status(201).json(item);
   } catch (err) {
-    next(err)
+    next(err);
+  }
+};
+
+const getDietItems = async (req, res, next) => {
+  try {
+    const items = await healthService.getDietItems(req.params.id);
+    res.json(items);
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -127,32 +126,22 @@ const deleteDietItem = async (req, res, next) => {
     await healthService.deleteDietItem(req.params.itemId);
     res.status(204).send();
   } catch (err) {
-    next(err)
+    next(err);
   }
 };
 
-const getDietItems = async(req,res,next) => {
-  try {
-    const items = await healthService.getDietItems(req.params.id);
-    res.json(items);
-  } catch (err) {
-    next(err);
-  }
-}
-
-const getPresetItems = async (req,res,next) => {
+const getPresetItems = async (req, res, next) => {
   try {
     const items = await healthService.getPresetItems(req.params.id);
     res.json(items);
   } catch (err) {
     next(err);
   }
-}
+};
 
-const addPresetItem = async (req,res,next) => {
-  
+const addPresetItem = async (req, res, next) => {
   try {
-    const {name, meal, calories,protein,carbs,fat,sugar} = req.body;
+    const { name, meal, calories, protein, carbs, fat, sugar } = req.body;
     const item = await healthService.addPresetItem(
       req.params.id,
       name,
@@ -165,18 +154,57 @@ const addPresetItem = async (req,res,next) => {
     );
     res.status(201).json(item);
   } catch (err) {
-    next(err)
+    next(err);
   }
-}
+};
 
-const deletePresetItem = async (req,res,next) => {
+const deletePresetItem = async (req, res, next) => {
   try {
     await healthService.deletePresetItem(req.params.itemId);
     res.status(204).send();
   } catch (err) {
     next(err);
   }
-}
+};
+
+const usdaService = require('../services/usda.service');
+
+/* ================= FOOD SEARCH ================= */
+
+const searchFoods = async (req, res, next) => {
+  try {
+    const { q } = req.query;
+
+    const foods = await usdaService.searchFoods(q);
+
+    res.json(foods);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getFoodDetails = async (req, res, next) => {
+  try {
+    const { fdcId } = req.params;
+
+    const food = await usdaService.getFoodDetails(fdcId);
+
+    res.json(food);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getRecentFoods = async (req, res, next) => {
+  try {
+    const foods = await healthService.getRecentFoods(req.user.id);
+
+    res.json(foods);
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getFitnessInfo,
   updateFitnessInfo,
@@ -192,5 +220,8 @@ module.exports = {
   getDietItems,
   getPresetItems,
   addPresetItem,
-  deletePresetItem
+  deletePresetItem,
+  searchFoods,
+  getFoodDetails,
+  getRecentFoods,
 };
