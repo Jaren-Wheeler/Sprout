@@ -5,7 +5,7 @@ import { loginSchema } from '../../validation/authSchemas';
 import { loginUser } from '../../api/auth';
 import { useTheme } from '../../theme/ThemeContext';
 
-export default function Login() {
+export default function Login({ setUser }) {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
 
@@ -31,7 +31,8 @@ export default function Login() {
           ...(user?.id && { id: user.id }),
         })
       );
-
+        
+      setUser(user);
       navigate('/dashboard');
     } catch (err) {
       setError('root', {

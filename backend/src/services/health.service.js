@@ -4,8 +4,7 @@ const { MealType } = require('@prisma/client');
 // =====================================================
 // Health Service
 // =====================================================
-// Handles fitness info, workout templates, and diet
-// templates using Prisma ORM.
+// Handles fitness info and diet templates using Prisma ORM.
 // =====================================================
 
 /* ================= FITNESS INFO ================= */
@@ -38,8 +37,8 @@ const updateFitnessInfo = async (userId, data) => {
         goalWeight: data.goalWeight,
         calorieGoal: data.calorieGoal,
         age: data.age,
-        heightFt: data.heightFt,
-      },
+        heightFt: data.heightFt
+      }
     });
 
     // Log weight history only if changed
@@ -97,48 +96,6 @@ const getWeightHistory = async (userId) => {
   });
 };
 
-/* ================= WORKOUTS ================= */
-
-/**
- * Create workout template
- */
-const createWorkout = async (userId, name, notes) => {
-  if (!name) {
-    const err = new Error('Workout name is required');
-    err.status = 400;
-    throw err;
-  }
-
-  return prisma.workout.create({
-    data: {
-      name,
-      notes: notes || null,
-      user: {
-        connect: { id: userId },
-      },
-    },
-  });
-};
-
-/**
- * Get workouts
- */
-const getWorkouts = async (userId) => {
-  return prisma.workout.findMany({
-    where: { userId },
-    orderBy: { createdAt: 'desc' },
-  });
-};
-
-/**
- * Delete workout
- */
-const deleteWorkout = async (id) => {
-  return prisma.workout.delete({
-    where: { id },
-  });
-};
-
 /* ================= DIETS ================= */
 
 /**
@@ -184,25 +141,9 @@ const deleteDiet = async (id) => {
 /**
  * Add a diet item to the system
  */
-const addDietItem = async (dietId, data) => {
-  const {
-    name,
-    meal,
-    calories,
-    protein,
-    carbs,
-    fat,
-    sugar,
-    fdcId,
-    brandName,
-    servingSize,
-    servingUnit,
-    quantity,
-    source,
-  } = data;
-
-  if (!name || !meal || calories == null) {
-    const err = Error('Missing required inputs for diet item.');
+const addDietItem = async (dietId, name, meal, calories, protein, carbs, fat, sugar) => {
+  if (!name || !meal || calories === undefined || calories === null) {
+    const err = Error("Missing required inputs for diet item.");
     err.status = 400;
     throw err;
   }
@@ -234,9 +175,9 @@ const addDietItem = async (dietId, data) => {
       source: source ?? 'manual',
 
       diet: {
-        connect: { id: dietId },
-      },
-    },
+        connect: { id: dietId }
+      }
+    }
   });
 };
 
@@ -281,17 +222,17 @@ const addPresetItem = async (
       fat,
       sugar,
       diet: {
-        connect: { id: dietId },
-      },
-    },
+        connect: { id: dietId }
+      }
+    }
   });
 };
 
 const deletePresetItem = async (itemId) => {
   return prisma.presetMealItems.delete({
     where: {
-      id: itemId,
-    },
+      id: itemId
+    }
   });
 };
 
@@ -299,9 +240,6 @@ module.exports = {
   getFitnessInfo,
   updateFitnessInfo,
   getWeightHistory,
-  createWorkout,
-  getWorkouts,
-  deleteWorkout,
   createDiet,
   getDiets,
   deleteDiet,
@@ -310,5 +248,5 @@ module.exports = {
   deleteDietItem,
   getPresetItems,
   addPresetItem,
-  deletePresetItem,
+  deletePresetItem
 };

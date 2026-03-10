@@ -104,8 +104,17 @@ const deleteDiet = async (req, res, next) => {
 
 const addDietItem = async (req, res, next) => {
   try {
-    const item = await healthService.addDietItem(req.params.id, req.body);
-
+    const { name, meal, calories, protein, carbs, fat, sugar } = req.body;
+    const item = await healthService.addDietItem(
+      req.params.id,
+      name,
+      meal,
+      calories,
+      protein,
+      carbs,
+      fat,
+      sugar
+    );
     res.status(201).json(item);
   } catch (err) {
     next(err);
@@ -121,7 +130,7 @@ const getDietItems = async (req, res, next) => {
   }
 };
 
-const deleteDietItem = async (req, res, next) => {
+const getDietItems = async (req, res, next) => {
   try {
     await healthService.deleteDietItem(req.params.itemId);
     res.status(204).send();
@@ -167,51 +176,10 @@ const deletePresetItem = async (req, res, next) => {
   }
 };
 
-const usdaService = require('../services/usda.service');
-
-/* ================= FOOD SEARCH ================= */
-
-const searchFoods = async (req, res, next) => {
-  try {
-    const { q } = req.query;
-
-    const foods = await usdaService.searchFoods(q);
-
-    res.json(foods);
-  } catch (err) {
-    next(err);
-  }
-};
-
-const getFoodDetails = async (req, res, next) => {
-  try {
-    const { fdcId } = req.params;
-
-    const food = await usdaService.getFoodDetails(fdcId);
-
-    res.json(food);
-  } catch (err) {
-    next(err);
-  }
-};
-
-const getRecentFoods = async (req, res, next) => {
-  try {
-    const foods = await healthService.getRecentFoods(req.user.id);
-
-    res.json(foods);
-  } catch (err) {
-    next(err);
-  }
-};
-
 module.exports = {
   getFitnessInfo,
   updateFitnessInfo,
   getWeightHistory,
-  createWorkout,
-  getWorkouts,
-  deleteWorkout,
   createDiet,
   getDiets,
   deleteDiet,
@@ -220,8 +188,5 @@ module.exports = {
   getDietItems,
   getPresetItems,
   addPresetItem,
-  deletePresetItem,
-  searchFoods,
-  getFoodDetails,
-  getRecentFoods,
+  deletePresetItem
 };

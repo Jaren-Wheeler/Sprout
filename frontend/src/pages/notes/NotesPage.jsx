@@ -6,6 +6,9 @@ import NotesToolbar from './NotesToolbar';
 import NotesGrid from './NotesGrid';
 import NoteEditorPanel from './NoteEditorPanel';
 import ConfirmModal from '../../components/ui/ConfirmModal';
+import Sprout from '../../components/chatbot/Sprout';
+import sproutLogo from '../../assets/Logo.png';
+import { sendChatMessage } from '../../api/chatbot';
 
 export default function NotesPage() {
   const { notes, loading, error, setError, add, edit, remove } = useNotes();
@@ -79,77 +82,65 @@ export default function NotesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F3EED9] px-7 py-7 pb-14">
+    <div className="min-h-screen bg-[#F3EED9] text-[#3B2F2F]">
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        {/* HEADER */}
+        <header>
+          <h1 className="text-3xl font-bold flex items-center gap-3">
+            <Link to="/dashboard">
+              <img src={sproutLogo} className="h-20" alt="Sprout logo" />
+            </Link>
+            My Notes
+          </h1>
 
-      {/* HEADER */}
-      <header className="flex items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-4">
+          <p className="text-[#6B5E5E]">Take some notes!</p>
+        </header>
 
-          <Link
-            to="/dashboard"
-            className="w-14 h-14 rounded-full grid place-items-center bg-white/60 border-2 border-yellow-400/60 text-amber-900 shadow-[0_10px_20px_rgba(0,0,0,0.08)] hover:-translate-y-[1px] transition"
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10.5Z"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinejoin="round"
+        <NotesToolbar onAdd={openCreate} />
+
+        {error && (
+          <div className="px-4 py-3 rounded-xl bg-red-200/50 border border-red-400/40 text-red-900/95">
+            {error}
+          </div>
+        )}
+
+        {/* EDITOR MODAL */}
+        {editorOpen && (
+          <div className="sprout-modal-backdrop">
+            <div className="absolute inset-0" onClick={closeEditor} />
+            <div className="relative z-10 w-full max-w-[560px] mx-4 animate-scaleIn">
+              <NoteEditorPanel
+                initialTitle={editingNote?.title || ''}
+                initialContent={editingNote?.content || ''}
+                saving={saving}
+                mode={isEditing ? 'edit' : 'create'}
+                onSave={handleSave}
+                onCancel={closeEditor}
               />
-            </svg>
-          </Link>
-
-          <div>
-            <h1 className="sprout-title">My Notes</h1>
-            <p className="sprout-subtitle">Take some notes!</p>
+            </div>
           </div>
+        )}
 
-        </div>
-      </header>
-
-      <NotesToolbar onAdd={openCreate} />
-
-      {error && (
-        <div className="mt-3 mb-4 px-4 py-3 rounded-xl bg-red-200/50 border border-red-400/40 text-red-900/95">
-          {error}
-        </div>
-      )}
-
-      {/* EDITOR MODAL */}
-      {editorOpen && (
-        <div className="sprout-modal-backdrop">
-          <div className="absolute inset-0" onClick={closeEditor} />
-          <div className="relative z-10 w-full max-w-[560px] mx-4 animate-scaleIn">
-            <NoteEditorPanel
-              initialTitle={editingNote?.title || ''}
-              initialContent={editingNote?.content || ''}
-              saving={saving}
-              mode={isEditing ? 'edit' : 'create'}
-              onSave={handleSave}
-              onCancel={closeEditor}
-            />
-          </div>
-        </div>
-      )}
-
-      <NotesGrid
-        notes={notes}
-        loading={loading}
-        onEdit={openEdit}
-        onDelete={handleDelete}
-      />
-
-      {/* CONFIRM DELETE MODAL */}
-      {confirmingId && (
-        <ConfirmModal
-          title="Delete Note"
-          message="Are you sure you want to delete this note? This cannot be undone."
-          confirmText="Delete"
-          onConfirm={confirmDelete}
-          onCancel={() => setConfirmingId(null)}
+        <NotesGrid
+          notes={notes}
+          loading={loading}
+          onEdit={openEdit}
+          onDelete={handleDelete}
         />
-      )}
 
+        {/* CONFIRM DELETE MODAL */}
+        {confirmingId && (
+          <ConfirmModal
+            title="Delete Note"
+            message="Are you sure you want to delete this note? This cannot be undone."
+            confirmText="Delete"
+            onConfirm={confirmDelete}
+            onCancel={() => setConfirmingId(null)}
+          />
+        )}
+
+        <Sprout onSend={sendChatMessage} />
+      </div>
     </div>
   );
 }

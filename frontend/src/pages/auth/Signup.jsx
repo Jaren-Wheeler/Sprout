@@ -5,7 +5,7 @@ import { signupSchema } from '../../validation/authSchemas';
 import { registerUser, loginUser } from '../../api/auth';
 import { useTheme } from '../../theme/ThemeContext';
 
-export default function Signup() {
+export default function Signup({ setUser }) {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
 
@@ -23,28 +23,25 @@ export default function Signup() {
       const fullNameTrimmed = data.fullName.trim();
       const emailTrimmed = data.email.trim().toLowerCase();
 
-      const created = await registerUser(
+      await registerUser(
         fullNameTrimmed,
         emailTrimmed,
         data.password
       );
 
-      let user = created;
+      let user = await loginUser(emailTrimmed, data.password);
+     
+      setUser(user);
 
-      try {
-        user = await loginUser(emailTrimmed, data.password);
-      } catch {}
-
-      try {
-        localStorage.setItem(
-          'sprout_user',
-          JSON.stringify({
-            email: emailTrimmed,
-            ...(user?.id ? { id: user.id } : {}),
-          })
-        );
-      } catch {}
-
+    
+      localStorage.setItem(
+        'sprout_user',
+        JSON.stringify({
+          email: emailTrimmed,
+          ...(user?.id ? { id: user.id } : {}),
+        })
+      );
+      
       navigate('/dashboard');
     } catch (err) {
       setError('root', {

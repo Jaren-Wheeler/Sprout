@@ -36,6 +36,7 @@ model User {
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
   expectedIncome Decimal? @map("expected_income")
+  hasSeenOnboarding Boolean @default(false)
 
   budgets         Budget[]
   expenses        Expense[]
@@ -43,10 +44,10 @@ model User {
   notes           Note[]
   calendarEvents  CalendarEvent[]
   fitnessInfo     FitnessInfo?
-  workouts        Workout[]
   diets           Diet[]
   chatbotMessages ChatbotMessage[]
-  weightEntries WeightEntry[]
+  weightEntries   WeightEntry[]
+
   @@map("users")
 }
 
@@ -83,7 +84,7 @@ model Expense {
   id          String   @id @default(uuid()) @map("id")
   amount      Decimal  @map("amount")
   category    String   @map("category")
-  description String?  @map("description")
+  description String   @map("description")
   expenseDate DateTime @map("expense_date")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
@@ -184,32 +185,13 @@ model FitnessInfo {
 // =====================================================
 // Stores historical weight entry data for users for the purposes of tracking
 // =====================================================
+
 model WeightEntry {
   id        String   @id @default(uuid())
   weight    Decimal
   createdAt DateTime @default(now())
   userId    String
   user      User     @relation(fields: [userId], references: [id])
-}
-
-// =====================================================
-// Workouts
-// =====================================================
-// Reusable workout templates.
-// Performance tracking added in later iterations.
-// =====================================================
-
-model Workout {
-  id        String   @id @default(uuid()) @map("id")
-  name      String   @map("name")
-  notes     String?  @map("notes")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id])
-
-  @@map("workouts")
 }
 
 // =====================================================
@@ -233,79 +215,44 @@ model Diet {
   user   User   @relation(fields: [userId], references: [id])
 
   presetMealItems PresetMealItems[]
-  dietItems DietItem[]
+  dietItems       DietItem[]
 
   @@map("diets")
 }
 
 model DietItem {
-  id          String   @id @default(uuid()) @map("id")
+  id   String   @id @default(uuid()) @map("id")
+  name String   @map("name")
+  meal MealType
 
-  name        String   @map("name")
-  meal        MealType
+  calories Int
+  protein  Float?
+  carbs    Float?
+  fat      Float?
+  sugar    Float?
 
-  // Nutrition snapshot
-  calories    Int
-  protein     Float?
-  carbs       Float?
-  fat         Float?
-  sugar       Float?
-
-  // USDA integration
-  fdcId       Int?     @map("fdc_id")
-  brandName   String?  @map("brand_name")
-
-  // Serving metadata
-  servingSize Float?   @map("serving_size")
-  servingUnit String?  @map("serving_unit")
-  quantity    Float?   @default(1) @map("quantity")
-
-  // Source tracking
-  source      String?  @default("manual") @map("source")
-
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   loggedAt    DateTime @default(now()) @map("logged_at")
 
   dietId String @map("diet_id")
-  diet   Diet   @relation(fields: [dietId], references: [id])
-}
-
-model FoodCache {
-  id          String   @id @default(uuid())
-  
-  fdcId       Int      @unique
-  name        String
-  brandName   String?
-
-  servingSize Float?
-  servingUnit String?
-
-  calories    Int
-  protein     Float?
-  carbs       Float?
-  fat         Float?
-  sugar       Float?
-
-  createdAt   DateTime @default(now())
-
-  @@map("food_cache")
+  diet   Diet   @relation(fields: [dietId], references: [id], onDelete: Cascade)
 }
 
 model PresetMealItems {
-  id          String   @id @default(uuid()) @map("id")
-  name        String   @map("name")
-  meal        MealType
+  id   String   @id @default(uuid()) @map("id")
+  name String   @map("name")
+  meal MealType
 
-  calories    Int
-  protein     Float?
-  carbs       Float?
-  fat         Float?
-  sugar       Float?
+  calories Int
+  protein  Float?
+  carbs    Float?
+  fat      Float?
+  sugar    Float?
 
   dietId String @map("diet_id")
-  diet  Diet @relation(fields: [dietId], references: [id])
+  diet   Diet   @relation(fields: [dietId], references: [id], onDelete: Cascade)
 }
 
 // =====================================================
