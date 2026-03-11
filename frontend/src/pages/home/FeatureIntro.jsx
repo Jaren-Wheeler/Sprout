@@ -25,10 +25,10 @@ const features = [
   }
 ];
 
-// clone first slide to allow seamless looping
+// clone first slide for seamless infinite carousel
 const slides = [...features, features[0]];
 
-export default function Introduction() {
+export default function FeatureIntro() {
   const [index, setIndex] = useState(0);
   const [transition, setTransition] = useState(true);
 
@@ -49,19 +49,19 @@ export default function Introduction() {
     return () => clearInterval(timer);
   }, []);
 
-  // handle seamless reset after clone slide
+  // reset position after cloned slide
   useEffect(() => {
     if (index === features.length) {
       const timeout = setTimeout(() => {
         setTransition(false);
         setIndex(0);
-      }, 700); // must match animation duration
+      }, 700);
 
       return () => clearTimeout(timeout);
     }
   }, [index]);
 
-  // re-enable transition after reset
+  // re-enable animation after reset
   useEffect(() => {
     if (!transition) {
       requestAnimationFrame(() => {
@@ -71,16 +71,17 @@ export default function Introduction() {
   }, [transition]);
 
   return (
-    <section className="w-full mt-32 bg-indigo-950 py-24 flex justify-center">
+    <section className="relative w-full bg-[#f3eed9] py-24 flex justify-center overflow-hidden min-h-screen">
+      
       <div className="max-w-5xl w-full flex flex-col items-center gap-12 px-6">
 
         {/* Title */}
-        <h2 className="text-4xl font-bold text-white text-center mt-12">
-          Everything You Need to Stay Organized
+        <h2 className="text-4xl font-bold text-amber-900 text-center mt-12">
+          Everything You Need to Grow with Sprout
         </h2>
 
         {/* Carousel */}
-        <div className="relative w-full overflow-hidden mt-24">
+        <div className="relative w-full overflow-hidden pt-24">
 
           {/* Sliding track */}
           <div
@@ -93,75 +94,45 @@ export default function Introduction() {
               <div
                 key={i}
                 className={`min-w-full flex flex-col items-center text-center gap-6 transition-all duration-700 ${
-                    i === index ? "scale-100 opacity-100" : "scale-95 opacity-60"
+                  i === index ? "scale-100 opacity-100" : "scale-95 opacity-60"
                 }`}
               >
                 <img
-                    src={feature.image}
-                    alt={feature.title}
-                    className="h-[500px] object-contain animate-sprout-float
-                                drop-shadow-[0_25px_50px_rgba(0,0,0,0.45)]
-                                transition-transform duration-700"
+                  src={feature.image}
+                  alt={feature.title}
+                  className="h-[500px] object-contain animate-sprout-float
+                             drop-shadow-[0_25px_50px_rgba(0,0,0,0.45)]
+                             transition-transform duration-700"
                 />
 
-                <h3 className="text-2xl font-semibold text-white">
+                <h3 className="text-4xl font-semibold text-amber-900">
                   {feature.title}
                 </h3>
 
-                <p className="text-indigo-200 max-w-md">
+                <p className="text-xl text-amber-800 max-w-md">
                   {feature.text}
                 </p>
               </div>
             ))}
           </div>
 
-          {/* Arrows */}
-          <button
-            onClick={prev}
-            className="absolute left-6 top-1/2 -translate-y-1/2
-                        w-12 h-12 flex items-center justify-center
-                        rounded-full
-                        bg-white/10 backdrop-blur
-                        border border-white/20
-                        text-white text-2xl
-                        shadow-lg
-                        transition-all duration-200
-                        hover:bg-white/20 hover:scale-110"
-            >
-            ←
-            </button>
-
-            <button
-            onClick={next}
-            className="absolute right-6 top-1/2 -translate-y-1/2
-                        w-12 h-12 flex items-center justify-center
-                        rounded-full
-                        bg-white/10 backdrop-blur
-                        border border-white/20
-                        text-white text-2xl
-                        shadow-lg
-                        transition-all duration-200
-                        hover:bg-white/20 hover:scale-110"
-            >
-            →
-            </button>
-
         </div>
 
-        {/* Dots */}
+        {/* Carousel Dots */}
         <div className="flex gap-3">
           {features.map((_, i) => (
             <button
               key={i}
               onClick={() => setIndex(i)}
               className={`w-3 h-3 rounded-full transition ${
-                i === index ? "bg-white scale-110" : "bg-white/40"
+                i === index ? "bg-amber-900 scale-110" : "bg-amber-400/50"
               }`}
             />
           ))}
         </div>
 
       </div>
+
     </section>
   );
 }
