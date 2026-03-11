@@ -1,9 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '../theme/ThemeContext.jsx';
+import { useTheme } from '../../theme/ThemeContext.jsx';
 
-import sproutLogo from '../assets/Logo.png';
-import musicFile from '../assets/background-music.mp3';
+import sproutLogo from '../../assets/Logo.png';
+import musicFile from '../../assets/background-music.mp3';
+import Introduction from './introduction.jsx';
 
 export default function Home() {
   const [show, setShow] = useState(false);
@@ -79,6 +80,8 @@ export default function Home() {
           Log In
         </button>
       </div>
+
+      <Introduction></Introduction>
     </div>
   );
 }

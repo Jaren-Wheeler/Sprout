@@ -219,7 +219,7 @@
 
 @layer utilities {
   .sprout-bg {
-    @apply min-h-screen bg-cover bg-center;
+    @apply min-h-screen bg-cover bg-center; 
     background-image: url('/src/assets/bg-light.png');
   }
 
@@ -366,4 +366,24 @@
 .driver-popover-footer button {
   border-radius: 8px !important;
   padding: 6px 12px !important;
+}
+
+/* =====================================================
+   LANDING PAGE
+===================================================== */
+
+@keyframes sproutFloat {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-sprout-float {
+  animation: sproutFloat 4s ease-in-out infinite;
 }
