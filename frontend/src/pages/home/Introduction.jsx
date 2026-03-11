@@ -2,20 +2,20 @@ import sproutImg from "../../assets/askmeanything.png";
 
 export default function Introduction() {
   return (
-    <section className="w-full bg-[#cfe8ff] py-32 flex justify-center min-h-screen">
+    <section className="w-full bg-[#cfe8ff] py-32 flex justify-center pb-48 pt-48">
       <div className="max-w-7xl w-full px-8 grid md:grid-cols-2 items-center gap-32">
 
         {/* LEFT SIDE TEXT */}
         <div className="flex flex-col justify-center">
           <h2 className="text-5xl md:text-7xl font-bold text-amber-900 leading-tight">
-            Productivity that
+            The app that
             <br />
-            grows with you
+            grows with you.
           </h2>
 
           <p className="text-xl text-amber-800 mt-6 max-w-xl">
             Organize your budgets, plans, notes, and ideas in one place.
-            Sprout helps you stay focused and keep growing every day.
+            Sprout helps you stay focused, build better habits, and grow your productivity every day.
           </p>
         </div>
 

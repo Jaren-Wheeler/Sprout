@@ -6,6 +6,7 @@ import sproutLogo from '../../assets/Logo.png';
 import musicFile from '../../assets/background-music.mp3';
 import Introduction from "./Introduction.jsx"
 import FeatureIntro from './FeatureIntro.jsx';
+import Explanation from './Explanation.jsx';
 
 export default function Home() {
   const [show, setShow] = useState(false);
@@ -89,7 +90,7 @@ export default function Home() {
       </div>
 
       <Introduction />
-
+      <Explanation />
       {/* INTRODUCTION SECTION */}
       <FeatureIntro/>
     
