@@ -46,7 +46,7 @@ router.get('/diets/:id/preset-items', auth, getPresetItems);
 router.delete('/diets/:id/preset-items/:itemId', auth, deletePresetItem);
 
 // Food search
-router.get('/foods/search', searchFoods);
+router.get('/foods/search', auth, searchFoods);
 router.get('/foods/:fdcId', auth, getFoodDetails);
 router.get('/foods/recent', auth, getRecentFoods);
 

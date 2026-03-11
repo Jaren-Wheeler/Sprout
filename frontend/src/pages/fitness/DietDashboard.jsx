@@ -1,21 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  getDiets,
-  createDiet,
-  deleteDiet,
-  getFitnessInfo,
-  getDietItems,
-  updateFitnessInfo,
-  getWeightHistory,
-} from '../../api/health';
-import Sprout from '../../components/chatbot/Sprout';
-import DietStats from './DietStats';
-import CreateDietModal from './CreateDietModal';
-import DietPage from './DietPage';
-import CreateFitnessProfileModal from './CreateFitnessProfileModal';
-import sproutLogo from '../../assets/Logo.png';
+import { getWeightHistory, updateFitnessInfo } from '../../api/health';
+
+import useDiet from './useDiet';
+
 import { sendChatMessage } from '../../api/chatbot';
+import sproutLogo from '../../assets/Logo.png';
+import Sprout from '../../components/chatbot/Sprout';
+import CreateDietModal from './CreateDietModal';
+import CreateFitnessProfileModal from './CreateFitnessProfileModal';
+import DietPage from './DietPage';
+import DietStats from './DietStats';
 
 export default function DietDashboard() {
   const {
@@ -29,7 +24,6 @@ export default function DietDashboard() {
     loading,
     createNewDiet,
     deleteDietById,
-    updateGoals,
   } = useDiet();
 
   const [showModal, setShowModal] = useState(false);
@@ -49,7 +43,9 @@ export default function DietDashboard() {
               </Link>
               Diet Dashboard
             </h1>
-            <p className="text-[#6B5E5E]">Track meals, nutrition, and health goals</p>
+            <p className="text-[#6B5E5E]">
+              Track meals, nutrition, and health goals
+            </p>
           </div>
 
           <button
@@ -88,7 +84,8 @@ export default function DietDashboard() {
               <h2 className="text-xl font-semibold mb-3">No Diets Yet</h2>
 
               <p className="text-gray-500 mb-6">
-                Create your first diet plan to start tracking meals and nutrition.
+                Create your first diet plan to start tracking meals and
+                nutrition.
               </p>
 
               <button
@@ -104,11 +101,8 @@ export default function DietDashboard() {
         <CreateDietModal
           isOpen={showModal}
           onClose={() => setShowModal(false)}
-          onCreate={async (data) => {
-            const newDiet = await createDiet(data);
-
-            //add new card instantly
-            setDiets((prev) => [...prev, newDiet]);
+          oonCreate={async (data) => {
+            await createNewDiet(data);
             setShowModal(false);
           }}
         />
@@ -118,7 +112,7 @@ export default function DietDashboard() {
           diets={diets}
           dietItems={dietItems}
           setDietItems={setDietItems}
-          onDeleteDiet={handleDeleteDiet}
+          onDeleteDiet={deleteDietById}
           onSelectDiet={setSelectedDiet}
           weightHistory={weightHistory}
         />
