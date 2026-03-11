@@ -4,6 +4,7 @@ import { useTheme } from '../../theme/ThemeContext.jsx';
 
 import sproutLogo from '../../assets/Logo.png';
 import musicFile from '../../assets/background-music.mp3';
+import Introduction from "./Introduction.jsx"
 import FeatureIntro from './FeatureIntro.jsx';
 
 export default function Home() {
@@ -28,7 +29,10 @@ export default function Home() {
    return (
     <>
       {/* HERO SECTION */}
-      <div className="sprout-bg flex flex-col items-center justify-center gap-10 relative min-h-screen">
+     <div className="sprout-bg flex flex-col items-center justify-center gap-10 relative min-h-screen">
+
+        {/* Fade clouds into sky */}
+        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-b from-transparent to-[#cfe8ff] pointer-events-none"></div>
 
         {/* Logo */}
         <img
@@ -84,8 +88,11 @@ export default function Home() {
 
       </div>
 
+      <Introduction />
+
       {/* INTRODUCTION SECTION */}
       <FeatureIntro/>
+    
     </>
   );
 }

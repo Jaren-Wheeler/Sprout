@@ -76,8 +76,8 @@ export default function FeatureIntro() {
       <div className="max-w-5xl w-full flex flex-col items-center gap-12 px-6">
 
         {/* Title */}
-        <h2 className="text-4xl font-bold text-amber-900 text-center mt-12">
-          Everything You Need to Grow with Sprout
+        <h2 className="text-6xl font-bold text-amber-900 text-center mt-12">
+          Explore Features
         </h2>
 
         {/* Carousel */}
