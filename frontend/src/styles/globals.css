@@ -387,3 +387,122 @@
 .animate-sprout-float {
   animation: sproutFloat 4s ease-in-out infinite;
 }
+
+/* =====================================================
+    STEM GROWING ANIMATION
+===================================================== */
+
+.flower{
+  transform-origin:110px 200px;
+}
+
+/* stem grow */
+
+.stem{
+  stroke-dasharray:200;
+  stroke-dashoffset:200;
+}
+
+.grow .stem{
+  animation:stemGrow 2s ease forwards;
+}
+
+/* leaves */
+
+.leaf{
+  opacity:0;
+  transform-origin:center;
+}
+
+.grow .leaf1{
+  animation:leafPop .6s forwards;
+  animation-delay:1.4s;
+}
+
+.grow .leaf2{
+  animation:leafPop .6s forwards;
+  animation-delay:1.6s;
+}
+
+/* petals */
+
+.petal{
+  opacity:0;
+  transform:scale(.2);
+  transform-origin:110px 110px;
+}
+
+.grow .p1{animation:bloom .6s forwards 2.2s}
+.grow .p2{animation:bloom .6s forwards 2.4s}
+.grow .p3{animation:bloom .6s forwards 2.6s}
+.grow .p4{animation:bloom .6s forwards 2.8s}
+
+.center{
+  opacity:0;
+}
+
+.grow .center{
+  animation:centerPop .5s forwards 3s;
+}
+
+/* sway animation */
+
+.grow{
+  animation:sway 5s ease-in-out infinite 3s;
+}
+
+@keyframes stemGrow{
+  to{
+    stroke-dashoffset:0;
+  }
+}
+
+@keyframes leafPop{
+  from{opacity:0; transform:scale(.3)}
+  to{opacity:1; transform:scale(1)}
+}
+
+@keyframes bloom{
+  from{opacity:0; transform:scale(.3)}
+  to{opacity:1; transform:scale(1)}
+}
+
+@keyframes centerPop{
+  from{opacity:0; transform:scale(.2)}
+  to{opacity:1; transform:scale(1)}
+}
+
+@keyframes sway{
+  0%{transform:rotate(-2deg)}
+  50%{transform:rotate(2deg)}
+  100%{transform:rotate(-2deg)}
+}
+
+.spark{
+  fill:#fff3bf;
+  opacity:0;
+}
+
+.grow .spark{
+  animation:sparkle 2.5s infinite;
+}
+
+.grow .s1{animation-delay:3.5s}
+.grow .s2{animation-delay:3.7s}
+.grow .s3{animation-delay:3.9s}
+.grow .s4{animation-delay:4.1s}
+
+@keyframes sparkle{
+  0%{
+    opacity:0;
+    transform:scale(.3) translateY(0);
+  }
+  50%{
+    opacity:1;
+    transform:scale(1.3) translateY(-6px);
+  }
+  100%{
+    opacity:0;
+    transform:scale(.3) translateY(-12px);
+  }
+}

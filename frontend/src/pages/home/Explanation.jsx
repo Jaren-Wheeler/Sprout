@@ -1,4 +1,4 @@
-import sproutImg from "../../assets/askmeanything.png";
+import SproutingAnimation from "./SproutingAnimation.jsx";
 
 export default function Explanation() {
   return (
@@ -8,11 +8,7 @@ export default function Explanation() {
 
         {/* LEFT SIDE MASCOT */}
         <div className="flex justify-center">
-          <img
-            src={sproutImg}
-            alt="Sprout assistant"
-            className="w-[340px] animate-sprout-float drop-shadow-[0_35px_70px_rgba(0,0,0,0.25)]"
-          />
+          <SproutingAnimation />
         </div>
 
         {/* RIGHT SIDE TEXT */}
