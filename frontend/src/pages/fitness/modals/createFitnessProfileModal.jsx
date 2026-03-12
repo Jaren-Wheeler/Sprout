@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import SproutModal from '../../components/ui/SproutModal';
+import { useEffect, useState } from 'react';
+import SproutModal from '../../../components/ui/SproutModal';
 
 export default function CreateFitnessProfileModal({
   onClose,

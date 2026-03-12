@@ -182,8 +182,10 @@ const searchFoods = async (req, res, next) => {
 
 const getFoodDetails = async (req, res, next) => {
   try {
-    const { fdcId } = req.params;
+    const fdcId = Number(req.params.fdcId);
+
     const food = await usdaService.getFoodDetails(fdcId);
+
     res.json(food);
   } catch (err) {
     next(err);

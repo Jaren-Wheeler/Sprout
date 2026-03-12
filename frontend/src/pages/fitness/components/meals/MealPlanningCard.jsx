@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import {
-  getPresetItems,
   addDietItem,
   deletePresetItem,
-} from '../../api/health';
-import ConfirmModal from '../../components/ui/ConfirmModal';
+  getPresetItems,
+} from '../../../../api/health';
+import ConfirmModal from '../../../../components/ui/ConfirmModal';
 import MealCard from './MealCard';
 
 export default function MealPlanningCard({ diet, onAddDietItem }) {
@@ -38,7 +38,7 @@ export default function MealPlanningCard({ diet, onAddDietItem }) {
 
     try {
       const newItem = await addDietItem({
-        id: diet.id,
+        dietId: diet.id,
         name: preset.name,
         meal: preset.meal,
         calories: preset.calories,
@@ -91,14 +91,13 @@ export default function MealPlanningCard({ diet, onAddDietItem }) {
       ) : (
         <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-1">
           {items.map((p) => (
-            <button
+            <div
               key={p.id}
-              type="button"
               onClick={() => handleUsePreset(p)}
-              className="sprout-card p-3 min-w-[220px] text-left"
+              className="sprout-card p-3 min-w-[220px] text-left cursor-pointer"
             >
               <MealCard item={p} onDelete={() => requestDelete(p.id)} />
-            </button>
+            </div>
           ))}
         </div>
       )}

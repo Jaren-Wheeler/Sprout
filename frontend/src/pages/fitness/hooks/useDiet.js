@@ -1,23 +1,47 @@
-import { useEffect, useState } from 'react';
+import { isSameDay } from 'date-fns';
+import { useEffect, useMemo, useState } from 'react';
+
 import {
-  getDiets,
   createDiet,
   deleteDiet,
-  getFitnessInfo,
   getDietItems,
-  updateFitnessInfo,
+  getDiets,
+  getFitnessInfo,
   getWeightHistory,
-} from '../../api/health';
+  updateFitnessInfo,
+} from '../../../api/health';
 
 export default function useDiet() {
   const [diets, setDiets] = useState([]);
   const [selectedDiet, setSelectedDiet] = useState(null);
+
   const [dietItems, setDietItems] = useState([]);
+
   const [stats, setStats] = useState(null);
   const [weightHistory, setWeightHistory] = useState([]);
+
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
   const [loading, setLoading] = useState(true);
 
-  // Load diets
+  /*
+  --------------------------------------------------
+  Derived data
+  --------------------------------------------------
+  */
+
+  const itemsForSelectedDate = useMemo(() => {
+    return (dietItems || []).filter((item) =>
+      isSameDay(new Date(item.loggedAt), selectedDate)
+    );
+  }, [dietItems, selectedDate]);
+
+  /*
+  --------------------------------------------------
+  Load diets
+  --------------------------------------------------
+  */
+
   useEffect(() => {
     async function load() {
       try {
@@ -33,14 +57,24 @@ export default function useDiet() {
     load();
   }, []);
 
-  // Select first diet
+  /*
+  --------------------------------------------------
+  Select first diet automatically
+  --------------------------------------------------
+  */
+
   useEffect(() => {
     if (diets.length > 0 && !selectedDiet) {
       setSelectedDiet(diets[0]);
     }
-  }, [diets]);
+  }, [diets, selectedDiet]);
 
-  // Load diet items
+  /*
+  --------------------------------------------------
+  Load diet items
+  --------------------------------------------------
+  */
+
   useEffect(() => {
     async function loadItems() {
       if (!selectedDiet?.id) return;
@@ -56,7 +90,12 @@ export default function useDiet() {
     loadItems();
   }, [selectedDiet]);
 
-  // Load stats
+  /*
+  --------------------------------------------------
+  Load fitness stats
+  --------------------------------------------------
+  */
+
   useEffect(() => {
     async function loadStats() {
       try {
@@ -70,7 +109,12 @@ export default function useDiet() {
     loadStats();
   }, []);
 
-  // Load weight history
+  /*
+  --------------------------------------------------
+  Load weight history
+  --------------------------------------------------
+  */
+
   useEffect(() => {
     async function loadWeightHistory() {
       try {
@@ -84,6 +128,12 @@ export default function useDiet() {
     loadWeightHistory();
   }, []);
 
+  /*
+  --------------------------------------------------
+  Actions
+  --------------------------------------------------
+  */
+
   async function createNewDiet(data) {
     const newDiet = await createDiet(data);
     setDiets((prev) => [...prev, newDiet]);
@@ -96,19 +146,33 @@ export default function useDiet() {
 
   async function updateGoals(data) {
     await updateFitnessInfo(data);
+
     const updatedHistory = await getWeightHistory();
     setWeightHistory(updatedHistory);
   }
+
+  /*
+  --------------------------------------------------
+  Hook API
+  --------------------------------------------------
+  */
 
   return {
     diets,
     selectedDiet,
     setSelectedDiet,
+
     dietItems,
+    itemsForSelectedDate,
     setDietItems,
+
+    selectedDate,
+    setSelectedDate,
+
     stats,
     weightHistory,
     loading,
+
     createNewDiet,
     deleteDietById,
     updateGoals,

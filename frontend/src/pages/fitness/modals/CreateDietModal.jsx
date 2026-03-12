@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import SproutModal from '../../components/ui/SproutModal';
+import SproutModal from '../../../components/ui/SproutModal';
 
 export default function CreateDietModal({ isOpen, onClose, onCreate }) {
   const [name, setName] = useState('');

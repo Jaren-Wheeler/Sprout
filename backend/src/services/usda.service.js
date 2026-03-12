@@ -12,7 +12,8 @@ async function searchFoods(query) {
     const res = await usdaClient.get('/foods/search', {
       params: {
         query: query.trim(),
-        pageSize: 5,
+        pageSize: 25,
+        dataType: ['Branded', 'Survey (FNDDS)', 'Foundation'],
       },
     });
 
@@ -37,6 +38,7 @@ async function searchFoods(query) {
  * Save to cache
  */
 async function getFoodDetails(fdcId) {
+  fdcId = Number(fdcId);
   const cached = await prisma.foodCache.findUnique({
     where: { fdcId },
   });
