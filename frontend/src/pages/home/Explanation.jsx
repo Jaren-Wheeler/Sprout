@@ -2,32 +2,38 @@ import sproutImg from "../../assets/askmeanything.png";
 
 export default function Explanation() {
   return (
-    <section className="w-full bg-[#cfe8ff] flex justify-center pb-48">
-      <div className="max-w-7xl w-full px-8 grid md:grid-cols-[1fr_2fr] items-center gap-48">
+    <section className="w-full bg-gradient-to-b from-[#e8f4ff] to-[#cfe8ff] flex justify-center pb-48">
 
-        {/* RIGHT SIDE ANIMATION */}
-        <div className="flex justify-center pr-12">
+      <div className="max-w-7xl w-full px-8 grid md:grid-cols-2 items-center gap-40">
+
+        {/* LEFT SIDE MASCOT */}
+        <div className="flex justify-center">
           <img
             src={sproutImg}
             alt="Sprout assistant"
-            className="w-[380px] animate-sprout-float drop-shadow-[0_25px_60px_rgba(0,0,0,0.35)]"
+            className="w-[340px] animate-sprout-float drop-shadow-[0_35px_70px_rgba(0,0,0,0.25)]"
           />
         </div>
 
-        {/* LEFT SIDE TEXT */}
-        <div className="flex flex-col justify-center pl-12">
-          <h2 className="text-5xl md:text-7xl font-bold text-amber-900 leading-tight">
-            Make progress and grow Sprout's Habitat.
+        {/* RIGHT SIDE TEXT */}
+        <div className="flex flex-col justify-center">
+
+          <h2 className="text-6xl md:text-7xl font-bold text-[#5b2d0b] leading-[1.05] tracking-[-0.02em] font-[Poppins]">
+            Make progress and
+            <br />
+            <span className="text-green-700">grow Sprout's habitat.</span>
           </h2>
 
-          <p className="text-xl text-amber-800 mt-6 max-w-xl">
-            The more you accomplish, the better the habitat.
+          <p className="text-lg text-[#5c3b1a] mt-8 max-w-lg leading-relaxed font-[Inter]">
+            Every goal you complete improves your habitat.
+            Watch your environment grow and evolve as your
+            productivity and habits strengthen.
           </p>
+
         </div>
 
-        
-
       </div>
+
     </section>
   );
 }
