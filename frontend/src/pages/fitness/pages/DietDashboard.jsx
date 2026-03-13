@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { sendChatMessage } from '../../../api/chatbot';
-import { updateFitnessInfo } from '../../../api/health';
 
 import sproutLogo from '../../../assets/Logo.png';
 import Sprout from '../../../components/chatbot/Sprout';
@@ -25,8 +24,8 @@ export default function DietDashboard() {
     setSelectedDiet,
     dietItems,
     itemsForSelectedDate,
-    addDietItemLocal,
-    removeDietItemLocal,
+    addDietItem,
+    deleteDietItem,
     stats,
     weightHistory,
     selectedDate,
@@ -34,6 +33,12 @@ export default function DietDashboard() {
     loading,
     createNewDiet,
     deleteDietById,
+    presets,
+    presetsLoading,
+    usePreset,
+    updateGoals,
+    removePreset,
+    addPreset,
   } = useDiet();
 
   const [showModal, setShowModal] = useState(false);
@@ -52,7 +57,7 @@ export default function DietDashboard() {
             isOpen={showGoalsModal}
             onClose={() => setShowGoalsModal(false)}
             onSubmit={async (data) => {
-              await updateFitnessInfo(data);
+              await updateGoals(data);
               setShowGoalsModal(false);
             }}
           />
@@ -105,13 +110,6 @@ export default function DietDashboard() {
                   Track meals, nutrition, and health goals
                 </p>
               </div>
-
-              <button
-                className="bg-gray-800 text-white px-4 py-2 rounded-xl hover:scale-105 transition"
-                onClick={() => setShowModal(true)}
-              >
-                + Create Diet
-              </button>
             </header>
           }
           summary={
@@ -129,18 +127,21 @@ export default function DietDashboard() {
                 onDeleteDiet={deleteDietById}
                 openCreateDiet={() => setShowModal(true)}
                 items={itemsForSelectedDate}
-                addDietItemLocal={addDietItemLocal}
-                removeDietItemLocal={removeDietItemLocal}
+                addDietItem={addDietItem}
+                deleteDietItem={deleteDietItem}
                 date={selectedDate}
                 setDate={setSelectedDate}
+                addPreset={addPreset}
               />
             )
           }
           mainRight={
             selectedDiet && (
               <MealPlanningCard
-                diet={selectedDiet}
-                onAddDietItem={addDietItemLocal}
+                presets={presets}
+                presetsLoading={presetsLoading}
+                usePreset={usePreset}
+                removePreset={removePreset}
               />
             )
           }

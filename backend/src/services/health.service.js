@@ -26,22 +26,23 @@ const updateFitnessInfo = async (userId, data) => {
     where: { userId },
   });
 
-  // ----------------------------
-  // CASE 1: PROFILE EXISTS
-  // ----------------------------
   if (existing) {
     const updated = await prisma.fitnessInfo.update({
       where: { userId },
       data: {
         currentWeight: data.currentWeight,
         goalWeight: data.goalWeight,
+
         calorieGoal: data.calorieGoal,
+        proteinGoal: data.proteinGoal,
+        carbsGoal: data.carbsGoal,
+        fatGoal: data.fatGoal,
+
         age: data.age,
         heightFt: data.heightFt,
       },
     });
 
-    // Log weight history only if changed
     if (
       data.currentWeight &&
       existing.currentWeight?.toString() !== data.currentWeight.toString()
@@ -57,23 +58,25 @@ const updateFitnessInfo = async (userId, data) => {
     return updated;
   }
 
-  // ----------------------------
-  // CASE 2: PROFILE DOESN'T EXIST
-  // ----------------------------
   const created = await prisma.fitnessInfo.create({
     data: {
       currentWeight: data.currentWeight,
       goalWeight: data.goalWeight,
+
       calorieGoal: data.calorieGoal,
+      proteinGoal: data.proteinGoal,
+      carbsGoal: data.carbsGoal,
+      fatGoal: data.fatGoal,
+
       age: data.age,
       heightFt: data.heightFt,
+
       user: {
         connect: { id: userId },
       },
     },
   });
 
-  // Log initial weight
   if (data.currentWeight) {
     await prisma.weightEntry.create({
       data: {
@@ -85,7 +88,6 @@ const updateFitnessInfo = async (userId, data) => {
 
   return created;
 };
-
 /**
  * Get the weight history of the user
  */
@@ -241,8 +243,16 @@ const addPresetItem = async (
   protein,
   carbs,
   fat,
-  sugar
+  sugar,
+  quantity,
+  unit
 ) => {
+  if (!Object.values(MealType).includes(meal)) {
+    const err = new Error('Invalid meal type.');
+    err.status = 400;
+    throw err;
+  }
+
   return prisma.presetMealItems.create({
     data: {
       name,
@@ -252,6 +262,8 @@ const addPresetItem = async (
       carbs,
       fat,
       sugar,
+      quantity: quantity ?? 1,
+      unit: unit ?? 'g',
       diet: {
         connect: { id: dietId },
       },

@@ -1,9 +1,4 @@
 import { useState } from 'react';
-import {
-  addDietItem,
-  addPresetItem,
-  deleteDietItem,
-} from '../../../../api/health';
 import ConfirmModal from '../../../../components/ui/ConfirmModal';
 import AddDietItemModal from './AddDietItemModal';
 import DietCard from './DietCard';
@@ -21,10 +16,11 @@ export default function DailyFoodLogCard({
   onDeleteDiet,
   openCreateDiet,
   items,
-  addDietItemLocal,
-  removeDietItemLocal,
+  addDietItem,
+  deleteDietItem,
   date,
   setDate,
+  addPreset,
 }) {
   const [activeMeal, setActiveMeal] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -46,9 +42,7 @@ export default function DailyFoodLogCard({
   async function handleConfirmDelete() {
     if (!pendingDeleteId) return;
 
-    await deleteDietItem(diet.id, pendingDeleteId);
-
-    removeDietItemLocal(pendingDeleteId);
+    await deleteDietItem(pendingDeleteId);
 
     setConfirmOpen(false);
     setPendingDeleteId(null);
@@ -138,10 +132,9 @@ export default function DailyFoodLogCard({
           };
 
           if (data.isPreset) {
-            await addPresetItem(payload);
+            await addPreset(payload);
           } else {
-            const newItem = await addDietItem(payload);
-            addDietItemLocal(newItem);
+            await addDietItem(payload);
           }
 
           setShowModal(false);

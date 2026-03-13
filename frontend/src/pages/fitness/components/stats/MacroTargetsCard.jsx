@@ -2,8 +2,10 @@ function MacroRow({ label, consumed = 0, goal = 0, color }) {
   const value = Number(consumed) || 0;
   const target = Number(goal) || 0;
 
-  const percent = target > 0 ? Math.min((value / target) * 100, 100) : 0;
+  const percent = target > 0 ? (value / target) * 100 : 0;
+  const progressWidth = Math.min(percent, 100);
 
+  const remaining = target - value;
   const isOver = value > target;
 
   return (
@@ -16,12 +18,28 @@ function MacroRow({ label, consumed = 0, goal = 0, color }) {
         </span>
       </div>
 
+      {/* Remaining / Over feedback */}
+
+      <div className="flex justify-between text-xs mb-2">
+        <span className="text-amber-900/60">
+          {isOver ? 'Over goal' : 'Remaining'}
+        </span>
+
+        <span
+          className={`font-semibold ${isOver ? 'text-red-500' : 'text-amber-900'}`}
+        >
+          {Math.abs(Math.round(remaining))} g
+        </span>
+      </div>
+
+      {/* Progress Bar */}
+
       <div className="w-full bg-amber-100 rounded-full h-2.5 overflow-hidden">
         <div
           className={`h-full transition-all duration-300 ${
             isOver ? 'bg-red-500' : color
           }`}
-          style={{ width: `${percent}%` }}
+          style={{ width: `${progressWidth}%` }}
         />
       </div>
     </div>
@@ -57,7 +75,7 @@ export default function MacroTargetsCard({
         label="Carbs"
         consumed={carbsConsumed}
         goal={carbsGoal}
-        color="bg-yellow-500"
+        color="bg-green-500"
       />
 
       <MacroRow

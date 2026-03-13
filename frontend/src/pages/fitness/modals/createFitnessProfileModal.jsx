@@ -11,6 +11,9 @@ export default function CreateFitnessProfileModal({
     currentWeight: '',
     goalWeight: '',
     calorieGoal: '',
+    proteinGoal: '',
+    carbsGoal: '',
+    fatGoal: '',
     age: '',
     heightFt: '',
   });
@@ -22,6 +25,9 @@ export default function CreateFitnessProfileModal({
       currentWeight: initialValues.currentWeight ?? '',
       goalWeight: initialValues.goalWeight ?? '',
       calorieGoal: initialValues.calorieGoal ?? '',
+      proteinGoal: initialValues.proteinGoal ?? '',
+      carbsGoal: initialValues.carbsGoal ?? '',
+      fatGoal: initialValues.fatGoal ?? '',
       age: initialValues.age ?? '',
       heightFt: initialValues.heightFt ?? '',
     });
@@ -41,6 +47,9 @@ export default function CreateFitnessProfileModal({
       currentWeight: Number(form.currentWeight),
       goalWeight: Number(form.goalWeight),
       calorieGoal: Number(form.calorieGoal),
+      proteinGoal: Number(form.proteinGoal),
+      carbsGoal: Number(form.carbsGoal),
+      fatGoal: Number(form.fatGoal),
       age: Number(form.age),
       heightFt: Number(form.heightFt),
     });
@@ -76,6 +85,37 @@ export default function CreateFitnessProfileModal({
               value={form.goalWeight}
               onChange={(e) => handleChange('goalWeight', e.target.value)}
             />
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="text-sm text-amber-900/70">Protein (g)</label>
+              <input
+                className="sprout-input"
+                type="number"
+                value={form.proteinGoal}
+                onChange={(e) => handleChange('proteinGoal', e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-amber-900/70">Carbs (g)</label>
+              <input
+                className="sprout-input"
+                type="number"
+                value={form.carbsGoal}
+                onChange={(e) => handleChange('carbsGoal', e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-amber-900/70">Fat (g)</label>
+              <input
+                className="sprout-input"
+                type="number"
+                value={form.fatGoal}
+                onChange={(e) => handleChange('fatGoal', e.target.value)}
+              />
+            </div>
           </div>
 
           <div>

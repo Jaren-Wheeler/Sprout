@@ -1,12 +1,16 @@
-import { isSameDay } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 
 import {
+  addDietItem,
+  addPresetItem,
   createDiet,
   deleteDiet,
+  deleteDietItem,
+  deletePresetItem,
   getDietItems,
   getDiets,
   getFitnessInfo,
+  getPresetItems,
   getWeightHistory,
   updateFitnessInfo,
 } from '../../../api/health';
@@ -23,6 +27,8 @@ export default function useDiet() {
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const [loading, setLoading] = useState(true);
+  const [presets, setPresets] = useState([]);
+  const [presetsLoading, setPresetsLoading] = useState(false);
 
   /*
   --------------------------------------------------
@@ -31,11 +37,12 @@ export default function useDiet() {
   */
 
   const itemsForSelectedDate = useMemo(() => {
-    return (dietItems || []).filter((item) =>
-      isSameDay(new Date(item.loggedAt), selectedDate)
+    const day = selectedDate.toDateString();
+
+    return dietItems.filter(
+      (item) => new Date(item.loggedAt).toDateString() === day
     );
   }, [dietItems, selectedDate]);
-
   /*
   --------------------------------------------------
   Calculate daily macro totals
@@ -85,7 +92,7 @@ export default function useDiet() {
 
   /*
   --------------------------------------------------
-  Load diets
+  Load diets/Presets
   --------------------------------------------------
   */
 
@@ -103,6 +110,25 @@ export default function useDiet() {
 
     load();
   }, []);
+
+  useEffect(() => {
+    async function loadPresets() {
+      if (!selectedDiet?.id) return;
+
+      try {
+        setPresetsLoading(true);
+        const data = await getPresetItems(selectedDiet.id);
+        setPresets(data || []);
+      } catch (err) {
+        console.error('Failed to load presets', err);
+        setPresets([]);
+      } finally {
+        setPresetsLoading(false);
+      }
+    }
+
+    loadPresets();
+  }, [selectedDiet]);
 
   /*
   --------------------------------------------------
@@ -177,20 +203,6 @@ export default function useDiet() {
 
   /*
   --------------------------------------------------
-  Local State Actions
-  --------------------------------------------------
-  */
-
-  function addDietItemLocal(item) {
-    setDietItems((prev) => [item, ...prev]);
-  }
-
-  function removeDietItemLocal(itemId) {
-    setDietItems((prev) => prev.filter((item) => item.id !== itemId));
-  }
-
-  /*
-  --------------------------------------------------
   Actions
   --------------------------------------------------
   */
@@ -214,6 +226,16 @@ export default function useDiet() {
     });
   }
 
+  async function addDietItemToDiet(data) {
+    if (!selectedDiet?.id) return;
+
+    const item = await addDietItem({
+      ...data,
+      id: selectedDiet.id,
+    });
+
+    setDietItems((prev) => [item, ...prev]);
+  }
   async function updateGoals(data) {
     await updateFitnessInfo(data);
 
@@ -224,6 +246,55 @@ export default function useDiet() {
     setWeightHistory(updatedHistory);
   }
 
+  async function deleteDietItemFromDiet(itemId) {
+    if (!selectedDiet?.id) return;
+
+    await deleteDietItem(selectedDiet.id, itemId);
+
+    setDietItems((prev) => prev.filter((item) => item.id !== itemId));
+  }
+
+  async function usePreset(preset) {
+    if (!selectedDiet?.id) return;
+
+    const item = await addDietItem({
+      id: selectedDiet.id,
+      name: preset.name,
+      meal: preset.meal,
+
+      quantity: preset.quantity,
+      unit: preset.unit,
+
+      calories: preset.calories,
+      protein: preset.protein,
+      carbs: preset.carbs,
+      fat: preset.fat,
+      sugar: preset.sugar,
+
+      loggedAt: selectedDate, // <-- FIX
+    });
+
+    setDietItems((prev) => [item, ...prev]);
+  }
+
+  async function removePreset(presetId) {
+    if (!selectedDiet?.id) return;
+
+    await deletePresetItem(selectedDiet.id, presetId);
+
+    setPresets((prev) => prev.filter((p) => p.id !== presetId));
+  }
+
+  async function addPreset(data) {
+    if (!selectedDiet?.id) return;
+
+    const preset = await addPresetItem({
+      ...data,
+      id: selectedDiet.id,
+    });
+
+    setPresets((prev) => [preset, ...prev]);
+  }
   /*
   --------------------------------------------------
   Hook API
@@ -238,8 +309,8 @@ export default function useDiet() {
     dietItems,
     itemsForSelectedDate,
 
-    addDietItemLocal,
-    removeDietItemLocal,
+    addDietItem: addDietItemToDiet,
+    deleteDietItem: deleteDietItemFromDiet,
 
     selectedDate,
     setSelectedDate,
@@ -251,5 +322,12 @@ export default function useDiet() {
     createNewDiet,
     deleteDietById,
     updateGoals,
+
+    presets,
+    presetsLoading,
+
+    usePreset,
+    removePreset,
+    addPreset,
   };
 }

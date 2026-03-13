@@ -13,7 +13,7 @@ export default function MealCard({ item, onDelete }) {
       <button
         onClick={(e) => {
           e.stopPropagation();
-          onDelete(item.id);
+          onDelete();
         }}
         className="sprout-icon-btn-danger flex-shrink-0"
         title="Delete preset"
