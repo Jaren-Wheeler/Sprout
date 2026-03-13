@@ -1,27 +1,45 @@
 function normalizeUsdaFood(food) {
   const nutrients = food.foodNutrients || [];
 
-  function getNutrient(name) {
-    const nutrient = nutrients.find(
-      (n) => n.nutrient?.name === name || n.nutrientName === name
-    );
+  function getNutrient(names) {
+    if (!Array.isArray(names)) names = [names];
 
-    return nutrient?.amount ?? nutrient?.value ?? null;
+    const nutrient = nutrients.find((n) => {
+      const name = (n.nutrient?.name || n.nutrientName || '').toLowerCase();
+      return names.some((target) => name.includes(target.toLowerCase()));
+    });
+
+    return nutrient?.amount ?? nutrient?.value ?? 0;
   }
+  const servingSizeOriginal = food.servingSize || null;
+  const servingUnitOriginal = food.servingSizeUnit || null;
+
+  const servingSize = food.servingSize || 100;
+
+  const calories = getNutrient(['energy']);
+  const protein = getNutrient(['protein']);
+  const carbs = getNutrient(['carbohydrate']);
+  const fat = getNutrient(['lipid', 'fat']);
+  const sugar = getNutrient(['sugars']);
+
+  const scale = servingSize !== 100 ? 100 / servingSize : 1;
 
   return {
     fdcId: food.fdcId,
     name: food.description,
-    brandName: food.brandOwner || food.brandName || null,
+    brand: food.brandOwner || food.brand || null,
 
-    servingSize: food.servingSize || 100,
-    servingUnit: food.servingSizeUnit || 'g',
+    servingSizeOriginal,
+    servingUnitOriginal,
 
-    calories: Math.round(getNutrient('Energy') || 0),
-    protein: getNutrient('Protein'),
-    carbs: getNutrient('Carbohydrate, by difference'),
-    fat: getNutrient('Total lipid (fat)'),
-    sugar: getNutrient('Sugars, total including NLEA'),
+    servingSize: 100,
+    servingUnit: 'g',
+
+    calories: Math.round(calories * scale),
+    protein: protein * scale,
+    carbs: carbs * scale,
+    fat: fat * scale,
+    sugar: sugar * scale,
   };
 }
 

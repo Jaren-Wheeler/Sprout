@@ -122,7 +122,10 @@ const getDietItems = async (req, res, next) => {
 
 const deleteDietItem = async (req, res, next) => {
   try {
-    await healthService.deleteDietItem(req.params.itemId);
+    const { id: dietId, itemId } = req.params;
+
+    await healthService.deleteDietItem(dietId, itemId);
+
     res.status(204).send();
   } catch (err) {
     next(err);
@@ -140,7 +143,8 @@ const getPresetItems = async (req, res, next) => {
 
 const addPresetItem = async (req, res, next) => {
   try {
-    const { name, meal, calories, protein, carbs, fat, sugar } = req.body;
+    const { name, meal, calories, protein, carbs, fat, sugar, quantity, unit } =
+      req.body;
     const item = await healthService.addPresetItem(
       req.params.id,
       name,
@@ -149,7 +153,9 @@ const addPresetItem = async (req, res, next) => {
       protein,
       carbs,
       fat,
-      sugar
+      sugar,
+      quantity,
+      unit
     );
     res.status(201).json(item);
   } catch (err) {
@@ -182,21 +188,44 @@ const searchFoods = async (req, res, next) => {
 
 const getFoodDetails = async (req, res, next) => {
   try {
-    const { fdcId } = req.params;
+    const fdcId = Number(req.params.fdcId);
+
     const food = await usdaService.getFoodDetails(fdcId);
+
     res.json(food);
   } catch (err) {
     next(err);
   }
 };
 
-const getRecentFoods = async (req, res, next) => {
-  try {
-    const foods = await healthService.getRecentFoods(req.user.id);
-    res.json(foods);
-  } catch (err) {
-    next(err);
+const getRecentFoods = async (userId) => {
+  const items = await prisma.dietItem.findMany({
+    where: {
+      diet: {
+        userId,
+      },
+    },
+    orderBy: {
+      loggedAt: 'desc',
+    },
+    take: 50,
+  });
+
+  const seen = new Set();
+  const unique = [];
+
+  for (const item of items) {
+    const key = item.name.toLowerCase();
+
+    if (!seen.has(key)) {
+      seen.add(key);
+      unique.push(item);
+    }
+
+    if (unique.length === 10) break;
   }
+
+  return unique;
 };
 
 module.exports = {
