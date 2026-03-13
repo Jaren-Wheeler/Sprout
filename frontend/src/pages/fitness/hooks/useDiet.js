@@ -38,6 +38,53 @@ export default function useDiet() {
 
   /*
   --------------------------------------------------
+  Calculate daily macro totals
+  --------------------------------------------------
+  */
+
+  const dailyTotals = useMemo(() => {
+    return itemsForSelectedDate.reduce(
+      (totals, item) => {
+        totals.calories += item.calories || 0;
+        totals.protein += item.protein || 0;
+        totals.carbs += item.carbs || 0;
+        totals.fat += item.fat || 0;
+
+        return totals;
+      },
+      {
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+      }
+    );
+  }, [itemsForSelectedDate]);
+
+  /*
+  --------------------------------------------------
+  Combine goals + consumed values
+  --------------------------------------------------
+  */
+
+  const dailyStats = useMemo(() => {
+    if (!stats) return null;
+
+    return {
+      calorieGoal: stats.calorieGoal || 0,
+      proteinGoal: stats.proteinGoal || 0,
+      carbsGoal: stats.carbsGoal || 0,
+      fatGoal: stats.fatGoal || 0,
+
+      caloriesConsumed: dailyTotals.calories,
+      proteinConsumed: dailyTotals.protein,
+      carbsConsumed: dailyTotals.carbs,
+      fatConsumed: dailyTotals.fat,
+    };
+  }, [stats, dailyTotals]);
+
+  /*
+  --------------------------------------------------
   Load diets
   --------------------------------------------------
   */
@@ -130,6 +177,20 @@ export default function useDiet() {
 
   /*
   --------------------------------------------------
+  Local State Actions
+  --------------------------------------------------
+  */
+
+  function addDietItemLocal(item) {
+    setDietItems((prev) => [item, ...prev]);
+  }
+
+  function removeDietItemLocal(itemId) {
+    setDietItems((prev) => prev.filter((item) => item.id !== itemId));
+  }
+
+  /*
+  --------------------------------------------------
   Actions
   --------------------------------------------------
   */
@@ -141,11 +202,23 @@ export default function useDiet() {
 
   async function deleteDietById(id) {
     await deleteDiet(id);
-    setDiets((prev) => prev.filter((d) => d.id !== id));
+
+    setDiets((prev) => {
+      const remaining = prev.filter((d) => d.id !== id);
+
+      if (selectedDiet?.id === id) {
+        setSelectedDiet(remaining[0] || null);
+      }
+
+      return remaining;
+    });
   }
 
   async function updateGoals(data) {
     await updateFitnessInfo(data);
+
+    const updatedStats = await getFitnessInfo();
+    setStats(updatedStats);
 
     const updatedHistory = await getWeightHistory();
     setWeightHistory(updatedHistory);
@@ -164,12 +237,14 @@ export default function useDiet() {
 
     dietItems,
     itemsForSelectedDate,
-    setDietItems,
+
+    addDietItemLocal,
+    removeDietItemLocal,
 
     selectedDate,
     setSelectedDate,
 
-    stats,
+    stats: dailyStats,
     weightHistory,
     loading,
 

@@ -6,16 +6,23 @@ import {
 } from '../../../../api/health';
 import ConfirmModal from '../../../../components/ui/ConfirmModal';
 import AddDietItemModal from './AddDietItemModal';
+import DietCard from './DietCard';
 import FoodItem from './FoodItem';
 
 import { format } from 'date-fns';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const MEALS = ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACKS'];
 
 export default function DailyFoodLogCard({
   diet,
+  diets,
+  onSelectDiet,
+  onDeleteDiet,
+  openCreateDiet,
   items,
-  setItems,
+  addDietItemLocal,
+  removeDietItemLocal,
   date,
   setDate,
 }) {
@@ -41,7 +48,7 @@ export default function DailyFoodLogCard({
 
     await deleteDietItem(diet.id, pendingDeleteId);
 
-    setItems((prev) => prev.filter((item) => item.id !== pendingDeleteId));
+    removeDietItemLocal(pendingDeleteId);
 
     setConfirmOpen(false);
     setPendingDeleteId(null);
@@ -62,62 +69,46 @@ export default function DailyFoodLogCard({
   const formattedDate = format(date, 'MMM d');
 
   return (
-    <div className="sprout-paper p-5 w-full space-y-5">
-      {/* HEADER */}
-
-      <div className="relative flex items-center justify-center">
+    <div className="sprout-paper p-5 w-full h-[540px] flex flex-col min-w-0 overflow-hidden">
+      <div className="relative flex items-center justify-between mb-4">
         <h2 className="font-semibold text-amber-900 text-lg">Your Daily Log</h2>
 
-        <p className="absolute right-0 text-sm text-amber-900/60">
-          {(items || []).length} items
-        </p>
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3">
+          <button onClick={prevDay}>
+            <ChevronLeft size={22} />
+          </button>
+
+          <span className="font-semibold text-amber-900 text-lg">
+            {formattedDate}
+          </span>
+
+          <button onClick={nextDay}>
+            <ChevronRight size={22} />
+          </button>
+        </div>
+
+        <DietCard
+          diets={diets}
+          selectedDiet={diet}
+          onSelect={onSelectDiet}
+          onCreate={openCreateDiet}
+          onDelete={onDeleteDiet}
+        />
       </div>
 
-      {/* DATE SELECTOR */}
-
-      <div className="flex items-center justify-center gap-4 mb-2">
-        <button
-          onClick={prevDay}
-          className="sprout-card px-3 py-1 text-amber-900"
-        >
-          ←
-        </button>
-
-        <span className="font-semibold text-amber-900">{formattedDate}</span>
-
-        <button
-          onClick={nextDay}
-          className="sprout-card px-3 py-1 text-amber-900"
-        >
-          →
-        </button>
-      </div>
-
-      {/* CATEGORY BUTTONS */}
-
-      <div className="relative flex items-center justify-center gap-2">
+      <div className="flex items-center justify-center gap-2 mb-4 pb-3 border-b border-yellow-300/40">
         {MEALS.map((meal) => (
           <button
             key={meal}
             onClick={() => openMeal(meal)}
-            className="
-              sprout-card
-              px-4 py-2
-              text-sm
-              font-semibold
-              text-amber-900
-              hover:bg-yellow-50
-              capitalize
-            "
+            className="sprout-card px-4 py-2 text-sm font-semibold text-amber-900 capitalize"
           >
             {meal.toLowerCase()}
           </button>
         ))}
       </div>
 
-      {/* FOOD ITEMS LIST */}
-
-      <div className="space-y-3">
+      <div className="flex-1 overflow-y-auto space-y-3 min-h-0 pr-2">
         {(items || []).length === 0 ? (
           <div className="sprout-panel p-4 text-amber-900/70">
             Nothing logged for this day.
@@ -133,16 +124,12 @@ export default function DailyFoodLogCard({
         )}
       </div>
 
-      {/* ADD FOOD MODAL */}
-
       <AddDietItemModal
         isOpen={showModal}
         meal={activeMeal}
         onClose={() => setShowModal(false)}
         onCreate={async (data) => {
           if (!diet?.id) return;
-
-          let newItem;
 
           const payload = {
             ...data,
@@ -151,19 +138,15 @@ export default function DailyFoodLogCard({
           };
 
           if (data.isPreset) {
-            newItem = await addPresetItem(payload);
+            await addPresetItem(payload);
           } else {
-            newItem = await addDietItem(payload);
+            const newItem = await addDietItem(payload);
+            addDietItemLocal(newItem);
           }
-          console.log('Payload:', payload);
-
-          setItems((prev) => [newItem, ...prev]);
 
           setShowModal(false);
         }}
       />
-
-      {/* DELETE CONFIRMATION */}
 
       {confirmOpen && (
         <ConfirmModal

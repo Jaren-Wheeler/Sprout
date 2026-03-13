@@ -38,7 +38,7 @@ export default function MealPlanningCard({ diet, onAddDietItem }) {
 
     try {
       const newItem = await addDietItem({
-        dietId: diet.id,
+        id: diet.id,
         name: preset.name,
         meal: preset.meal,
         calories: preset.calories,
@@ -46,6 +46,7 @@ export default function MealPlanningCard({ diet, onAddDietItem }) {
         carbs: preset.carbs,
         fat: preset.fat,
         sugar: preset.sugar,
+        loggedAt: new Date(),
       });
 
       onAddDietItem?.(newItem);
@@ -74,38 +75,40 @@ export default function MealPlanningCard({ diet, onAddDietItem }) {
   }
 
   return (
-    <div className="sprout-paper p-5 space-y-3">
-      <div className="flex items-center justify-between">
-        <h2 className="font-semibold text-amber-900">Your Saved Meals</h2>
+    <div className="sprout-paper p-5 h-[540px] flex flex-col">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="font-semibold text-amber-900">Your Preset Foods</h2>
         <p className="text-sm text-amber-900/60">{items.length} saved</p>
       </div>
 
-      {loading ? (
-        <div className="sprout-panel p-4 text-amber-900/70">
-          Loading presets...
-        </div>
-      ) : items.length === 0 ? (
-        <div className="sprout-panel p-4 text-amber-900/70">
-          No presets yet. Save a food item as a preset to reuse it quickly.
-        </div>
-      ) : (
-        <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-1">
-          {items.map((p) => (
-            <div
-              key={p.id}
-              onClick={() => handleUsePreset(p)}
-              className="sprout-card p-3 min-w-[220px] text-left cursor-pointer"
-            >
-              <MealCard item={p} onDelete={() => requestDelete(p.id)} />
+      <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin min-h-0">
+        <div className="space-y-2">
+          {loading ? (
+            <div className="sprout-panel p-4 text-amber-900/70">
+              Loading presets...
             </div>
-          ))}
+          ) : items.length === 0 ? (
+            <div className="sprout-panel p-4 text-amber-900/70">
+              No presets yet.
+            </div>
+          ) : (
+            items.map((p) => (
+              <div
+                key={p.id}
+                onClick={() => handleUsePreset(p)}
+                className="sprout-card p-3 cursor-pointer hover:bg-yellow-50"
+              >
+                <MealCard item={p} onDelete={() => requestDelete(p.id)} />
+              </div>
+            ))
+          )}
         </div>
-      )}
+      </div>
 
       {confirmOpen && (
         <ConfirmModal
           title="Delete saved meal?"
-          message="This will remove the preset, but it will not delete anything from your daily log."
+          message="This will remove the preset."
           confirmText="Delete"
           cancelText="Cancel"
           onCancel={() => {

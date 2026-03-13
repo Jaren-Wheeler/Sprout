@@ -220,10 +220,33 @@ model Diet {
   @@map("diets")
 }
 
+model FoodCache {
+  id       String  @id @default(uuid())
+  fdcId    Int     @unique
+  name     String
+  brand    String?
+  dataType String?
+
+  servingSize Float?
+  servingUnit String?
+
+  calories Float?
+  protein  Float?
+  carbs    Float?
+  fat      Float?
+  sugar    Float?
+
+  createdAt DateTime @default(now())
+
+  @@map("food_cache")
+}
 model DietItem {
   id   String   @id @default(uuid()) @map("id")
   name String   @map("name")
   meal MealType
+
+  quantity Float? @map("quantity")
+  unit     String? @map("unit")
 
   calories Int
   protein  Float?
@@ -234,7 +257,7 @@ model DietItem {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  loggedAt    DateTime @default(now()) @map("logged_at")
+  loggedAt DateTime @default(now()) @map("logged_at")
 
   dietId String @map("diet_id")
   diet   Diet   @relation(fields: [dietId], references: [id], onDelete: Cascade)
@@ -244,6 +267,9 @@ model PresetMealItems {
   id   String   @id @default(uuid()) @map("id")
   name String   @map("name")
   meal MealType
+
+  quantity Float?
+  unit     String?
 
   calories Int
   protein  Float?

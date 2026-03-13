@@ -20,9 +20,13 @@ export default function FoodSearch({ onSelect }) {
         setSearching(true);
 
         const foods = await searchFoods(query);
-        setResults(foods || []);
+        console.log('foods from helper:', foods);
+        console.log('is array:', Array.isArray(foods));
+
+        setResults(Array.isArray(foods) ? foods : []);
       } catch (err) {
         console.error('Food search failed', err);
+        setResults([]);
       } finally {
         setSearching(false);
       }
@@ -33,14 +37,15 @@ export default function FoodSearch({ onSelect }) {
 
   useEffect(() => {
     setHighlighted(0);
+    console.log('results updated:', results);
   }, [results]);
 
   async function handleSelect(food) {
     try {
       const details = await getFoodDetails(food.fdcId);
+      console.log('selected food details:', details);
 
       onSelect(details);
-
       setSearch('');
       setResults([]);
     } catch (err) {
@@ -68,7 +73,7 @@ export default function FoodSearch({ onSelect }) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 relative">
       <div>
         <label className="text-sm text-amber-900/70">Search USDA foods</label>
 
@@ -86,24 +91,28 @@ export default function FoodSearch({ onSelect }) {
       </div>
 
       {results.length > 0 && (
-        <div className="border rounded-lg max-h-40 overflow-y-auto bg-white">
+        <div className="border-2 border-red-500 rounded-lg max-h-40 overflow-y-auto bg-white shadow-lg relative z-50">
           {results.map((food, index) => (
             <button
               key={food.fdcId}
               type="button"
               onClick={() => handleSelect(food)}
-              className={`block w-full text-left px-3 py-2 text-sm
-                ${highlighted === index ? 'bg-amber-100' : 'hover:bg-amber-50'}
-              `}
+              className={`block w-full text-left px-3 py-2 text-sm ${
+                highlighted === index ? 'bg-amber-100' : 'hover:bg-amber-50'
+              }`}
             >
               <div className="font-medium">{food.name}</div>
 
-              {food.brandName && (
-                <div className="text-xs text-gray-500">{food.brandName}</div>
+              {food.brand && (
+                <div className="text-xs text-gray-500">{food.brand}</div>
               )}
             </button>
           ))}
         </div>
+      )}
+
+      {!searching && search.trim().length >= 2 && results.length === 0 && (
+        <div className="text-xs text-amber-900/60">No foods found.</div>
       )}
     </div>
   );

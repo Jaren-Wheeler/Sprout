@@ -133,6 +133,10 @@ const getDiets = async (userId) => {
  * Delete diet
  */
 const deleteDiet = async (id) => {
+  await prisma.dietItem.deleteMany({
+    where: { dietId: id },
+  });
+
   return prisma.diet.delete({
     where: { id },
   });
@@ -150,12 +154,9 @@ const addDietItem = async (dietId, data) => {
     carbs,
     fat,
     sugar,
-    fdcId,
-    brandName,
-    servingSize,
-    servingUnit,
     quantity,
-    source,
+    unit,
+    loggedAt,
   } = data;
 
   if (!name || !meal || calories === undefined || calories === null) {
@@ -174,22 +175,14 @@ const addDietItem = async (dietId, data) => {
     data: {
       name,
       meal,
-
       calories,
       protein,
       carbs,
       fat,
       sugar,
-
-      fdcId: fdcId ?? null,
-      brandName: brandName ?? null,
-
-      servingSize: servingSize ?? null,
-      servingUnit: servingUnit ?? null,
       quantity: quantity ?? 1,
-
-      source: source ?? 'manual',
-
+      unit: unit ?? 'g',
+      loggedAt: loggedAt ? new Date(loggedAt) : new Date(),
       diet: {
         connect: { id: dietId },
       },
@@ -218,11 +211,19 @@ const getDietItems = async (dietId) => {
   });
 };
 
-const deleteDietItem = async (itemId) => {
+const deleteDietItem = async (dietId, itemId) => {
+  const item = await prisma.dietItem.findUnique({
+    where: { id: itemId },
+  });
+
+  if (!item || item.dietId !== dietId) {
+    const err = new Error('Diet item not found');
+    err.status = 404;
+    throw err;
+  }
+
   return prisma.dietItem.delete({
-    where: {
-      id: itemId,
-    },
+    where: { id: itemId },
   });
 };
 

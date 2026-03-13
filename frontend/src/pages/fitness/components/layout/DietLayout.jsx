@@ -11,11 +11,9 @@ export default function DietLayout({
 
       {summary}
 
-      {/* MAIN CONTENT */}
-      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 items-start">
-        <div className="space-y-6">{mainLeft}</div>
-
-        <div className="space-y-6">{mainRight}</div>
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-6 items-start auto-rows-min">
+        {mainLeft}
+        {mainRight}
       </div>
 
       {charts}

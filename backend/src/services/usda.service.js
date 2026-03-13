@@ -13,7 +13,8 @@ async function searchFoods(query) {
       params: {
         query: query.trim(),
         pageSize: 25,
-        dataType: ['Branded', 'Survey (FNDDS)', 'Foundation'],
+        dataType: 'Branded,Foundation',
+        sortOrder: 'dataType.keyword',
       },
     });
 
@@ -22,7 +23,7 @@ async function searchFoods(query) {
     return foods.map((food) => ({
       fdcId: food.fdcId,
       name: food.description,
-      brandName: food.brandOwner || food.brandName || null,
+      brand: food.brandOwner || food.brand || null,
     }));
   } catch (err) {
     console.error('USDA API failed:', err.response?.data || err.message);

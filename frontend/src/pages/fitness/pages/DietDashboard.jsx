@@ -22,15 +22,18 @@ export default function DietDashboard() {
   const {
     diets,
     selectedDiet,
+    setSelectedDiet,
     dietItems,
     itemsForSelectedDate,
-    setDietItems,
+    addDietItemLocal,
+    removeDietItemLocal,
     stats,
     weightHistory,
     selectedDate,
     setSelectedDate,
     loading,
     createNewDiet,
+    deleteDietById,
   } = useDiet();
 
   const [showModal, setShowModal] = useState(false);
@@ -121,8 +124,13 @@ export default function DietDashboard() {
             selectedDiet && (
               <DailyFoodLogCard
                 diet={selectedDiet}
+                diets={diets}
+                onSelectDiet={setSelectedDiet}
+                onDeleteDiet={deleteDietById}
+                openCreateDiet={() => setShowModal(true)}
                 items={itemsForSelectedDate}
-                setItems={setDietItems}
+                addDietItemLocal={addDietItemLocal}
+                removeDietItemLocal={removeDietItemLocal}
                 date={selectedDate}
                 setDate={setSelectedDate}
               />
@@ -132,9 +140,7 @@ export default function DietDashboard() {
             selectedDiet && (
               <MealPlanningCard
                 diet={selectedDiet}
-                onAddDietItem={(item) =>
-                  setDietItems((prev) => [item, ...prev])
-                }
+                onAddDietItem={addDietItemLocal}
               />
             )
           }

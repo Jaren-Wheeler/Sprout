@@ -12,7 +12,7 @@ function normalizeUsdaFood(food) {
   return {
     fdcId: food.fdcId,
     name: food.description,
-    brandName: food.brandOwner || food.brandName || null,
+    brand: food.brandOwner || food.brand || null,
 
     servingSize: food.servingSize || 100,
     servingUnit: food.servingSizeUnit || 'g',

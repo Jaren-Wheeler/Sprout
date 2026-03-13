@@ -1,18 +1,26 @@
 function MacroRow({ label, consumed = 0, goal = 0, color }) {
-  const percent = goal > 0 ? Math.min((consumed / goal) * 100, 100) : 0;
+  const value = Number(consumed) || 0;
+  const target = Number(goal) || 0;
+
+  const percent = target > 0 ? Math.min((value / target) * 100, 100) : 0;
+
+  const isOver = value > target;
 
   return (
-    <div className="mb-4">
-      <div className="flex justify-between text-sm mb-1">
-        <span className="text-amber-900">{label}</span>
-        <span className="text-amber-900 font-medium">
-          {consumed} / {goal} g
+    <div className="mb-5">
+      <div className="flex justify-between items-end mb-1">
+        <span className="text-amber-900/80 text-sm">{label}</span>
+
+        <span className="text-amber-900 font-semibold">
+          {Math.round(value)} / {Math.round(target)} g
         </span>
       </div>
 
-      <div className="w-full bg-amber-100 rounded-full h-2 overflow-hidden">
+      <div className="w-full bg-amber-100 rounded-full h-2.5 overflow-hidden">
         <div
-          className={`${color} h-full transition-all duration-300`}
+          className={`h-full transition-all duration-300 ${
+            isOver ? 'bg-red-500' : color
+          }`}
           style={{ width: `${percent}%` }}
         />
       </div>
@@ -32,9 +40,9 @@ export default function MacroTargetsCard({
   return (
     <div
       onClick={onEdit}
-      className="sprout-card p-5 cursor-pointer hover:scale-[1.01] transition"
+      className="sprout-card p-6 cursor-pointer hover:scale-[1.01] transition flex flex-col"
     >
-      <h2 className="text-lg font-semibold text-amber-900 mb-4">
+      <h2 className="text-lg font-semibold text-amber-900 mb-5">
         Macro Targets
       </h2>
 
@@ -56,7 +64,7 @@ export default function MacroTargetsCard({
         label="Fat"
         consumed={fatConsumed}
         goal={fatGoal}
-        color="bg-red-500"
+        color="bg-orange-500"
       />
     </div>
   );
