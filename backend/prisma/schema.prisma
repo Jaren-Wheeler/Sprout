@@ -168,12 +168,20 @@ model CalendarEvent {
 
 model FitnessInfo {
   id            String   @id @default(uuid()) @map("id")
+
   currentWeight Decimal? @map("current_weight")
   goalWeight    Decimal? @map("goal_weight")
+
   calorieGoal   Int?     @map("calorie_goal")
+  proteinGoal   Int?     @map("protein_goal")
+  carbsGoal     Int?     @map("carbs_goal")
+  fatGoal       Int?     @map("fat_goal")
+
   age           Int?     @map("age")
   heightFt      Decimal? @map("height_ft")
+
   updatedAt     DateTime @updatedAt @map("updated_at")
+
   userId        String   @unique @map("user_id")
   user          User     @relation(fields: [userId], references: [id])
 
@@ -220,10 +228,40 @@ model Diet {
   @@map("diets")
 }
 
+model FoodCache {
+  id       String  @id @default(uuid())
+  fdcId    Int     @unique
+
+  name     String
+  brand    String?
+  dataType String?
+
+  // Original USDA serving
+  servingSizeOriginal Float? @map("serving_size_original")
+  servingUnitOriginal String? @map("serving_unit_original")
+
+  // Normalized system serving 
+  servingSize Float? @map("serving_size")
+  servingUnit String? @map("serving_unit")
+
+  // Nutrients (normalized per 100 g)
+  calories Float?
+  protein  Float?
+  carbs    Float?
+  fat      Float?
+  sugar    Float?
+
+  createdAt DateTime @default(now())
+
+  @@map("food_cache")
+}
 model DietItem {
   id   String   @id @default(uuid()) @map("id")
   name String   @map("name")
   meal MealType
+
+  quantity Float? @map("quantity")
+  unit     String? @map("unit")
 
   calories Int
   protein  Float?
@@ -234,7 +272,7 @@ model DietItem {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  loggedAt    DateTime @default(now()) @map("logged_at")
+  loggedAt DateTime @default(now()) @map("logged_at")
 
   dietId String @map("diet_id")
   diet   Diet   @relation(fields: [dietId], references: [id], onDelete: Cascade)
@@ -244,6 +282,9 @@ model PresetMealItems {
   id   String   @id @default(uuid()) @map("id")
   name String   @map("name")
   meal MealType
+
+  quantity Float?
+  unit     String?
 
   calories Int
   protein  Float?

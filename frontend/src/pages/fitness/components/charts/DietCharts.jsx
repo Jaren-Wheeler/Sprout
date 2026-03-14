@@ -1,18 +1,23 @@
 import {
-  PieChart,
-  Pie,
+  CartesianGrid,
   Cell,
-  Tooltip,
-  ResponsiveContainer,
+  Label,
   Legend,
-  LineChart,
   Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
 } from 'recharts';
 
-const COLORS = ['#22c55e', '#3b82f6', '#f59e0b'];
+const MACRO_COLORS = {
+  Protein: 'blue', // blue
+  Carbs: 'green', // yellow
+  Fat: 'orange', // orange
+};
 
 export default function DietCharts({ dietItems, weightHistory }) {
   // =========================
@@ -21,10 +26,7 @@ export default function DietCharts({ dietItems, weightHistory }) {
 
   const today = new Date().toDateString();
 
-  const todaysItems = (dietItems || []).filter(
-    (item) =>
-      item.createdAt && new Date(item.createdAt).toDateString() === today
-  );
+  const todaysItems = dietItems || [];
 
   const totals = todaysItems.reduce(
     (acc, item) => {
@@ -36,11 +38,19 @@ export default function DietCharts({ dietItems, weightHistory }) {
     { protein: 0, carbs: 0, fat: 0 }
   );
 
+  const totalMacros = totals.protein + totals.carbs + totals.fat;
+
+  const caloriesToday = Math.round(
+    todaysItems.reduce((sum, item) => sum + (item.calories || 0), 0)
+  );
+
   const pieData = [
-    { name: 'Protein', value: totals.protein },
-    { name: 'Carbs', value: totals.carbs },
-    { name: 'Fat', value: totals.fat },
-  ].filter((d) => d.value > 0);
+    { name: 'Protein', value: Number(totals.protein.toFixed(1)) },
+    { name: 'Carbs', value: Number(totals.carbs.toFixed(1)) },
+    { name: 'Fat', value: Number(totals.fat.toFixed(1)) },
+  ]
+    .filter((d) => d.value > 0)
+    .sort((a, b) => b.value - a.value);
 
   // =========================
   // WEIGHT HISTORY LINE CHART
@@ -74,16 +84,35 @@ export default function DietCharts({ dietItems, weightHistory }) {
                   data={pieData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
+                  innerRadius={70}
                   outerRadius={100}
                   dataKey="value"
-                  label
+                  label={({ value }) =>
+                    totalMacros > 0
+                      ? `${Math.round((value / totalMacros) * 100)}%`
+                      : ''
+                  }
                 >
                   {pieData.map((entry, index) => (
-                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={index} fill={MACRO_COLORS[entry.name]} />
                   ))}
+
+                  <Label
+                    value={`${caloriesToday} kcal`}
+                    position="center"
+                    className="fill-amber-900 font-semibold text-lg"
+                  />
                 </Pie>
-                <Tooltip />
+                <Tooltip
+                  formatter={(value) => {
+                    const percent =
+                      totalMacros > 0
+                        ? Math.round((value / totalMacros) * 100)
+                        : 0;
+
+                    return [`${percent}% (${value} g)`];
+                  }}
+                />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>

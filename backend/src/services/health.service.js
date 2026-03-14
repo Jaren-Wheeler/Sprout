@@ -26,22 +26,23 @@ const updateFitnessInfo = async (userId, data) => {
     where: { userId },
   });
 
-  // ----------------------------
-  // CASE 1: PROFILE EXISTS
-  // ----------------------------
   if (existing) {
     const updated = await prisma.fitnessInfo.update({
       where: { userId },
       data: {
         currentWeight: data.currentWeight,
         goalWeight: data.goalWeight,
+
         calorieGoal: data.calorieGoal,
+        proteinGoal: data.proteinGoal,
+        carbsGoal: data.carbsGoal,
+        fatGoal: data.fatGoal,
+
         age: data.age,
         heightFt: data.heightFt,
       },
     });
 
-    // Log weight history only if changed
     if (
       data.currentWeight &&
       existing.currentWeight?.toString() !== data.currentWeight.toString()
@@ -57,23 +58,25 @@ const updateFitnessInfo = async (userId, data) => {
     return updated;
   }
 
-  // ----------------------------
-  // CASE 2: PROFILE DOESN'T EXIST
-  // ----------------------------
   const created = await prisma.fitnessInfo.create({
     data: {
       currentWeight: data.currentWeight,
       goalWeight: data.goalWeight,
+
       calorieGoal: data.calorieGoal,
+      proteinGoal: data.proteinGoal,
+      carbsGoal: data.carbsGoal,
+      fatGoal: data.fatGoal,
+
       age: data.age,
       heightFt: data.heightFt,
+
       user: {
         connect: { id: userId },
       },
     },
   });
 
-  // Log initial weight
   if (data.currentWeight) {
     await prisma.weightEntry.create({
       data: {
@@ -85,7 +88,6 @@ const updateFitnessInfo = async (userId, data) => {
 
   return created;
 };
-
 /**
  * Get the weight history of the user
  */
@@ -133,6 +135,10 @@ const getDiets = async (userId) => {
  * Delete diet
  */
 const deleteDiet = async (id) => {
+  await prisma.dietItem.deleteMany({
+    where: { dietId: id },
+  });
+
   return prisma.diet.delete({
     where: { id },
   });
@@ -150,12 +156,9 @@ const addDietItem = async (dietId, data) => {
     carbs,
     fat,
     sugar,
-    fdcId,
-    brandName,
-    servingSize,
-    servingUnit,
     quantity,
-    source,
+    unit,
+    loggedAt,
   } = data;
 
   if (!name || !meal || calories === undefined || calories === null) {
@@ -174,22 +177,14 @@ const addDietItem = async (dietId, data) => {
     data: {
       name,
       meal,
-
       calories,
       protein,
       carbs,
       fat,
       sugar,
-
-      fdcId: fdcId ?? null,
-      brandName: brandName ?? null,
-
-      servingSize: servingSize ?? null,
-      servingUnit: servingUnit ?? null,
       quantity: quantity ?? 1,
-
-      source: source ?? 'manual',
-
+      unit: unit ?? 'g',
+      loggedAt: loggedAt ? new Date(loggedAt) : new Date(),
       diet: {
         connect: { id: dietId },
       },
@@ -218,11 +213,19 @@ const getDietItems = async (dietId) => {
   });
 };
 
-const deleteDietItem = async (itemId) => {
+const deleteDietItem = async (dietId, itemId) => {
+  const item = await prisma.dietItem.findUnique({
+    where: { id: itemId },
+  });
+
+  if (!item || item.dietId !== dietId) {
+    const err = new Error('Diet item not found');
+    err.status = 404;
+    throw err;
+  }
+
   return prisma.dietItem.delete({
-    where: {
-      id: itemId,
-    },
+    where: { id: itemId },
   });
 };
 
@@ -240,8 +243,16 @@ const addPresetItem = async (
   protein,
   carbs,
   fat,
-  sugar
+  sugar,
+  quantity,
+  unit
 ) => {
+  if (!Object.values(MealType).includes(meal)) {
+    const err = new Error('Invalid meal type.');
+    err.status = 400;
+    throw err;
+  }
+
   return prisma.presetMealItems.create({
     data: {
       name,
@@ -251,6 +262,8 @@ const addPresetItem = async (
       carbs,
       fat,
       sugar,
+      quantity: quantity ?? 1,
+      unit: unit ?? 'g',
       diet: {
         connect: { id: dietId },
       },

@@ -1,4 +1,4 @@
-import { apiFetch } from "./client";
+import { apiFetch } from './client';
 
 // =====================================================
 // Authentication API Module
@@ -13,13 +13,13 @@ import { apiFetch } from "./client";
  * @returns {Promise<Object>} Newly created user data
  */
 export const registerUser = (fullName, email, password) => {
-  return apiFetch("/api/auth/register", {
-    method: "POST",
+  return apiFetch('/api/auth/register', {
+    method: 'POST',
     body: JSON.stringify({
-      fullName: (fullName ?? "").trim(),
-      email: (email ?? "").trim(),
-      password
-    })
+      fullName: (fullName ?? '').trim(),
+      email: (email ?? '').trim(),
+      password,
+    }),
   });
 };
 
@@ -31,12 +31,12 @@ export const registerUser = (fullName, email, password) => {
  * @returns {Promise<Object>} Authenticated user data
  */
 export const loginUser = (email, password) => {
-  return apiFetch("/api/auth/login", {
-    method: "POST",
+  return apiFetch('/api/auth/login', {
+    method: 'POST',
     body: JSON.stringify({
-      email: (email ?? "").trim(),
-      password
-    })
+      email: (email ?? '').trim(),
+      password,
+    }),
   });
 };
 
@@ -44,11 +44,7 @@ export const loginUser = (email, password) => {
  * Marks onboarding as completed for the user.
  */
 export const completeOnboarding = () => {
-  return apiFetch("/api/user/onboarding-complete", {
-    method: "PATCH"
+  return apiFetch('/api/user/onboarding-complete', {
+    method: 'PATCH',
   });
 };
-
-/**
- * Marks onboarding as completed for the user.
- */

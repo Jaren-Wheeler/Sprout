@@ -15,11 +15,11 @@ export const incomeSchema = z.object({
 
 export const categorySchema = z.object({
   name: z
-    .string()
-    .trim()
-    .min(1, 'Category name is required')
-    .max(20, 'Max 20 characters')
-    .regex(/^[A-Za-z ]+$/, 'Letters only'),
+  .string()
+  .trim()
+  .min(1, 'Category name is required')
+  .max(30, 'Max 30 characters')
+  .regex(/^[A-Za-z &]+$/, 'Letters, spaces, and & only'),
 
   limitAmount: z
     .string()

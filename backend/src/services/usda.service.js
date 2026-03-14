@@ -12,7 +12,9 @@ async function searchFoods(query) {
     const res = await usdaClient.get('/foods/search', {
       params: {
         query: query.trim(),
-        pageSize: 5,
+        pageSize: 25,
+        dataType: 'Branded,Foundation',
+        sortOrder: 'dataType.keyword',
       },
     });
 
@@ -21,7 +23,7 @@ async function searchFoods(query) {
     return foods.map((food) => ({
       fdcId: food.fdcId,
       name: food.description,
-      brandName: food.brandOwner || food.brandName || null,
+      brand: food.brandOwner || food.brand || null,
     }));
   } catch (err) {
     console.error('USDA API failed:', err.response?.data || err.message);
@@ -37,6 +39,7 @@ async function searchFoods(query) {
  * Save to cache
  */
 async function getFoodDetails(fdcId) {
+  fdcId = Number(fdcId);
   const cached = await prisma.foodCache.findUnique({
     where: { fdcId },
   });
