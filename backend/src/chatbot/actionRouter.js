@@ -4,17 +4,15 @@ const notesActions = require("./actions/notes.actions");
 const schedulerActions = require("./actions/scheduler.actions");
 
 async function execute(ai, user) {
-
   switch (ai.name) {
-
     /* ================= FINANCE ================= */
 
     case "create_category":
     case "delete_category":
     case "add_expense":
     case "delete_expense":
+    case "add_income":
       return financeActions.handle(ai, user);
-
 
     /* ================= HEALTH ================= */
 
@@ -40,7 +38,7 @@ async function execute(ai, user) {
     case "create_event":
     case "delete_event":
       return schedulerActions.handle(ai, user);
-      
+
     /* ================= DEFAULT ================= */
 
     default:

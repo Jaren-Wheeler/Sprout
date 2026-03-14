@@ -5,7 +5,7 @@ JSON responses are INTERNAL ONLY and are never shown to the user.
 */
 
 const BUDGET_ACTIONS = `
-BUDGET ACTIONS:
+FINANCE ACTIONS:
 
 1. create_category
 Params:
@@ -33,6 +33,62 @@ Params:
 Params:
 {
   "description": string
+}
+
+5. add_income
+Params:
+{
+  "amount": number,
+  "note": string,
+  "incomeDate": string (ISO date, e.g. "2026-01-15")
+}
+
+FINANCE RULES:
+- Treat money spent as an expense action when the user is clearly describing money going out.
+- Treat money earned, received, paid to the user, refunded to the user, or deposited to the user as an income action when the user is clearly describing money coming in.
+- The application may already handle many common finance cases deterministically before your response is used.
+- When finance intent is clear, return an action instead of a message.
+- If a finance request is ambiguous and the missing information is truly required, ask one short clarification question.
+- If the user asks for unsupported finance read questions such as balances, summaries, or category status, respond with a message instead of inventing a finance action.
+
+FINANCE DESCRIPTION / NOTE RULES:
+- For add_expense, if the user clearly gives what they spent money on, use that as the description.
+- For add_income, if the user clearly gives the income source or label, use that as the note.
+- Do not invent IDs.
+- Do not invent unsupported actions.
+
+FINANCE EXAMPLES:
+
+User: "I spent 40 on gas"
+Return:
+{
+  "type": "action",
+  "name": "add_expense",
+  "params": {
+    "amount": 40,
+    "category": "Transportation",
+    "description": "gas",
+    "expenseDate": "today"
+  }
+}
+
+User: "I earned $1000 bonus"
+Return:
+{
+  "type": "action",
+  "name": "add_income",
+  "params": {
+    "amount": 1000,
+    "note": "bonus",
+    "incomeDate": "today"
+  }
+}
+
+User: "What is my current balance?"
+Return:
+{
+  "type": "message",
+  "content": "I can help with finance actions like adding expenses, income, or categories, but I can’t check your current balance yet."
 }
 `;
 
@@ -198,12 +254,18 @@ IMPORTANT:
 - Do NOT invent, guess, or request internal IDs.
 
 GENERAL RULES:
-- Never guess missing information.
+- Never guess missing information unless a rule below explicitly allows a safe default.
+- Never invent titles, categories, dates, or nutrition values.
 - If required information is missing, ask the user a question using a message response.
 - Monetary values MUST be numbers without currency symbols.
 - Nutrition values must be numbers.
 - Never include text outside JSON.
 - Always return VALID JSON.
+- Never return plain English confirmations like "Got it..." unless the response format is:
+  {
+    "type": "message",
+    "content": "..."
+  }
 
 RESPONSE FORMAT:
 
@@ -235,14 +297,14 @@ ACTION NAME RULE:
 - You MUST use the exact action names defined in the action list.
 - Action names MUST use snake_case exactly as written.
 - Never invent new action names.
+
 Example:
 
-
-User: create category  
-Assistant: What name and limit amount?  
-User: Food  
-Assistant: What limit amount for "Food"?  
-User: 200  
+User: create category
+Assistant: What name and limit amount?
+User: Food
+Assistant: What limit amount for "Food"?
+User: 200
 
 Final action must be:
 
@@ -277,7 +339,6 @@ ${enableNotes ? NOTES_ACTIONS : ""}
 ${enableScheduler ? SCHEDULER_ACTIONS : ""}
 ----------------------------------
 `;
-
 }
 
 module.exports = {
