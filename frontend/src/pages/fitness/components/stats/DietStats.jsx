@@ -9,6 +9,8 @@ export default function DietStats({ stats, onEditGoals }) {
       <CalorieCard
         calorieGoal={stats.calorieGoal}
         caloriesConsumed={stats.caloriesConsumed}
+        currentWeight={stats.currentWeight}
+        goalWeight={stats.goalWeight}
         onEdit={onEditGoals}
       />
 

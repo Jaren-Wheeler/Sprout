@@ -1,3 +1,18 @@
+/*
+==================================================
+useDiet Hook
+--------------------------------------------------
+Central state controller for the Diet feature.
+
+Responsibilities:
+- Load diet data from backend
+- Manage logged food items
+- Manage presets
+- Manage fitness profile stats
+- Provide derived nutrition totals
+==================================================
+*/
+
 import { useEffect, useMemo, useState } from 'react';
 
 import {
@@ -16,18 +31,36 @@ import {
 } from '../../../api/health';
 
 export default function useDiet() {
+  /*
+  --------------------------------------------------
+  Feature state
+  --------------------------------------------------
+  */
   const [diets, setDiets] = useState([]);
   const [selectedDiet, setSelectedDiet] = useState(null);
 
-  const [dietItems, setDietItems] = useState([]);
-
+  /*
+  --------------------------------------------------
+  User selection state
+  --------------------------------------------------
+  */
+  const [dietItems, setDietItems] = useState([]); // Logged food items
+  const [selectedDate, setSelectedDate] = useState(new Date()); // Controls what day the user is seeing
+  /*
+  --------------------------------------------------
+  User profile data
+  --------------------------------------------------
+  */
   const [stats, setStats] = useState(null);
   const [weightHistory, setWeightHistory] = useState([]);
-
-  const [selectedDate, setSelectedDate] = useState(new Date());
-
-  const [loading, setLoading] = useState(true);
   const [presets, setPresets] = useState([]);
+
+  /*
+  --------------------------------------------------
+  UI state
+  --------------------------------------------------
+  */
+  const [loading, setLoading] = useState(true);
   const [presetsLoading, setPresetsLoading] = useState(false);
 
   /*
@@ -82,6 +115,8 @@ export default function useDiet() {
       proteinGoal: stats.proteinGoal || 0,
       carbsGoal: stats.carbsGoal || 0,
       fatGoal: stats.fatGoal || 0,
+      currentWeight: stats.currentWeight || null,
+      goalWeight: stats.goalWeight || null,
 
       caloriesConsumed: dailyTotals.calories,
       proteinConsumed: dailyTotals.protein,
@@ -145,6 +180,8 @@ export default function useDiet() {
   /*
   --------------------------------------------------
   Load diet items
+  Ensures state change when user selects a different
+  diet 
   --------------------------------------------------
   */
 
@@ -203,7 +240,10 @@ export default function useDiet() {
 
   /*
   --------------------------------------------------
-  Actions
+  Diet actions
+  Responsibilities:
+  - Create a diet
+  - Delete a Diet
   --------------------------------------------------
   */
 
@@ -226,6 +266,16 @@ export default function useDiet() {
     });
   }
 
+  /*
+  --------------------------------------------------
+  Diet item actions
+  Responsibilities:
+  - Add food to log
+  - Delete food from log
+  - Add preset food to log
+  --------------------------------------------------
+  */
+
   async function addDietItemToDiet(data) {
     if (!selectedDiet?.id) return;
 
@@ -235,15 +285,6 @@ export default function useDiet() {
     });
 
     setDietItems((prev) => [item, ...prev]);
-  }
-  async function updateGoals(data) {
-    await updateFitnessInfo(data);
-
-    const updatedStats = await getFitnessInfo();
-    setStats(updatedStats);
-
-    const updatedHistory = await getWeightHistory();
-    setWeightHistory(updatedHistory);
   }
 
   async function deleteDietItemFromDiet(itemId) {
@@ -271,19 +312,38 @@ export default function useDiet() {
       fat: preset.fat,
       sugar: preset.sugar,
 
-      loggedAt: selectedDate, // <-- FIX
+      loggedAt: selectedDate,
     });
 
     setDietItems((prev) => [item, ...prev]);
   }
 
-  async function removePreset(presetId) {
-    if (!selectedDiet?.id) return;
+  /*
+  --------------------------------------------------
+  Fitness profile actions
+  Responsibilities:
+  - Update macro goals
+  - Update weight history
+  --------------------------------------------------
+  */
 
-    await deletePresetItem(selectedDiet.id, presetId);
+  async function updateGoals(data) {
+    await updateFitnessInfo(data);
 
-    setPresets((prev) => prev.filter((p) => p.id !== presetId));
+    const updatedStats = await getFitnessInfo();
+    setStats(updatedStats);
+
+    const updatedHistory = await getWeightHistory();
+    setWeightHistory(updatedHistory);
   }
+  /*
+  --------------------------------------------------
+  Preset actions
+  Responsibilities:
+  - Create a preset
+  - Delete a preset
+  --------------------------------------------------
+  */
 
   async function addPreset(data) {
     if (!selectedDiet?.id) return;
@@ -295,6 +355,15 @@ export default function useDiet() {
 
     setPresets((prev) => [preset, ...prev]);
   }
+
+  async function removePreset(presetId) {
+    if (!selectedDiet?.id) return;
+
+    await deletePresetItem(selectedDiet.id, presetId);
+
+    setPresets((prev) => prev.filter((p) => p.id !== presetId));
+  }
+
   /*
   --------------------------------------------------
   Hook API

@@ -74,7 +74,7 @@ export default function DietCharts({ dietItems, weightHistory }) {
           </h2>
 
           {pieData.length === 0 ? (
-            <div className="sprout-panel p-4 text-amber-900/70">
+            <div className="sprout-panel p-4 text-amber-900/70 text-center">
               No food logged today.
             </div>
           ) : (
@@ -126,7 +126,7 @@ export default function DietCharts({ dietItems, weightHistory }) {
           </h2>
 
           {weightData.length === 0 ? (
-            <div className="sprout-panel p-4 text-amber-900/70">
+            <div className="sprout-panel p-4 text-amber-900/70 text-center">
               No weight data yet.
             </div>
           ) : (

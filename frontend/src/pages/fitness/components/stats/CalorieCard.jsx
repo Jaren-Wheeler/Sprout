@@ -1,6 +1,8 @@
 export default function CalorieCard({
   calorieGoal = 0,
   caloriesConsumed = 0,
+  currentWeight = null,
+  goalWeight = null,
   onEdit,
 }) {
   const goal = Number(calorieGoal) || 0;
@@ -23,6 +25,15 @@ export default function CalorieCard({
           Energy Summary
         </h2>
 
+        {currentWeight != null && goalWeight != null && (
+          <div className="flex justify-between items-end mt-3">
+            <span className="text-amber-900/70 text-sm">Weight</span>
+
+            <span className="text-amber-900 font-semibold text-lg">
+              {currentWeight} / {goalWeight} lbs
+            </span>
+          </div>
+        )}
         {/* Main Calories Line */}
 
         <div className="flex justify-between items-end mb-3">
@@ -60,6 +71,7 @@ export default function CalorieCard({
           style={{ width: `${percent}%` }}
         />
       </div>
+      {/* Weight */}
     </div>
   );
 }
