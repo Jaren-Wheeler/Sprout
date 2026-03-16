@@ -39,11 +39,11 @@ export default function MealPlanningCard({
       <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin min-h-0">
         <div className="space-y-2">
           {presetsLoading ? (
-            <div className="sprout-panel p-4 text-amber-900/70">
+            <div className="sprout-panel p-4 text-amber-900/70 text">
               Loading presets...
             </div>
           ) : presets.length === 0 ? (
-            <div className="sprout-panel p-4 text-amber-900/70">
+            <div className="sprout-panel p-4 text-amber-900/70 text-center">
               No presets yet.
             </div>
           ) : (

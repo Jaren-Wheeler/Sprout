@@ -104,8 +104,10 @@ export default function DailyFoodLogCard({
 
       <div className="flex-1 overflow-y-auto space-y-3 min-h-0 pr-2">
         {(items || []).length === 0 ? (
-          <div className="sprout-panel p-4 text-amber-900/70">
-            Nothing logged for this day.
+          <div>
+            <div className="sprout-panel p-4 text-amber-900/70 text-center">
+              Nothing logged today.
+            </div>
           </div>
         ) : (
           items.map((item) => (
