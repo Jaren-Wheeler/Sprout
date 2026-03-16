@@ -46,6 +46,13 @@ export default function useDiet() {
   */
   const [dietItems, setDietItems] = useState([]); // Logged food items
   const [selectedDate, setSelectedDate] = useState(new Date()); // Controls what day the user is seeing
+
+  useEffect(() => {
+    if (selectedDiet?.id) {
+      localStorage.setItem('selectedDietId', String(selectedDiet.id));
+    }
+  }, [selectedDiet]);
+
   /*
   --------------------------------------------------
   User profile data
@@ -172,9 +179,20 @@ export default function useDiet() {
   */
 
   useEffect(() => {
-    if (diets.length > 0 && !selectedDiet) {
-      setSelectedDiet(diets[0]);
+    if (diets.length === 0 || selectedDiet) return;
+
+    const savedId = localStorage.getItem('selectedDietId');
+
+    if (savedId) {
+      const savedDiet = diets.find((d) => String(d.id) === savedId);
+
+      if (savedDiet) {
+        setSelectedDiet(savedDiet);
+        return;
+      }
     }
+
+    setSelectedDiet(diets[0]);
   }, [diets, selectedDiet]);
 
   /*
@@ -249,7 +267,9 @@ export default function useDiet() {
 
   async function createNewDiet(data) {
     const newDiet = await createDiet(data);
+
     setDiets((prev) => [...prev, newDiet]);
+    setSelectedDiet(newDiet);
   }
 
   async function deleteDietById(id) {
@@ -258,14 +278,19 @@ export default function useDiet() {
     setDiets((prev) => {
       const remaining = prev.filter((d) => d.id !== id);
 
-      if (selectedDiet?.id === id) {
-        setSelectedDiet(remaining[0] || null);
+      if (remaining.length === 0) {
+        setSelectedDiet(null);
+        setDietItems([]);
+        setPresets([]);
+
+        localStorage.removeItem('selectedDietId');
+      } else if (selectedDiet?.id === id) {
+        setSelectedDiet(remaining[0]);
       }
 
       return remaining;
     });
   }
-
   /*
   --------------------------------------------------
   Diet item actions
