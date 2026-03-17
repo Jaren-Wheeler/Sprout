@@ -1,14 +1,15 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { useNotes } from './useNotes';
-import NotesToolbar from './NotesToolbar';
-import NotesGrid from './NotesGrid';
-import NoteEditorPanel from './NoteEditorPanel';
-import ConfirmModal from '../../components/ui/ConfirmModal';
-import Sprout from '../../components/chatbot/Sprout';
-import sproutLogo from '../../assets/Logo.png';
+import SproutModal from '@/components/ui/SproutModal';
 import { sendChatMessage } from '../../api/chatbot';
+import sproutLogo from '../../assets/Logo.png';
+import Sprout from '../../components/chatbot/Sprout';
+import ConfirmModal from '../../components/ui/ConfirmModal';
+import NoteEditorPanel from './NoteEditorPanel';
+import NotesGrid from './NotesGrid';
+import NotesToolbar from './NotesToolbar';
+import { useNotes } from './useNotes';
 
 export default function NotesPage() {
   const { notes, loading, error, setError, add, edit, remove } = useNotes();
@@ -106,19 +107,16 @@ export default function NotesPage() {
 
         {/* EDITOR MODAL */}
         {editorOpen && (
-          <div className="sprout-modal-backdrop">
-            <div className="absolute inset-0" onClick={closeEditor} />
-            <div className="relative z-10 w-full max-w-[560px] mx-4 animate-scaleIn">
-              <NoteEditorPanel
-                initialTitle={editingNote?.title || ''}
-                initialContent={editingNote?.content || ''}
-                saving={saving}
-                mode={isEditing ? 'edit' : 'create'}
-                onSave={handleSave}
-                onCancel={closeEditor}
-              />
-            </div>
-          </div>
+          <SproutModal onClose={closeEditor} maxWidth="max-w-[560px]">
+            <NoteEditorPanel
+              initialTitle={editingNote?.title || ''}
+              initialContent={editingNote?.content || ''}
+              saving={saving}
+              mode={isEditing ? 'edit' : 'create'}
+              onSave={handleSave}
+              onCancel={closeEditor}
+            />
+          </SproutModal>
         )}
 
         <NotesGrid

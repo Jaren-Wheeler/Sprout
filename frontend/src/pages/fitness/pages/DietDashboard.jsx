@@ -7,7 +7,7 @@ import sproutLogo from '../../../assets/Logo.png';
 import Sprout from '../../../components/chatbot/Sprout';
 
 import CreateDietModal from '../modals/CreateDietModal';
-import CreateFitnessProfileModal from '../modals/createFitnessProfileModal';
+import CreateFitnessProfileModal from '../modals/CreateFitnessProfileModal';
 
 import DietCharts from '../components/charts/DietCharts';
 import DailyFoodLogCard from '../components/food/DailyFoodLogCard';
@@ -63,27 +63,6 @@ export default function DietDashboard() {
           />
         )}
 
-        {/* NO DIETS STATE */}
-        {diets.length === 0 && (
-          <div className="flex flex-col items-center justify-center mt-20">
-            <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-lg border p-10 text-center w-[420px]">
-              <h2 className="text-xl font-semibold mb-3">No Diets Yet</h2>
-
-              <p className="text-gray-500 mb-6">
-                Create your first diet plan to start tracking meals and
-                nutrition.
-              </p>
-
-              <button
-                onClick={() => setShowModal(true)}
-                className="bg-gray-900 text-white px-6 py-3 rounded-xl hover:scale-105 transition"
-              >
-                + Create Diet
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* CREATE DIET MODAL */}
         <CreateDietModal
           isOpen={showModal}
@@ -119,39 +98,33 @@ export default function DietDashboard() {
             />
           }
           mainLeft={
-            selectedDiet && (
-              <DailyFoodLogCard
-                diet={selectedDiet}
-                diets={diets}
-                onSelectDiet={setSelectedDiet}
-                onDeleteDiet={deleteDietById}
-                openCreateDiet={() => setShowModal(true)}
-                items={itemsForSelectedDate}
-                addDietItem={addDietItem}
-                deleteDietItem={deleteDietItem}
-                date={selectedDate}
-                setDate={setSelectedDate}
-                addPreset={addPreset}
-              />
-            )
+            <DailyFoodLogCard
+              diet={selectedDiet}
+              diets={diets}
+              onSelectDiet={setSelectedDiet}
+              onDeleteDiet={deleteDietById}
+              openCreateDiet={() => setShowModal(true)}
+              items={itemsForSelectedDate}
+              addDietItem={addDietItem}
+              deleteDietItem={deleteDietItem}
+              date={selectedDate}
+              setDate={setSelectedDate}
+              addPreset={addPreset}
+            />
           }
           mainRight={
-            selectedDiet && (
-              <MealPlanningCard
-                presets={presets}
-                presetsLoading={presetsLoading}
-                usePreset={usePreset}
-                removePreset={removePreset}
-              />
-            )
+            <MealPlanningCard
+              presets={presets}
+              presetsLoading={presetsLoading}
+              usePreset={usePreset}
+              removePreset={removePreset}
+            />
           }
           charts={
-            selectedDiet && (
-              <DietCharts
-                dietItems={itemsForSelectedDate}
-                weightHistory={weightHistory}
-              />
-            )
+            <DietCharts
+              dietItems={itemsForSelectedDate}
+              weightHistory={weightHistory}
+            />
           }
         />
       </div>
