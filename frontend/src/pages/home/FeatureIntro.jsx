@@ -1,26 +1,30 @@
 import { useState, useEffect } from "react";
 import sproutImg from "../../assets/askmeanything.png";
+import sproutBudget from '../../assets/SproutBudget.png';
+import sproutDiet from '../../assets/SproutDiet.png';
+import sproutScheduling from '../../assets/SproutScheduling.png';
+import sproutNotes from '../../assets/SproutNotes.png';
 
 const features = [
   {
     title: "Budget Tracking",
     text: "Monitor spending and manage budgets with clear insights.",
-    image: sproutImg
+    image: sproutBudget
   },
   {
     title: "Smart Scheduling",
     text: "Plan events, track deadlines, and organize your day.",
-    image: sproutImg
+    image: sproutScheduling
   },
   {
     title: "Notes & Ideas",
     text: "Capture ideas and important information whenever you need it.",
-    image: sproutImg
+    image: sproutNotes
   },
   {
     title: "Diet Tracking",
     text: "Log meals, monitor nutrition, and build healthier eating habits.",
-    image: sproutImg
+    image: sproutDiet
   },
   {
     title: "AI Assistance",
@@ -71,7 +75,7 @@ export default function FeatureIntro() {
   }, [transition]);
 
   return (
-    <section className="relative w-full bg-[#f3eed9] py-36 flex justify-center overflow-hidden min-h-screen">
+    <section className="relative w-full bg-[#f3eed9] py-24 flex justify-center overflow-hidden">
 
       <div className="max-w-6xl w-full flex flex-col items-center gap-16 px-6">
 
@@ -82,7 +86,7 @@ export default function FeatureIntro() {
         </h2>
 
         {/* Carousel */}
-        <div className="relative w-full overflow-hidden pt-16">
+        <div className="relative w-full overflow-hidden">
 
           {/* Sliding Track */}
           <div
@@ -94,7 +98,7 @@ export default function FeatureIntro() {
             {slides.map((feature, i) => (
               <div
                 key={i}
-                className={`min-w-full flex flex-col items-center text-center gap-8 transition-all duration-700 ${
+                className={`min-w-full flex flex-col items-center text-center gap-2 transition-all duration-700 ${
                   i === index
                     ? "scale-100 opacity-100"
                     : "scale-[0.94] opacity-50"
@@ -103,7 +107,7 @@ export default function FeatureIntro() {
                 <img
                   src={feature.image}
                   alt={feature.title}
-                  className="h-[420px] object-contain animate-sprout-float
+                  className="h-[520px] object-contain animate-sprout-float
                              drop-shadow-[0_35px_70px_rgba(0,0,0,0.25)]
                              transition-transform duration-700"
                 />

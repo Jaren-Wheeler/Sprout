@@ -506,3 +506,9 @@
     transform:scale(.3) translateY(-12px);
   }
 }
+
+/* Home page */
+@keyframes floatButton {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-6px); }
+}
