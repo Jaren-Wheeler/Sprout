@@ -1,6 +1,8 @@
 import sproutImg from "../../assets/askmeanything.png";
-
+import { useNavigate } from 'react-router-dom';
 export default function Introduction() {
+
+  const navigate = useNavigate();
   return (
     <section className="w-full bg-gradient-to-b from-[#cfe8ff] to-[#e8f4ff] flex justify-center py-48">
 
@@ -22,7 +24,8 @@ export default function Introduction() {
           </p>
 
           {/* CTA */}
-          <button className="mt-10 w-fit px-8 py-4 bg-green-600 text-white font-semibold font-[Inter] rounded-xl shadow-lg hover:bg-green-700 hover:-translate-y-1 transition-all duration-200">
+          <button className="mt-10 w-fit px-8 py-4 bg-green-600 text-white font-semibold font-[Inter] rounded-xl shadow-lg hover:bg-green-700 hover:-translate-y-1 transition-all duration-200"
+                onClick={() => navigate('/signup')}>
             Start Growing
           </button>
 

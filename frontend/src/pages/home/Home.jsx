@@ -1,27 +1,30 @@
-import { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useTheme } from '../../theme/ThemeContext.jsx';
+import { useEffect, useState, useRef } from "react";
+import { useTheme } from "../../theme/ThemeContext.jsx";
 
-import sproutLogo from '../../assets/Logo.png';
-import musicFile from '../../assets/background-music.mp3';
-import Introduction from "./Introduction.jsx"
-import FeatureIntro from './FeatureIntro.jsx';
-import Explanation from './Explanation.jsx';
-import HomeNav from './HomeNav.jsx';
+import sproutLogo from "../../assets/Logo.png";
+
+import Introduction from "./Introduction.jsx";
+import FeatureIntro from "./FeatureIntro.jsx";
+import Explanation from "./Explanation.jsx";
+import HomeNav from "./HomeNav.jsx";
+import Footer from "./Footer.jsx";
 
 export default function Home() {
-  const [show, setShow] = useState(false);
-  const navigate = useNavigate();
+
   const { theme, setTheme } = useTheme();
 
-  const [musicPlaying, setMusicPlaying] = useState(true);
-  const audioRef = useRef(null);
-
+  const [show, setShow] = useState(false);
   const [showNav, setShowNav] = useState(false);
+  const [showControls, setShowControls] = useState(true);
+
+  const introRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      setShowNav(window.scrollY > 120); // threshold
+      const scrollY = window.scrollY;
+
+      setShowNav(scrollY > 120);
+      setShowControls(scrollY < 500);
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -29,85 +32,118 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    musicPlaying
-      ? audioRef.current?.play().catch(() => {})
-      : audioRef.current?.pause();
-  }, [musicPlaying]);
-
-  useEffect(() => {
     const t = setTimeout(() => setShow(true), 300);
     return () => clearTimeout(t);
   }, []);
 
-   return (
+  const scrollToIntro = () => {
+    introRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  return (
     <>
       <HomeNav showNav={showNav} />
 
-      {/* HERO SECTION */}
-     <div className="sprout-bg flex flex-col items-center justify-center gap-10 relative min-h-screen">
+      <section className="sprout-bg relative min-h-screen flex items-center justify-center overflow-hidden">
 
-        {/* Fade clouds into sky */}
-        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-b from-transparent to-[#cfe8ff] pointer-events-none"></div>
+        {/* readability gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/40 pointer-events-none" />
 
-        {/* Logo */}
-        <img
-          src={sproutLogo}
-          alt="Sprout logo"
-          className={`w-[min(1400px,95vw)] max-h-[60vh] object-contain drop-shadow-[0_30px_12px_rgba(0,0,0,0.75)]
-          pop ${show ? 'show delay-1' : ''}`}
-        />
+        {/* soft ambient glow */}
+        <div className="absolute w-[600px] h-[600px] bg-yellow-200/10 blur-[140px] rounded-full" />
 
-        {/* Music Toggle */}
-        <div className="absolute top-6 right-6">
-          <button
-            className="w-16 h-16 rounded-full bg-white/20 backdrop-blur border-2 border-white/40 text-xl"
-            onClick={() => setMusicPlaying((p) => !p)}
-          >
-            {musicPlaying ? '🔊' : '🔇'}
-          </button>
-        </div>
+        {/* HERO CONTENT */}
+        <div className="relative z-10 flex flex-col items-center text-center max-w-[720px] px-6">
 
-        <audio ref={audioRef} src={musicFile} loop />
+          {/* LOGO */}
+          <img
+            src={sproutLogo}
+            alt="Sprout logo"
+            className={`w-[min(1000px,90vw)] max-h-[46vh] object-contain
+            drop-shadow-[0_10px_25px_rgba(0,0,0,0.35)]
+            transition-all duration-700 hover:scale-[1.02]
+            ${show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+          />
 
-        {/* Actions */}
-        <div
-          className={`flex items-center justify-center gap-10 flex-wrap pop ${show ? 'show delay-2' : ''}`}
-        >
-          <button
-            className="sprout-btn signup"
-            onClick={() => navigate('/signup')}
-          >
-            Sign Up
-          </button>
+          {/* TEXT GROUP */}
+          <div className="-mt-4 px-6 py-4 rounded-xl bg-black/20 ackdrop-blur-sm">
 
-          <div className="flex gap-6 text-3xl">
-            <span
-              className={`cursor-pointer transition ${theme === 'light' ? 'scale-125 opacity-100' : 'opacity-50'}`}
-              onClick={() => setTheme('light')}
-            >
-              ☀️
-            </span>
+            <p className="font-[Poppins] text-green-500 text-2xl md:text-3xl font-semibold">
+              Grow Higher. The Sky's the Limit.
+            </p>
 
-            <span
-              className={`cursor-pointer transition ${theme === 'dark' ? 'scale-125 opacity-100' : 'opacity-50'}`}
-              onClick={() => setTheme('dark')}
-            >
-              🌙
-            </span>
+            <p className="font-[Inter] text-white/90 text-lg md:text-xl mt-4 leading-relaxed">
+              Organize your life with budgeting, notes, scheduling and daily
+              tracking, all in one place.
+            </p>
+
           </div>
 
-          <button className="sprout-btn login" onClick={() => navigate('/login')}>
-            Log In
+          {/* CTA */}
+          <button
+            onClick={scrollToIntro}
+            className={`mt-10 px-8 py-3 rounded-full font-semibold
+            text-white text-sm tracking-wide
+            bg-gradient-to-r from-green-400 via-emerald-500 to-teal-500
+            shadow-lg hover:shadow-xl
+            hover:scale-[1.03] active:scale-[0.98]
+            transition-all duration-300
+            ${showControls ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+          >
+            Explore
           </button>
+
+          {/* SCROLL INDICATOR */}
+          <div
+            onClick={scrollToIntro}
+            className={`mt-6 text-white/80 cursor-pointer transition-opacity duration-500 ${
+              showControls ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
+          >
+            <div className="text-3xl animate-bounce">↓</div>
+          </div>
+
         </div>
 
+        {/* THEME TOGGLE */}
+        <div
+          className={`fixed bottom-8 right-8 flex gap-4 text-2xl transition-opacity duration-500 ${
+            showControls ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
+        >
+          <span
+            className={`cursor-pointer transition transform ${
+              theme === "light"
+                ? "scale-125 opacity-100"
+                : "opacity-50 hover:opacity-80"
+            }`}
+            onClick={() => setTheme("light")}
+          >
+            ☀️
+          </span>
+
+          <span
+            className={`cursor-pointer transition transform ${
+              theme === "dark"
+                ? "scale-125 opacity-100"
+                : "opacity-50 hover:opacity-80"
+            }`}
+            onClick={() => setTheme("dark")}
+          >
+            🌙
+          </span>
+        </div>
+
+      </section>
+
+      <div ref={introRef}>
+        <Introduction />
       </div>
 
-      <Introduction />
       <Explanation />
-      {/* INTRODUCTION SECTION */}
-      <FeatureIntro/>
-    
+
+      <FeatureIntro />
+      <Footer />
     </>
   );
 }
