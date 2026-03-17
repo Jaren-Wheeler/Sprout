@@ -7,7 +7,7 @@ import sproutLogo from '../../../assets/Logo.png';
 import Sprout from '../../../components/chatbot/Sprout';
 
 import CreateDietModal from '../modals/CreateDietModal';
-import CreateFitnessProfileModal from '../modals/createFitnessProfileModal';
+import CreateFitnessProfileModal from '../modals/CreateFitnessProfileModal';
 
 import DietCharts from '../components/charts/DietCharts';
 import DailyFoodLogCard from '../components/food/DailyFoodLogCard';

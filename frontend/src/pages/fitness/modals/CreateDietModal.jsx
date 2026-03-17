@@ -4,11 +4,13 @@ import SproutModal from '../../../components/ui/SproutModal';
 export default function CreateDietModal({ isOpen, onClose, onCreate }) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (!isOpen) {
       setName('');
       setDescription('');
+      setErrors({});
     }
   }, [isOpen]);
 
@@ -17,7 +19,20 @@ export default function CreateDietModal({ isOpen, onClose, onCreate }) {
   function handleSubmit(e) {
     e.preventDefault();
 
-    if (!name.trim()) return;
+    const nextErrors = {};
+
+    if (!name.trim()) {
+      nextErrors.name = 'Diet name is required';
+    } else if (name.trim().length > 30) {
+      nextErrors.name = 'Diet name cannot exceed 30 characters';
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      return;
+    }
+
+    setErrors({});
 
     onCreate({
       name: name.trim(),
@@ -41,20 +56,15 @@ export default function CreateDietModal({ isOpen, onClose, onCreate }) {
               className="sprout-input"
               placeholder="Lean Bulk"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                setErrors((prev) => ({ ...prev, name: undefined }));
+              }}
             />
-          </div>
 
-          {/* Description */}
-          <div>
-            <label className="text-sm text-amber-900/70">Description</label>
-
-            <input
-              className="sprout-input"
-              placeholder="Description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
+            {errors.name && (
+              <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+            )}
           </div>
 
           {/* Buttons */}

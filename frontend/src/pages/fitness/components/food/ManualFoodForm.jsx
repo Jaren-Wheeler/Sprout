@@ -1,40 +1,23 @@
-import { useEffect, useState } from 'react';
-
-function toNumber(value) {
-  if (value === '') return 0;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : 0;
-}
-
-export default function ManualFoodForm({ onChange }) {
-  const [form, setForm] = useState({
-    name: '',
-    calories: '',
-    protein: '',
-    carbs: '',
-    fat: '',
-    sugar: '',
-  });
-
-  useEffect(() => {
-    const trimmedName = form.name.trim();
-
-    if (!trimmedName) {
-      onChange(null);
-      return;
+export default function ManualFoodForm({ form, setForm, errors }) {
+  function preventInvalidNumberInput(e) {
+    if (['e', 'E', '+', '-'].includes(e.key)) {
+      e.preventDefault();
     }
+  }
 
-    onChange({
-      name: trimmedName,
-      calories: toNumber(form.calories),
-      protein: toNumber(form.protein),
-      carbs: toNumber(form.carbs),
-      fat: toNumber(form.fat),
-      sugar: toNumber(form.sugar),
-    });
-  }, [form, onChange]);
+  const limits = {
+    calories: 4,
+    protein: 3,
+    carbs: 3,
+    fat: 3,
+    sugar: 3,
+  };
 
-  function update(field, value) {
+  function handleChange(field, value) {
+    const maxLength = limits[field];
+
+    if (maxLength && value.length > maxLength) return;
+
     setForm((prev) => ({
       ...prev,
       [field]: value,
@@ -43,83 +26,68 @@ export default function ManualFoodForm({ onChange }) {
 
   return (
     <div className="space-y-4 rounded-2xl border border-amber-200 bg-white/60 p-4 shadow-sm">
+      {/* Food Name */}
       <div>
         <label className="mb-1 block text-sm font-medium text-amber-900/80">
           Food Name
         </label>
+
         <input
           className="sprout-input"
           value={form.name}
-          onChange={(e) => update('name', e.target.value)}
+          onChange={(e) => handleChange('name', e.target.value)}
           placeholder="Chicken breast"
         />
+
+        {errors?.name && (
+          <p className="text-xs text-red-500 mt-1">{errors.name}</p>
+        )}
       </div>
 
+      {/* Calories */}
       <div>
         <label className="mb-1 block text-sm font-medium text-amber-900/80">
           Calories
         </label>
+
         <input
           className="sprout-input"
-          value={form.calories}
-          onChange={(e) => update('calories', e.target.value)}
+          type="number"
           inputMode="decimal"
+          onKeyDown={preventInvalidNumberInput}
+          value={form.calories}
+          onChange={(e) => handleChange('calories', e.target.value)}
           placeholder="200"
         />
+
+        {errors?.calories && (
+          <p className="text-xs text-red-500 mt-1">{errors.calories}</p>
+        )}
       </div>
 
+      {/* Macros */}
       <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="mb-1 block text-sm font-medium text-amber-900/80">
-            Protein
-          </label>
-          <input
-            className="sprout-input"
-            value={form.protein}
-            onChange={(e) => update('protein', e.target.value)}
-            inputMode="decimal"
-            placeholder="0"
-          />
-        </div>
+        {['protein', 'carbs', 'fat', 'sugar'].map((field) => (
+          <div key={field}>
+            <label className="mb-1 block text-sm font-medium text-amber-900/80 capitalize">
+              {field}
+            </label>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-amber-900/80">
-            Carbs
-          </label>
-          <input
-            className="sprout-input"
-            value={form.carbs}
-            onChange={(e) => update('carbs', e.target.value)}
-            inputMode="decimal"
-            placeholder="0"
-          />
-        </div>
+            <input
+              className="sprout-input"
+              type="number"
+              inputMode="decimal"
+              onKeyDown={preventInvalidNumberInput}
+              value={form[field]}
+              onChange={(e) => handleChange(field, e.target.value)}
+              placeholder="0"
+            />
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-amber-900/80">
-            Fat
-          </label>
-          <input
-            className="sprout-input"
-            value={form.fat}
-            onChange={(e) => update('fat', e.target.value)}
-            inputMode="decimal"
-            placeholder="0"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium text-amber-900/80">
-            Sugar
-          </label>
-          <input
-            className="sprout-input"
-            value={form.sugar}
-            onChange={(e) => update('sugar', e.target.value)}
-            inputMode="decimal"
-            placeholder="0"
-          />
-        </div>
+            {errors?.[field] && (
+              <p className="text-xs text-red-500 mt-1">{errors[field]}</p>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
