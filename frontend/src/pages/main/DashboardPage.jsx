@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 import BudgetDashboardCard from "./BudgetDashboardCard";
 import DietDashboardCard from "./DietDashboardCard";
@@ -7,12 +7,38 @@ import NotesDashboardCard from "./NotesDashboardCard";
 import ExploreHabitatButton from "./ExploreHabitatButton";
 import OnboardingTour from "../../components/OnboardingTour";
 
-export default function DashboardPage({user}) {
+export default function DashboardPage({ user, setUser }) {
+
+  const [showTour, setShowTour] = useState(false);
+  
+  useEffect(() => {
+    if (!user) return;
+
+    const localKey = `hasSeenOnboarding_${user.uid}`;
+    const hasSeenLocal = localStorage.getItem(localKey);
+
+    // ✅ Show ONLY if both say false
+    if (!user.hasSeenOnboarding && !hasSeenLocal) {
+      setShowTour(true);
+    } else {
+      setShowTour(false);
+    }
+
+  }, [user]);
+
+  const handleTourComplete = () => {
+    const localKey = `hasSeenOnboarding_${user.uid}`;
+    localStorage.setItem(localKey, "true"); // ✅ FIXED
+
+    setShowTour(false);
+  };
 
   return (
     <div className="sprout-dashboard">
 
-      <OnboardingTour user={user} />
+      {showTour && (
+        <OnboardingTour user={user} onComplete={handleTourComplete} setUser={setUser} />
+      )}
 
       <div className="sprout-dashboard-header">
         <h1 className="sprout-title">Dashboard</h1>
@@ -41,7 +67,7 @@ export default function DashboardPage({user}) {
 
       </div>
 
-        <ExploreHabitatButton className="explore-tour"/>
+      <ExploreHabitatButton className="explore-tour" />
 
     </div>
   );

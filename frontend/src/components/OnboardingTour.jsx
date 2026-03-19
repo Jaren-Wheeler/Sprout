@@ -4,7 +4,7 @@ import "driver.js/dist/driver.css";
 import { completeOnboarding } from "../api/auth";
 import askMeAnythingImg from "../assets/askmeanything.png";
 
-export default function OnboardingTour({ user }) {
+export default function OnboardingTour({ user, onComplete, setUser}) {
 
   useEffect(() => {
 
@@ -99,9 +99,20 @@ export default function OnboardingTour({ user }) {
 
       ],
 
-      onDestroyed: async () => {
-        await completeOnboarding();
+     onDestroyed: async () => {
+      localStorage.setItem(`hasSeenOnboarding_${user.uid}`, "true");
+
+      await completeOnboarding();
+
+      if (setUser) {
+        setUser(prev => ({
+          ...prev,
+          hasSeenOnboarding: true
+        }));
       }
+
+      if (onComplete) onComplete();
+    }
 
     });
 
