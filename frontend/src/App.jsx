@@ -32,7 +32,7 @@ export default function App() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login setUser={setUser} />} />
       <Route path="/signup" element={<Signup setUser={setUser} />} />
-      <Route path="/dashboard" element={<DashboardPage user={user} />} />
+      <Route path="/dashboard" element={<DashboardPage user={user} setUser={user}/>} />
       <Route path="/habitat" element={<Dashboard />} />
 
       <Route path="/notes" element={<NotesPage />} />
