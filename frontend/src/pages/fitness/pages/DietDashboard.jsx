@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 import { sendChatMessage } from '../../../api/chatbot';
 
-import sproutLogo from '../../../assets/Logo.png';
+import background from '../../../assets/bg.png';
 import Sprout from '../../../components/chatbot/Sprout';
 
 import CreateDietModal from '../modals/CreateDietModal';
@@ -16,6 +16,7 @@ import MealPlanningCard from '../components/meals/MealPlanningCard';
 import DietStats from '../components/stats/DietStats';
 
 import useDiet from '../hooks/useDiet';
+import AppLayout from '@/components/AppLayout';
 
 export default function DietDashboard() {
   const {
@@ -48,89 +49,94 @@ export default function DietDashboard() {
     return <div className="p-6">Loading diets...</div>;
   }
 
-  return (
-    <div className="min-h-screen bg-[#F3EED9] text-[#3B2F2F]">
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
-        {/* FITNESS PROFILE MODAL */}
-        {showGoalsModal && (
-          <CreateFitnessProfileModal
-            isOpen={showGoalsModal}
-            onClose={() => setShowGoalsModal(false)}
-            onSubmit={async (data) => {
-              await updateGoals(data);
-              setShowGoalsModal(false);
+ return (
+  <div
+    className="min-h-screen w-full bg-cover bg-center bg-fixed bg-[#F3EED9]"
+    style={{ backgroundImage: `url(${background})` }}
+  >
+    <AppLayout>
+      <div className="min-h-screen p-6">
+        <div className="max-w-7xl mx-auto space-y-6 p-6">
+
+          {/* FITNESS PROFILE MODAL */}
+          {showGoalsModal && (
+            <CreateFitnessProfileModal
+              isOpen={showGoalsModal}
+              onClose={() => setShowGoalsModal(false)}
+              onSubmit={async (data) => {
+                await updateGoals(data);
+                setShowGoalsModal(false);
+              }}
+            />
+          )}
+
+          {/* CREATE DIET MODAL */}
+          <CreateDietModal
+            isOpen={showModal}
+            onClose={() => setShowModal(false)}
+            onCreate={async (data) => {
+              await createNewDiet(data);
+              setShowModal(false);
             }}
           />
-        )}
 
-        {/* CREATE DIET MODAL */}
-        <CreateDietModal
-          isOpen={showModal}
-          onClose={() => setShowModal(false)}
-          onCreate={async (data) => {
-            await createNewDiet(data);
-            setShowModal(false);
-          }}
-        />
+          {/* MAIN DIET LAYOUT */}
+          <DietLayout
+            header={
+              <header className="flex items-start justify-between gap-4">
+                <div>
+                  <h1 className="text-3xl font-bold flex items-center gap-3">
+                    Diet
+                  </h1>
 
-        {/* MAIN DIET LAYOUT */}
-        <DietLayout
-          header={
-            <header className="flex items-start justify-between gap-4">
-              <div>
-                <h1 className="text-3xl font-bold flex items-center gap-3">
-                  <Link to="/dashboard">
-                    <img src={sproutLogo} className="h-16" alt="Sprout logo" />
-                  </Link>
-                  Diet
-                </h1>
-
-                <p className="text-[#6B5E5E]">
-                  Track meals, nutrition, and health goals
-                </p>
-              </div>
-            </header>
-          }
-          summary={
-            <DietStats
-              stats={stats}
-              onEditGoals={() => setShowGoalsModal(true)}
-            />
-          }
-          mainLeft={
-            <DailyFoodLogCard
-              diet={selectedDiet}
-              diets={diets}
-              onSelectDiet={setSelectedDiet}
-              onDeleteDiet={deleteDietById}
-              openCreateDiet={() => setShowModal(true)}
-              items={itemsForSelectedDate}
-              addDietItem={addDietItem}
-              deleteDietItem={deleteDietItem}
-              date={selectedDate}
-              setDate={setSelectedDate}
-              addPreset={addPreset}
-            />
-          }
-          mainRight={
-            <MealPlanningCard
-              presets={presets}
-              presetsLoading={presetsLoading}
-              usePreset={usePreset}
-              removePreset={removePreset}
-            />
-          }
-          charts={
-            <DietCharts
-              dietItems={itemsForSelectedDate}
-              weightHistory={weightHistory}
-            />
-          }
-        />
+                  <p className="text-[#6B5E5E]">
+                    Track meals, nutrition, and health goals
+                  </p>
+                </div>
+              </header>
+            }
+            summary={
+              <DietStats
+                stats={stats}
+                onEditGoals={() => setShowGoalsModal(true)}
+              />
+            }
+            mainLeft={
+              <DailyFoodLogCard
+                diet={selectedDiet}
+                diets={diets}
+                onSelectDiet={setSelectedDiet}
+                onDeleteDiet={deleteDietById}
+                openCreateDiet={() => setShowModal(true)}
+                items={itemsForSelectedDate}
+                addDietItem={addDietItem}
+                deleteDietItem={deleteDietItem}
+                date={selectedDate}
+                setDate={setSelectedDate}
+                addPreset={addPreset}
+              />
+            }
+            mainRight={
+              <MealPlanningCard
+                presets={presets}
+                presetsLoading={presetsLoading}
+                usePreset={usePreset}
+                removePreset={removePreset}
+              />
+            }
+            charts={
+              <DietCharts
+                dietItems={itemsForSelectedDate}
+                weightHistory={weightHistory}
+              />
+            }
+          />
+        </div>
       </div>
+    </AppLayout>
 
-      {/* SPROUT CHATBOT */}
-      <Sprout onSend={sendChatMessage} />
-    </div>
-  );
+    {/* SPROUT */}
+    <Sprout onSend={sendChatMessage} />
+  </div>
+);
 }
