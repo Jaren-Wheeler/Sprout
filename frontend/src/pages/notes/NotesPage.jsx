@@ -12,7 +12,7 @@ import NotesToolbar from './NotesToolbar';
 import { useNotes } from './useNotes';
 
 export default function NotesPage() {
-  const { notes, loading, error, setError, add, edit, remove } = useNotes();
+  const { notes, loading, error, setError, reload, add, edit, remove } = useNotes();
 
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
@@ -137,7 +137,7 @@ export default function NotesPage() {
           />
         )}
 
-        <Sprout onSend={sendChatMessage} />
+        <Sprout onSend={sendChatMessage} onBudgetChange={reload} />
       </div>
     </div>
   );

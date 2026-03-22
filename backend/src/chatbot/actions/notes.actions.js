@@ -1,10 +1,37 @@
 const notesService = require("../../services/notes.service");
 
+// =====================================================
+// Notes Action Helpers
+// =====================================================
+
+function findExactTitleMatches(notes, title) {
+  const normalizedTitle = String(title || "").trim().toLowerCase();
+
+  return notes.filter(
+    (note) => note.title?.trim().toLowerCase() === normalizedTitle
+  );
+}
+
+function buildUpdatedContent(existingContent, incomingContent, mode) {
+  if (incomingContent === undefined) {
+    return existingContent;
+  }
+
+  const current = String(existingContent || "").trim();
+  const next = String(incomingContent || "").trim();
+
+  if (mode === "append") {
+    if (!current) return next;
+    if (!next) return current;
+    return `${current}\n${next}`;
+  }
+
+  return next;
+}
+
 // Entry point used by actionRouter.js
 async function handle(ai, user) {
-
   switch (ai.name) {
-
     case "create_note":
       return createNote(ai, user);
 
@@ -25,7 +52,6 @@ async function handle(ai, user) {
 /* ================= CREATE NOTE ================= */
 
 async function createNote(ai, user) {
-
   const { title, content } = ai.params || {};
 
   if (!title) {
@@ -49,8 +75,7 @@ async function createNote(ai, user) {
 /* ================= UPDATE NOTE ================= */
 
 async function updateNote(ai, user) {
-
-  const { title, newTitle, content } = ai.params || {};
+  const { title, newTitle, content, mode } = ai.params || {};
 
   if (!title) {
     return {
@@ -60,10 +85,7 @@ async function updateNote(ai, user) {
   }
 
   const notes = await notesService.getNotes(user.id);
-
-  const matches = notes.filter(
-    n => n.title?.toLowerCase() === title.toLowerCase()
-  );
+  const matches = findExactTitleMatches(notes, title);
 
   if (matches.length === 0) {
     return {
@@ -80,22 +102,28 @@ async function updateNote(ai, user) {
   }
 
   const note = matches[0];
+  const resolvedTitle = newTitle || note.title;
+  const resolvedMode = mode === "append" ? "append" : "replace";
+  const resolvedContent = buildUpdatedContent(
+    note.content,
+    content,
+    resolvedMode
+  );
 
   await notesService.updateNote(user.id, note.id, {
-    title: newTitle || note.title,
-    content: content ?? note.content
+    title: resolvedTitle,
+    content: resolvedContent
   });
 
   return {
     role: "assistant",
-    content: `Your note "${title}" has been updated.`
+    content: `Your note "${note.title}" has been updated.`
   };
 }
 
 /* ================= DELETE NOTE ================= */
 
 async function deleteNote(ai, user) {
-
   const { title } = ai.params || {};
 
   if (!title) {
@@ -106,10 +134,7 @@ async function deleteNote(ai, user) {
   }
 
   const notes = await notesService.getNotes(user.id);
-
-  const matches = notes.filter(
-    n => n.title?.toLowerCase() === title.toLowerCase()
-  );
+  const matches = findExactTitleMatches(notes, title);
 
   if (matches.length === 0) {
     return {

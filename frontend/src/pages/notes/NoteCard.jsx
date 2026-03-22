@@ -33,10 +33,7 @@ export default function NoteCard({ note, variant = 1, onOpen, onDelete }) {
         if (e.key === 'Enter' || e.key === ' ') onOpen();
       }}
     >
-      {/* Card Layout */}
       <div className="h-[170px] flex flex-col">
-
-        {/* Header */}
         <div className="flex items-start justify-between gap-3 mb-3">
           <h3 className="text-[20px] text-amber-900/95 line-clamp-1">
             {note.title}
@@ -47,19 +44,16 @@ export default function NoteCard({ note, variant = 1, onOpen, onDelete }) {
           </div>
         </div>
 
-        {/* Content */}
         <div className="text-[14px] leading-relaxed text-amber-800/95 line-clamp-4 overflow-hidden">
           {note.content ? (
-            <div
-              className="prose prose-sm max-w-none text-amber-800"
-              dangerouslySetInnerHTML={{ __html: note.content }}
-            />
+            <div className="max-w-none text-amber-800 whitespace-pre-wrap break-words">
+              {note.content}
+            </div>
           ) : (
             <span className="opacity-60">No content</span>
           )}
         </div>
 
-        {/* Footer */}
         <div
           className="mt-auto pt-3 flex justify-end"
           onClick={(e) => e.stopPropagation()}
@@ -69,10 +63,9 @@ export default function NoteCard({ note, variant = 1, onOpen, onDelete }) {
             onClick={() => onDelete(note.id)}
             className="sprout-icon-btn-danger "
           >
-           <Trash2 size={18} />
+            <Trash2 size={18} />
           </button>
         </div>
-
       </div>
     </article>
   );
