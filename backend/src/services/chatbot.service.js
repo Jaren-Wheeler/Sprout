@@ -7,14 +7,6 @@ const actionRouter = require("../chatbot/actionRouter");
  * ============================================================================
  * CHATBOT SERVICE
  * ============================================================================
- *
- * READABILITY-ONLY CLEANUP PASS
- * - No intended behavior changes
- * - Do not change parser order in runChatbot()
- * - Preserve ambiguity continuation behavior
- * - Preserve `supplies` behavior
- * - Preserve income vs expense separation
- * - Preserve fallback boundaries
  */
 
 const conversations = new Map();
@@ -418,6 +410,10 @@ function getLatestUserMessage(messages = []) {
   return "";
 }
 
+function stripTrailingPunctuation(value = "") {
+  return String(value).trim().replace(/[.?!]+$/, "").trim();
+}
+
 /**
  * ============================================================================
  * PENDING EXPENSE HELPERS
@@ -454,7 +450,9 @@ function getNextMissingExpenseQuestion(field, category) {
       return "Which category should this expense go into?";
     case "description":
       if (category) {
-        return `What description would you like to provide for the ${String(category).toLowerCase()} expense?`;
+        return `What description would you like to provide for the ${String(
+          category
+        ).toLowerCase()} expense?`;
       }
       return "What description would you like to provide for this expense?";
     case "expenseDate":
@@ -738,6 +736,249 @@ function extractRawIncomeNote(message = "") {
 
 /**
  * ============================================================================
+ * DETERMINISTIC NOTES HELPERS
+ * ============================================================================
+ */
+
+function extractDirectCreateNote(message = "") {
+  const text = String(message).trim();
+
+  const patterns = [
+    /\bcreate\s+a\s+note\s+called\s+(.+?)\s+with\s+(.+)$/i,
+    /\bcreate\s+a\s+note\s+named\s+(.+?)\s+with\s+(.+)$/i,
+    /\bsave\s+a\s+note\s+called\s+(.+?)\s+with\s+(.+)$/i,
+    /\bmake\s+a\s+note\s+titled\s+(.+?)\s+with\s+(.+)$/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match?.[1] && match?.[2]) {
+      return {
+        title: stripTrailingPunctuation(match[1]),
+        content: stripTrailingPunctuation(match[2])
+      };
+    }
+  }
+
+  return null;
+}
+
+function extractDirectReplaceNoteUpdate(message = "") {
+  const text = String(message).trim();
+
+  const patterns = [
+    /\bupdate\s+my\s+note\s+(.+?)\s+and\s+change\s+the\s+content\s+to\s+(.+)$/i,
+    /\bedit\s+my\s+note\s+(.+?)\s+and\s+replace\s+the\s+content\s+with\s+(.+)$/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match?.[1] && match?.[2]) {
+      return {
+        title: stripTrailingPunctuation(match[1]),
+        content: stripTrailingPunctuation(match[2]),
+        mode: "replace"
+      };
+    }
+  }
+
+  return null;
+}
+
+function extractDirectRenameNote(message = "") {
+  const text = String(message).trim();
+
+  const patterns = [
+    /\brename\s+my\s+note\s+(.+?)\s+to\s+(.+)$/i,
+    /\bchange\s+the\s+title\s+of\s+my\s+note\s+(.+?)\s+to\s+(.+)$/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match?.[1] && match?.[2]) {
+      return {
+        title: stripTrailingPunctuation(match[1]),
+        newTitle: stripTrailingPunctuation(match[2])
+      };
+    }
+  }
+
+  return null;
+}
+
+function extractDirectAppendNote(message = "") {
+  const text = String(message).trim();
+
+  const patterns = [
+    /\badd\s+(.+?)\s+to\s+my\s+note\s+(.+)$/i,
+    /\bappend\s+(.+?)\s+to\s+my\s+note\s+(.+)$/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match?.[1] && match?.[2]) {
+      return {
+        title: stripTrailingPunctuation(match[2]),
+        content: stripTrailingPunctuation(match[1]),
+        mode: "append"
+      };
+    }
+  }
+
+  return null;
+}
+
+/**
+ * ============================================================================
+ * PENDING NOTES HELPERS
+ * ============================================================================
+ */
+
+function getMissingNoteFields(params = {}) {
+  const missing = [];
+
+  if (!params.title || !String(params.title).trim()) {
+    missing.push("title");
+  }
+
+  if (!params.content || !String(params.content).trim()) {
+    missing.push("content");
+  }
+
+  return missing;
+}
+
+function getNextMissingNoteQuestion(field, title) {
+  switch (field) {
+    case "title":
+      return "What title should I use for the note?";
+    case "content":
+      if (title) {
+        return `What content should I save in the note "${title}"?`;
+      }
+      return "What content should I save in the note?";
+    default:
+      return "What note information is missing?";
+  }
+}
+
+function fillPendingNoteField(pending, userReply) {
+  const value = String(userReply || "").trim();
+  if (!value) return pending;
+
+  const nextField = pending.missingFields?.[0];
+  if (!nextField) return pending;
+
+  if (nextField === "title") {
+    pending.params.title = value;
+    pending.missingFields.shift();
+    return pending;
+  }
+
+  if (nextField === "content") {
+    pending.params.content = value;
+    pending.missingFields.shift();
+    return pending;
+  }
+
+  return pending;
+}
+
+function shouldTrackPendingCreateNote(replyContent = "") {
+  const text = String(replyContent).trim();
+  return (
+    text === "What title should I use for the note?" ||
+    text === "What title should I use for this note?" ||
+    /^What content should I save in the note ".+"\?$/.test(text)
+  );
+}
+
+function shouldTrackPendingDeleteNote(replyContent = "") {
+  const text = String(replyContent).trim();
+  return text === "What is the exact title of the note you want to delete?";
+}
+
+function buildPendingCreateNoteFromMessage(message = "", replyContent = "") {
+  const text = String(message).trim();
+
+  if (!text) return null;
+
+  if (/^create\s+a\s+note[.!?]?$/i.test(text)) {
+    return {
+      name: "create_note",
+      params: {},
+      missingFields: ["title", "content"]
+    };
+  }
+
+  const titleOnlyPatterns = [
+    /^create\s+a\s+note\s+called\s+(.+?)[.!?]?$/i,
+    /^create\s+a\s+note\s+named\s+(.+?)[.!?]?$/i,
+    /^save\s+a\s+note\s+called\s+(.+?)[.!?]?$/i,
+    /^make\s+a\s+note\s+titled\s+(.+?)[.!?]?$/i
+  ];
+
+  for (const pattern of titleOnlyPatterns) {
+    const match = text.match(pattern);
+    if (match?.[1]) {
+      return {
+        name: "create_note",
+        params: {
+          title: stripTrailingPunctuation(match[1])
+        },
+        missingFields: ["content"]
+      };
+    }
+  }
+
+  const contentOnlyPatterns = [
+    /^create\s+a\s+note\s+with\s+(.+?)[.!?]?$/i,
+    /^create\s+a\s+note\s+for\s+.+?:\s*(.+)$/i,
+    /^make\s+a\s+note\s+for\s+.+?:\s*(.+)$/i
+  ];
+
+  for (const pattern of contentOnlyPatterns) {
+    const match = text.match(pattern);
+    if (match?.[1]) {
+      return {
+        name: "create_note",
+        params: {
+          content: stripTrailingPunctuation(match[1])
+        },
+        missingFields: ["title"]
+      };
+    }
+  }
+
+  if (/^What title should I use for this note\?$/i.test(replyContent)) {
+    const colonIndex = text.indexOf(":");
+    if (colonIndex >= 0) {
+      const trailingContent = text.slice(colonIndex + 1).trim();
+      if (trailingContent) {
+        return {
+          name: "create_note",
+          params: {
+            content: stripTrailingPunctuation(trailingContent)
+          },
+          missingFields: ["title"]
+        };
+      }
+    }
+  }
+
+  return null;
+}
+
+function buildPendingDeleteNote() {
+  return {
+    name: "delete_note",
+    params: {},
+    missingFields: ["title"]
+  };
+}
+
+/**
+ * ============================================================================
  * CATEGORY / AMBIGUITY HELPERS
  * ============================================================================
  */
@@ -962,7 +1203,9 @@ async function tryHandleDeterministicBudgetExpense(
       const formattedChoices =
         choices.length === 2
           ? `${choices[0]} or ${choices[1]}`
-          : `${choices.slice(0, -1).join(", ")}, or ${choices[choices.length - 1]}`;
+          : `${choices.slice(0, -1).join(", ")}, or ${
+              choices[choices.length - 1]
+            }`;
 
       const reply = {
         role: "assistant",
@@ -1004,6 +1247,82 @@ async function tryHandleDeterministicBudgetExpense(
 
 /**
  * ============================================================================
+ * DETERMINISTIC NOTES HANDLERS
+ * ============================================================================
+ */
+
+async function tryHandleDeterministicNotes(latestUserMessage, user, history) {
+  const directCreate = extractDirectCreateNote(latestUserMessage);
+  if (directCreate?.title && directCreate?.content) {
+    const ai = {
+      type: "action",
+      name: "create_note",
+      params: {
+        title: directCreate.title,
+        content: directCreate.content
+      }
+    };
+
+    const result = await actionRouter.execute(ai, user);
+    history.push(buildActionHistoryEntry(ai));
+    return result;
+  }
+
+  const directReplace = extractDirectReplaceNoteUpdate(latestUserMessage);
+  if (directReplace?.title && directReplace?.content) {
+    const ai = {
+      type: "action",
+      name: "update_note",
+      params: {
+        title: directReplace.title,
+        content: directReplace.content,
+        mode: "replace"
+      }
+    };
+
+    const result = await actionRouter.execute(ai, user);
+    history.push(buildActionHistoryEntry(ai));
+    return result;
+  }
+
+  const directRename = extractDirectRenameNote(latestUserMessage);
+  if (directRename?.title && directRename?.newTitle) {
+    const ai = {
+      type: "action",
+      name: "update_note",
+      params: {
+        title: directRename.title,
+        newTitle: directRename.newTitle
+      }
+    };
+
+    const result = await actionRouter.execute(ai, user);
+    history.push(buildActionHistoryEntry(ai));
+    return result;
+  }
+
+  const directAppend = extractDirectAppendNote(latestUserMessage);
+  if (directAppend?.title && directAppend?.content) {
+    const ai = {
+      type: "action",
+      name: "update_note",
+      params: {
+        title: directAppend.title,
+        content: directAppend.content,
+        mode: "append"
+      }
+    };
+
+    const result = await actionRouter.execute(ai, user);
+    history.push(buildActionHistoryEntry(ai));
+    return result;
+  }
+
+  return null;
+}
+
+/**
+ * ============================================================================
  * MAIN ORCHESTRATION
  * ============================================================================
  *
@@ -1012,7 +1331,8 @@ async function tryHandleDeterministicBudgetExpense(
  * 2. pending expense continuation
  * 3. deterministic income parsing
  * 4. deterministic expense parsing
- * 5. OpenAI fallback
+ * 5. deterministic notes parsing
+ * 6. OpenAI fallback
  */
 
 async function runChatbot(messages, user) {
@@ -1119,9 +1439,69 @@ async function runChatbot(messages, user) {
     return replyCleanup(user.id, result);
   }
 
+    /**
+   * Stage 3: pending notes continuation
+   */
+  if (pending && pending.name === "create_note") {
+    fillPendingNoteField(pending, latestUserMessage);
+
+    if (pending.missingFields.length > 0) {
+      const nextField = pending.missingFields[0];
+
+      const reply = {
+        role: "assistant",
+        content: getNextMissingNoteQuestion(nextField, pending.params.title)
+      };
+
+      history.push(reply);
+      pendingActions.set(user.id, pending);
+      return replyCleanup(user.id, reply);
+    }
+
+    const ai = {
+      type: "action",
+      name: "create_note",
+      params: pending.params
+    };
+
+    pendingActions.delete(user.id);
+
+    const result = await actionRouter.execute(ai, user);
+    history.push(buildActionHistoryEntry(ai));
+    return replyCleanup(user.id, result);
+  }
+
+  if (pending && pending.name === "delete_note") {
+    const titleReply = String(latestUserMessage || "").trim();
+
+    if (!titleReply) {
+      const reply = {
+        role: "assistant",
+        content: "What is the exact title of the note you want to delete?"
+      };
+
+      history.push(reply);
+      pendingActions.set(user.id, pending);
+      return replyCleanup(user.id, reply);
+    }
+
+    const ai = {
+      type: "action",
+      name: "delete_note",
+      params: {
+        title: titleReply
+      }
+    };
+
+    pendingActions.delete(user.id);
+
+    const result = await actionRouter.execute(ai, user);
+    history.push(buildActionHistoryEntry(ai));
+    return replyCleanup(user.id, result);
+  }
+
   /**
-   * Stage 3: deterministic income parsing
-   * Keep income ahead of deterministic expense parsing.
+   * Stage 4: deterministic income parsing
    */
   const deterministicIncomeResult = await tryHandleDeterministicIncome(
     latestUserMessage,
@@ -1134,7 +1514,7 @@ async function runChatbot(messages, user) {
   }
 
   /**
-   * Stage 4: deterministic expense parsing
+   * Stage 5: deterministic expense parsing
    */
   const deterministicBudgetResult = await tryHandleDeterministicBudgetExpense(
     latestUserMessage,
@@ -1147,8 +1527,20 @@ async function runChatbot(messages, user) {
   }
 
   /**
-   * Stage 5: OpenAI fallback
-   * Preserve fallback boundary behavior.
+   * Stage 6: deterministic notes parsing
+   */
+  const deterministicNotesResult = await tryHandleDeterministicNotes(
+    latestUserMessage,
+    user,
+    history
+  );
+
+  if (deterministicNotesResult) {
+    return replyCleanup(user.id, deterministicNotesResult);
+  }
+
+  /**
+   * Stage 7: OpenAI fallback
    */
   const response = await openai.responses.create({
     model: "gpt-4o-mini",
@@ -1191,6 +1583,21 @@ async function runChatbot(messages, user) {
       role: "assistant",
       content: ai.content
     };
+
+    if (shouldTrackPendingCreateNote(reply.content)) {
+      const pendingCreate = buildPendingCreateNoteFromMessage(
+        latestUserMessage,
+        reply.content
+      );
+
+      if (pendingCreate) {
+        pendingActions.set(user.id, pendingCreate);
+      }
+    }
+
+    if (shouldTrackPendingDeleteNote(reply.content)) {
+      pendingActions.set(user.id, buildPendingDeleteNote());
+    }
 
     history.push(reply);
     return replyCleanup(user.id, reply);
