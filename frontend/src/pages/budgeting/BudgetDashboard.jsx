@@ -149,9 +149,6 @@ export default function BudgetDashboard({
         {/* ================= HEADER ================= */}
         <header>
           <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Link to="/dashboard">
-              <img src={sproutLogo} className="h-20" />
-            </Link>
             Budget
           </h1>
 

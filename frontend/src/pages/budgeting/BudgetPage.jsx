@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import SetupWizard from "./SetupWizard";
 import BudgetDashboard from "./BudgetDashboard";
+// Update the import path to the one we verified earlier
+import AppLayout from "../../components/AppLayout";
+import background from "../../assets/bg.png";
 
 import {
   getBudgets,
@@ -36,14 +39,12 @@ export default function BudgetPage() {
           getIncomeEntries(),
         ]);
 
-        const budgetsArray = Array.isArray(budgetsData)
-          ? budgetsData
-          : [];
+        const budgetsArray = Array.isArray(budgetsData) ? budgetsData : [];
 
         setBudgets(budgetsArray);
         setExpenses(expensesData);
         setExpectedIncome(Number(incomeData.amount || 0));
-        setIncomeEntries(incomeEntriesData); // ⭐ CRITICAL FIX
+        setIncomeEntries(incomeEntriesData);
 
         if (budgetsArray.length === 0) {
           setNeedsSetup(true);
@@ -77,7 +78,7 @@ export default function BudgetPage() {
     setBudgets(budgetsData);
     setExpenses(expensesData);
     setExpectedIncome(Number(incomeData.amount || 0));
-    setIncomeEntries(incomeEntriesData); // ⭐ FIXED
+    setIncomeEntries(incomeEntriesData);
   }
 
   // =====================================================
@@ -90,24 +91,30 @@ export default function BudgetPage() {
     setLoading(false);
   }
 
-  // =====================================================
-  // RENDER STATES
-  // =====================================================
-  if (loading) {
+    if (loading) {
     return <div className="p-6">Loading finances…</div>;
   }
 
-  if (needsSetup) {
-    return <SetupWizard onComplete={handleSetupComplete} />;
-  }
-
   return (
-    <BudgetDashboard
-      budgets={budgets}
-      expenses={expenses}
-      incomeEntries={incomeEntries}
-      expectedIncome={expectedIncome}
-      refreshData={refreshData}
-    />
+    <div
+      className="min-h-screen w-full bg-cover bg-center bg-fixed"
+      style={{ backgroundImage: `url(${background})` }}
+    >
+      <AppLayout>
+        <div className="min-h-screen bg-white/40 backdrop-blur-[1px] p-6">
+          {needsSetup ? (
+            <SetupWizard onComplete={handleSetupComplete} />
+          ) : (
+            <BudgetDashboard
+              budgets={budgets}
+              expenses={expenses}
+              incomeEntries={incomeEntries}
+              expectedIncome={expectedIncome}
+              refreshData={refreshData}
+            />
+          )}
+        </div>
+      </AppLayout>
+    </div>
   );
 }

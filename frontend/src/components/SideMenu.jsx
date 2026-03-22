@@ -25,7 +25,7 @@ export default function SideMenu({ isOpen, onClose }) {
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/5" onClick={onClose} />
+      <div className="fixed inset-0 z-40 bg-black/5 left" onClick={onClose} />
 
       <div 
         className="absolute top-16 left-6 z-50 w-64 rounded-2xl shadow-xl border-2 overflow-hidden animate-dropDown"
