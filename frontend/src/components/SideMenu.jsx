@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // Standardizing path: src/components/SideMenu.jsx -> src/assets/
 import settings from "../assets/settings.png";
@@ -12,7 +12,9 @@ import noteshover from "../assets/notes-hover.png";
 import fitnessIcon from "../assets/fitness.png";
 import fitnesshover from "../assets/fitness-hover.png";
 
-export default function SideMenu({ isOpen, onClose }) {
+export default function SideMenu({ isOpen, onClose, setUser }) {
+  const navigate = useNavigate();
+
   if (!isOpen) return null;
 
   const menuItems = [
@@ -23,44 +25,89 @@ export default function SideMenu({ isOpen, onClose }) {
     { to: "/notes", label: "Notes", src: notesIcon, hover: noteshover },
   ];
 
+  const handleLogout = () => {
+    // Clear stored session
+    localStorage.removeItem("sprout_user");
+
+    // Clear React state
+    if (setUser) setUser(null);
+  
+    onClose();
+    navigate("/");
+  };
+
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/5 left" onClick={onClose} />
+      {/* Overlay */}
+      <div
+        className="fixed inset-0 z-40 bg-black/5"
+        onClick={onClose}
+      />
 
-      <div 
+      {/* Menu */}
+      <div
         className="absolute top-16 left-6 z-50 w-64 rounded-2xl shadow-xl border-2 overflow-hidden animate-dropDown"
-        style={{ 
-          backgroundColor: '#E7FAA2', 
-          borderColor: '#4C8038'      
-        }} 
+        style={{
+          backgroundColor: "#E7FAA2",
+          borderColor: "#4C8038",
+        }}
       >
         <div className="p-2 flex flex-col gap-1">
           {menuItems.map((item) => (
-            <Link 
+            <Link
               key={item.to}
-              to={item.to} 
+              to={item.to}
               onClick={onClose}
               className="flex items-center gap-4 px-4 py-3 rounded-xl transition-all font-medium group text-gray-900"
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#8ae070'} 
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = "#8ae070")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "transparent")
+              }
             >
               <div className="relative w-8 h-8 flex-shrink-0">
-                <img 
-                  src={item.src} 
-                  alt="" 
-                  className="absolute inset-0 w-full h-full object-contain transition-opacity duration-200 group-hover:opacity-0" 
+                <img
+                  src={item.src}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-contain transition-opacity duration-200 group-hover:opacity-0"
                 />
-                <img 
-                  src={item.hover} 
-                  alt="" 
-                  className="absolute inset-0 w-full h-full object-contain opacity-0 transition-opacity duration-200 group-hover:opacity-100" 
+                <img
+                  src={item.hover}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-contain opacity-0 transition-opacity duration-200 group-hover:opacity-100"
                 />
               </div>
 
               <span className="flex-1 text-gray-900">{item.label}</span>
-              <span className="opacity-0 group-hover:opacity-100 text-xs transition-opacity text-gray-900">→</span>
+              <span className="opacity-0 group-hover:opacity-100 text-xs transition-opacity text-gray-900">
+                →
+              </span>
             </Link>
           ))}
+
+          {/* Logout Button */}
+          <div className="mt-2 border-t border-[#4C8038]/30 pt-2">
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-4 px-4 py-3 rounded-xl transition-all font-medium group text-red-700 w-full"
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = "#ffb3b3")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "transparent")
+              }
+            >
+              <div className="w-8 h-8 flex items-center justify-center text-lg">
+                ⏻
+              </div>
+
+              <span className="flex-1 text-left">Log Out</span>
+              <span className="opacity-0 group-hover:opacity-100 text-xs transition-opacity">
+                →
+              </span>
+            </button>
+          </div>
         </div>
       </div>
     </>
