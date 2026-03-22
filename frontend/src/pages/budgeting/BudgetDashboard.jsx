@@ -144,7 +144,7 @@ export default function BudgetDashboard({
   // =====================================================
 
   return (
-    <div className="min-h-screen bg-[#F3EED9] text-[#3B2F2F]">
+    <div className="min-h-screen  text-[#3B2F2F]">
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* ================= HEADER ================= */}
         <header>
@@ -207,7 +207,7 @@ export default function BudgetDashboard({
         <TransactionList transactions={transactions} />
 
         {/* ================= AI ASSISTANT ================= */}
-        <Sprout onSend={sendChatMessage} onBudgetChange={refreshData} />
+     
 
         {editingCategory && (
           <CategoryEditorModal
@@ -217,6 +217,7 @@ export default function BudgetDashboard({
           />
         )}
       </div>
+         <Sprout onSend={sendChatMessage} onBudgetChange={refreshData} />
     </div>
   );
 }

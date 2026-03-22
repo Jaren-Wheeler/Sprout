@@ -7,7 +7,7 @@ export default function AppLayout({ title, children }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="relative min-h-screen"> {/* "relative" is the anchor for the dropdown */}
+    <div className="relative min-h-screen backdrop-blur-sm rounded-2xl bg-white/25"> {/* "relative" is the anchor for the dropdown */}
       <Header 
         title={title} 
         onMenuClick={() => setMenuOpen(prev => !prev)} 

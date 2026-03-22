@@ -1,23 +1,22 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-
-import SproutModal from '@/components/ui/SproutModal';
-import { sendChatMessage } from '../../api/chatbot';
-import sproutLogo from '../../assets/Logo.png';
-import Sprout from '../../components/chatbot/Sprout';
-import ConfirmModal from '../../components/ui/ConfirmModal';
-import NoteEditorPanel from './NoteEditorPanel';
-import NotesGrid from './NotesGrid';
-import NotesToolbar from './NotesToolbar';
+// Updated import path to match your project structure
+import AppLayout from "../../components/AppLayout";
 import { useNotes } from './useNotes';
+import NotesToolbar from './NotesToolbar';
+import NotesGrid from './NotesGrid';
+import NoteEditorPanel from './NoteEditorPanel';
+import ConfirmModal from '../../components/ui/ConfirmModal';
+import background from "../../assets/bg.png";
+import notepadBg from "../../assets/notepad.png";
+import Sprout from '@/components/chatbot/Sprout';
+import { sendChatMessage } from '../../api/chatbot';
 
 export default function NotesPage() {
-  const { notes, loading, error, setError, reload, add, edit, remove } = useNotes();
+  const { notes, loading, error, setError, add, edit, remove } = useNotes();
 
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
   const [saving, setSaving] = useState(false);
-
   const [confirmingId, setConfirmingId] = useState(null);
 
   const isEditing = useMemo(() => Boolean(editingNote?.id), [editingNote]);
@@ -41,7 +40,7 @@ export default function NotesPage() {
 
   const handleSave = async ({ title, content }) => {
     const t = title.trim();
-    const c = content.trim();
+    const c = content.trim();5
 
     if (!t) {
       setError('Title is required');
@@ -72,7 +71,6 @@ export default function NotesPage() {
   const confirmDelete = async () => {
     const id = confirmingId;
     setConfirmingId(null);
-
     setError('');
     try {
       await remove(id);
@@ -81,64 +79,76 @@ export default function NotesPage() {
       setError(e?.message || 'Failed to delete note');
     }
   };
-
   return (
-    <div className="min-h-screen bg-[#F3EED9] text-[#3B2F2F]">
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
-        {/* HEADER */}
-        <header>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Link to="/dashboard">
-              <img src={sproutLogo} className="h-20" alt="Sprout logo" />
-            </Link>
-            My Notes
-          </h1>
+    <div 
+      className="min-h-screen w-full bg-cover bg-center bg-fixed"
+      style={{ backgroundImage: `url(${background})` }}
+    >      
+      <AppLayout>
+        <div 
+            className="min-h-screen p-10 bg-cover bg-center flex justify-center" 
+            style={{ 
+              backgroundImage: `url(${notepadBg})`,
+              // If you want to force specific stretching:
+              backgroundSize: '100% 100%' 
+            }}
+          >
+            {/* The "Page" Area Wrapper */}
+            <div 
+              className="w-full max-w-3xl h-auto p-12 mt-10 rounded-r-lg shadow-sm"
+            >
+              {/* Your content goes here */}
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold text-amber-900">My Notes</h2>
+                <p className="text-amber-800/60">Take some notes!</p>
+              </div>
 
-          <p className="text-[#6B5E5E]">Take some notes!</p>
-        </header>
+          <NotesToolbar onAdd={openCreate} />
 
-        <NotesToolbar onAdd={openCreate} />
+          {error && (
+            <div className="mt-3 mb-4 px-4 py-3 rounded-xl bg-red-200/50 border border-red-400/40 text-red-900/95">
+              {error}
+            </div>
+          )}
 
-        {error && (
-          <div className="px-4 py-3 rounded-xl bg-red-200/50 border border-red-400/40 text-red-900/95">
-            {error}
-          </div>
-        )}
+          {/* EDITOR MODAL */}
+          {editorOpen && (
+            <div className="sprout-modal-backdrop">
+              <div className="absolute inset-0" onClick={closeEditor} />
+              <div className="relative z-10 w-full max-w-[560px] mx-4 animate-scaleIn">
+                <NoteEditorPanel
+                  initialTitle={editingNote?.title || ''}
+                  initialContent={editingNote?.content || ''}
+                  saving={saving}
+                  mode={isEditing ? 'edit' : 'create'}
+                  onSave={handleSave}
+                  onCancel={closeEditor}
+                />
+              </div>
+            </div>
+          )}
 
-        {/* EDITOR MODAL */}
-        {editorOpen && (
-          <SproutModal onClose={closeEditor} maxWidth="max-w-[560px]">
-            <NoteEditorPanel
-              initialTitle={editingNote?.title || ''}
-              initialContent={editingNote?.content || ''}
-              saving={saving}
-              mode={isEditing ? 'edit' : 'create'}
-              onSave={handleSave}
-              onCancel={closeEditor}
-            />
-          </SproutModal>
-        )}
-
-        <NotesGrid
-          notes={notes}
-          loading={loading}
-          onEdit={openEdit}
-          onDelete={handleDelete}
-        />
-
-        {/* CONFIRM DELETE MODAL */}
-        {confirmingId && (
-          <ConfirmModal
-            title="Delete Note"
-            message="Are you sure you want to delete this note? This cannot be undone."
-            confirmText="Delete"
-            onConfirm={confirmDelete}
-            onCancel={() => setConfirmingId(null)}
+          <NotesGrid
+            notes={notes}
+            loading={loading}
+            onEdit={openEdit}
+            onDelete={handleDelete}
           />
-        )}
-
-        <Sprout onSend={sendChatMessage} onBudgetChange={reload} />
-      </div>
+          </div>
+          {/* CONFIRM DELETE MODAL */}
+          {confirmingId && (
+            <ConfirmModal
+              title="Delete Note"
+              message="Are you sure you want to delete this note? This cannot be undone."
+              confirmText="Delete"
+              onConfirm={confirmDelete}
+              onCancel={() => setConfirmingId(null)}
+            />
+          )}
+        </div>
+      </AppLayout>
+   
+      <Sprout onSend={sendChatMessage} />
     </div>
   );
 }

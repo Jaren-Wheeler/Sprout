@@ -101,7 +101,7 @@ export default function BudgetPage() {
       style={{ backgroundImage: `url(${background})` }}
     >
       <AppLayout>
-        <div className="min-h-screen bg-white/40 backdrop-blur-[1px] p-6">
+        <div className="min-h-screen p-6">
           {needsSetup ? (
             <SetupWizard onComplete={handleSetupComplete} />
           ) : (

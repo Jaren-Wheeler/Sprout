@@ -33,45 +33,46 @@ export default function CalendarPage() {
 
   const eventsByDate = groupEventsByDate(events);
 
-    // ================= UI =================
   return (
-    <div 
-      className="min-h-screen w-full bg-cover bg-center bg-fixed"
-      style={{ backgroundImage: `url(${background})` }}
-    >
-    <div className="min-h-screen bg-white/40 backdrop-blur-[1px] p-6">
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
-        <AppLayout>
+  <div
+    className="min-h-screen w-full bg-cover bg-center bg-fixed "
+    style={{ backgroundImage: `url(${background})` }}
+  >
+    <AppLayout>
+      <div className="min-h-screen p-6">
+        <div className="max-w-7xl mx-auto space-y-6 p-6">
 
-        <header className="space-y-1">
-          <h1 className="sprout-title">Calendar</h1>
-          <p className="sprout-subtitle">Plan your days ahead</p>
-        </header>
+          <header className="space-y-1">
+            <h1 className="sprout-title">Calendar</h1>
+            <p className="sprout-subtitle">Plan your days ahead</p>
+          </header>
 
-        <div className="flex gap-8 items-start">
+          <div className="flex gap-8 items-start">
 
-          <CalendarGrid
-            currentMonth={currentMonth}
-            setCurrentMonth={setCurrentMonth}
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
-            eventsByDate={eventsByDate}
-          />
-
-          <div className="flex flex-col gap-6">
-            <TodayAgenda eventsByDate={eventsByDate} />
-
-            <EventSidebar
+            <CalendarGrid
+              currentMonth={currentMonth}
+              setCurrentMonth={setCurrentMonth}
               selectedDate={selectedDate}
+              setSelectedDate={setSelectedDate}
               eventsByDate={eventsByDate}
-              onEventCreated={loadEvents}
             />
+
+            <div className="flex flex-col gap-6">
+              <TodayAgenda eventsByDate={eventsByDate} />
+
+              <EventSidebar
+                selectedDate={selectedDate}
+                eventsByDate={eventsByDate}
+                onEventCreated={loadEvents}
+              />
+            </div>
           </div>
+
         </div>
-        </AppLayout>
       </div>
-    </div>
-    <Sprout onSend={sendChatMessage}/>
-    </div>
-  );
+    </AppLayout>
+
+    <Sprout onSend={sendChatMessage} />
+  </div>
+);
 }
