@@ -87,10 +87,6 @@ export default function Dashboard() {
           </div>
         ))}
       </div>
-
-      <footer className="dashboard-footer">
-        SPROUT © Jaren, Luke, Chelsea, Romeo.
-      </footer>
     </div>
     
     <Sprout />

@@ -9,6 +9,8 @@ import Sprout from '../../components/chatbot/Sprout';
 import sproutLogo from '../../assets/Logo.png';
 import { sendChatMessage } from '../../api/chatbot';
 import TodayAgenda from './TodayAgenda';
+import background from '../../assets/bg.png';
+import AppLayout from '@/components/AppLayout';
 
 export default function CalendarPage() {
   const [events, setEvents] = useState([]);
@@ -31,21 +33,23 @@ export default function CalendarPage() {
 
   const eventsByDate = groupEventsByDate(events);
 
-  // ================= UI =================
+    // ================= UI =================
   return (
-    <div className="min-h-screen bg-[#F3EED9] text-amber-900">
+    <div 
+      className="min-h-screen w-full bg-cover bg-center bg-fixed"
+      style={{ backgroundImage: `url(${background})` }}
+    >
+    <div className="min-h-screen bg-white/40 backdrop-blur-[1px] p-6">
       <div className="max-w-7xl mx-auto p-6 space-y-6">
-        <header>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Link to="/dashboard">
-              <img src={sproutLogo} className="h-20" alt="Sprout logo" />
-            </Link>
-            Calendar
-          </h1>
-          <p className="text-[#6B5E5E]">Plan your days ahead</p>
+        <AppLayout>
+
+        <header className="space-y-1">
+          <h1 className="sprout-title">Calendar</h1>
+          <p className="sprout-subtitle">Plan your days ahead</p>
         </header>
 
         <div className="flex gap-8 items-start">
+
           <CalendarGrid
             currentMonth={currentMonth}
             setCurrentMonth={setCurrentMonth}
@@ -64,9 +68,10 @@ export default function CalendarPage() {
             />
           </div>
         </div>
+        </AppLayout>
       </div>
-
-      <Sprout onSend={sendChatMessage} />
+    </div>
+    <Sprout onSend={sendChatMessage}/>
     </div>
   );
 }
