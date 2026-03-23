@@ -3,13 +3,13 @@ const { runChatbot } = require("../services/chatbot.service.js");
 
 async function chatbotConversation(req, res) {
   try {
-    const { messages } = req.body;
+    const { messages, context } = req.body;
 
     if (!Array.isArray(messages)) {
       return res.status(400).json({ error: "messages must be an array" });
     }
 
-    const reply = await runChatbot(messages, req.user);
+    const reply = await runChatbot(messages, req.user, context || {});
 
     res.status(200).json({
       reply: reply?.content || "No reply received."

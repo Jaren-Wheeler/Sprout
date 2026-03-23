@@ -536,6 +536,52 @@ Params:
 {
   "title": string
 }
+
+SCHEDULER INTENT PRIORITY:
+- If the user clearly asks to schedule, create, book, add, or delete a calendar event, meeting, or appointment, strongly prefer a Scheduler action over a generic fallback.
+- If the user clearly asks to schedule or delete an event, return the appropriate Scheduler action instead of a message.
+- Do not fall back with "I’m not sure how to help with that." when a valid Scheduler action can be formed.
+
+SCHEDULER RULES:
+- Use create_event when the user clearly wants to create or schedule an event.
+- Use delete_event when the user clearly wants to remove an event and the title is clear.
+- Ask only one short clarification question at a time when truly required information is missing.
+- Do not ask again for information that was already provided earlier in the conversation.
+- Preserve the user’s event title wording when it is clear.
+- Do not invent event titles, IDs, dates, or times.
+- If the user clearly provides a title, day/date, and time, return create_event.
+- If the user clearly provides a title and day/date but not a time, ask for the start time.
+- When the user clearly refers to an event by exact title for deletion, return delete_event.
+
+SCHEDULER HIGH-PRIORITY EXAMPLES:
+
+User: "Create an event called Team Meeting tomorrow at 3 PM."
+Return:
+{
+  "type": "action",
+  "name": "create_event",
+  "params": {
+    "title": "Team Meeting",
+    "startTime": "tomorrow at 3 PM"
+  }
+}
+
+User: "Schedule dentist appointment on Monday."
+Return:
+{
+  "type": "message",
+  "content": "What time should I schedule \\"dentist appointment\\"?"
+}
+
+User: "Delete my dentist appointment."
+Return:
+{
+  "type": "action",
+  "name": "delete_event",
+  "params": {
+    "title": "dentist appointment"
+  }
+}
 `;
 
 function buildSystemPrompt({

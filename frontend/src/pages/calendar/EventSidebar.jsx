@@ -49,14 +49,20 @@ export default function EventSidebar({
     setShowModal(true);
   }
 
-  function openEdit(event) {
-    setSelectedEvent(event);
-    reset({
-      title: event.title || '',
-      time: event.startTime?.slice(11, 16) || '',
-    });
-    setShowModal(true);
-  }
+function openEdit(event) {
+  setSelectedEvent(event);
+
+  const localTime = event.startTime
+    ? format(new Date(event.startTime), 'HH:mm')
+    : '';
+
+  reset({
+    title: event.title || '',
+    time: localTime,
+  });
+
+  setShowModal(true);
+}
 
   function closeModal() {
     setShowModal(false);

@@ -2,9 +2,7 @@ const schedulerService = require("../../services/scheduler.service");
 
 // Entry point used by actionRouter.js
 async function handle(ai, user) {
-
   switch (ai.name) {
-
     case "create_event":
       return createEvent(ai, user);
 
@@ -19,10 +17,31 @@ async function handle(ai, user) {
   }
 }
 
+/* ================= SHARED HELPERS ================= */
+
+function formatEventDateTime(value) {
+  if (!value) return "unknown time";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "unknown time";
+
+  const datePart = date.toLocaleDateString("en-CA", {
+    month: "long",
+    day: "numeric",
+    year: "numeric"
+  });
+
+  const timePart = date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit"
+  });
+
+  return `${datePart} at ${timePart}`;
+}
+
 /* ================= CREATE EVENT ================= */
 
 async function createEvent(ai, user) {
-
   const { title, description, startTime, endTime } = ai.params || {};
 
   if (!title) {
@@ -55,7 +74,6 @@ async function createEvent(ai, user) {
 /* ================= DELETE EVENT ================= */
 
 async function deleteEvent(ai, user) {
-
   const { title } = ai.params || {};
 
   if (!title) {
@@ -68,7 +86,7 @@ async function deleteEvent(ai, user) {
   const events = await schedulerService.getEvents(user.id);
 
   const matches = events.filter(
-    e => e.title?.toLowerCase() === title.toLowerCase()
+    (e) => e.title?.toLowerCase() === title.toLowerCase()
   );
 
   if (matches.length === 0) {
@@ -79,9 +97,15 @@ async function deleteEvent(ai, user) {
   }
 
   if (matches.length > 1) {
+    const options = matches
+      .slice()
+      .sort((a, b) => new Date(a.startTime) - new Date(b.startTime))
+      .map((event, index) => `${index + 1}. ${formatEventDateTime(event.startTime)}`)
+      .join("\n");
+
     return {
       role: "assistant",
-      content: `I found multiple events titled "${title}". Please be more specific.`
+      content: `I found multiple events titled "${title}". Which one should I delete?\n${options}`
     };
   }
 

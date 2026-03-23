@@ -1,15 +1,16 @@
 import { apiFetch } from "./client";
 
-export async function sendChatMessage(message) {
+export async function sendChatMessage(message, context = {}) {
   const data = await apiFetch("/api/chatbot", {
     method: "POST",
     body: JSON.stringify({
-        "messages": [
-            {
-                role: "user",
-                content: message
-            },
-        ]
+      messages: [
+        {
+          role: "user",
+          content: message
+        }
+      ],
+      context
     })
   });
 
