@@ -9,6 +9,8 @@ import Sprout from '../../components/chatbot/Sprout';
 import sproutLogo from '../../assets/Logo.png';
 import { sendChatMessage } from '../../api/chatbot';
 import TodayAgenda from './TodayAgenda';
+import background from '../../assets/bg.png';
+import AppLayout from '@/components/AppLayout';
 
 export default function CalendarPage() {
   const [events, setEvents] = useState([]);
@@ -43,39 +45,43 @@ export default function CalendarPage() {
 }
 
   return (
-    <div className="min-h-screen bg-[#F3EED9] text-amber-900">
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
-        <header>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Link to="/dashboard">
-              <img src={sproutLogo} className="h-20" alt="Sprout logo" />
-            </Link>
-            Calendar
-          </h1>
-          <p className="text-[#6B5E5E]">Plan your days ahead</p>
-        </header>
+  <div
+    className="min-h-screen w-full bg-cover bg-center bg-fixed "
+    style={{ backgroundImage: `url(${background})` }}
+  >
+    <AppLayout>
+      <div className="min-h-screen p-6">
+        <div className="max-w-7xl mx-auto space-y-6 p-6">
 
-        <div className="flex gap-8 items-start">
-          <CalendarGrid
-            currentMonth={currentMonth}
-            setCurrentMonth={setCurrentMonth}
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
-            eventsByDate={eventsByDate}
-          />
+          <header className="space-y-1">
+            <h1 className="sprout-title">Calendar</h1>
+            <p className="sprout-subtitle">Plan your days ahead</p>
+          </header>
 
-          <div className="flex flex-col gap-6">
-            <TodayAgenda eventsByDate={eventsByDate} />
+          <div className="flex gap-8 items-start">
 
-            <EventSidebar
+            <CalendarGrid
+              currentMonth={currentMonth}
+              setCurrentMonth={setCurrentMonth}
               selectedDate={selectedDate}
+              setSelectedDate={setSelectedDate}
               eventsByDate={eventsByDate}
-              onEventCreated={loadEvents}
             />
+
+            <div className="flex flex-col gap-6">
+              <TodayAgenda eventsByDate={eventsByDate} />
+
+              <EventSidebar
+                selectedDate={selectedDate}
+                eventsByDate={eventsByDate}
+                onEventCreated={loadEvents}
+              />
+            </div>
           </div>
+
         </div>
       </div>
-
+    </AppLayout>
       <Sprout onSend={sendCalendarChatMessage} onBudgetChange={loadEvents} />
     </div>
   );
