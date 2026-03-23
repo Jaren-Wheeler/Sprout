@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify';
 import { Trash2 } from 'lucide-react';
 
 const VARIANTS = [
@@ -43,17 +44,18 @@ export default function NoteCard({ note, variant = 1, onOpen, onDelete }) {
             {formatDate(note.updatedAt || note.createdAt)}
           </div>
         </div>
-
-        <div className="text-[14px] leading-relaxed text-amber-800/95 line-clamp-4 overflow-hidden">
+        <div className="text-[14px] leading-relaxed text-amber-800/95 line-clamp-4 [&>*]:m-0">
           {note.content ? (
-            <div className="max-w-none text-amber-800 whitespace-pre-wrap break-words">
-              {note.content}
-            </div>
+            <div
+              className="prose prose-sm !max-w-full w-full text-amber-800"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(note.content),
+              }}
+            />
           ) : (
             <span className="opacity-60">No content</span>
           )}
         </div>
-
         <div
           className="mt-auto pt-3 flex justify-end"
           onClick={(e) => e.stopPropagation()}
