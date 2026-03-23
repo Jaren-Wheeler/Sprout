@@ -33,6 +33,17 @@ export default function CalendarPage() {
 
   const eventsByDate = groupEventsByDate(events);
 
+  // ================= UI =================
+  async function sendCalendarChatMessage(message) {
+  const now = new Date();
+
+  return sendChatMessage(message, {
+    clientNowIso: now.toISOString(),
+    clientLocalDate: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`,
+    clientTimezoneOffsetMinutes: now.getTimezoneOffset()
+  });
+}
+
   return (
   <div
     className="min-h-screen w-full bg-cover bg-center bg-fixed "
@@ -71,8 +82,7 @@ export default function CalendarPage() {
         </div>
       </div>
     </AppLayout>
-
-    <Sprout onSend={sendChatMessage} />
-  </div>
-);
+      <Sprout onSend={sendCalendarChatMessage} onBudgetChange={loadEvents} />
+    </div>
+  );
 }
