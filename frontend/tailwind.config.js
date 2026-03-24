@@ -6,7 +6,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sprout: ['"Comic Sans MS"', 'Poppins', 'sans-serif'],
+        sprout: ['Inter', 'sans-serif'],
+        'sprout-heading': ['Poppins', 'sans-serif'],
       },
       colors: {
         bg: '#0f1115',

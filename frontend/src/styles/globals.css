@@ -7,8 +7,28 @@
 ======================================================== */
 
 @layer base {
+  html {
+    font-family: 'Inter', sans-serif;
+  }
+
   body {
     @apply font-sprout;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-sprout-heading;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
   }
 }
 
@@ -126,11 +146,11 @@
   ===================================================== */
 
   .sprout-title {
-    @apply text-[44px] leading-none text-amber-900/95 tracking-[0.5px];
+    @apply text-[44px] leading-none text-amber-900/95 tracking-[0.5px] font-sprout-heading;
   }
 
   .sprout-subtitle {
-    @apply text-[16px] text-orange-600/90;
+    @apply text-[16px] text-orange-600/90 font-sprout;
   }
 
   /* =====================================================
