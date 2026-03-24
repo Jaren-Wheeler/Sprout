@@ -12,6 +12,8 @@ import CategoryEditorModal from './CategoryEditorModal';
 import CategoryAddCard from './CategoryAddCard';
 
 import sproutLogo from '../../assets/Logo.png';
+import board from "../../assets/board.jpg";
+
 import { sendChatMessage } from '../../api/chatbot';
 
 export default function BudgetDashboard({
@@ -189,25 +191,37 @@ export default function BudgetDashboard({
         </div>
 
         {/* ================= MAIN WORKSPACE ================= */}
-        <div className="grid lg:grid-cols-2 gap-6 items-stretch">
-          <div className="h-full">
-            <BudgetChart categoryStats={categoryStats} />
-          </div>
-
-          <div className="h-full">
-            <BudgetWorkspace
-              categories={budgets}
-              expenses={expenses}
-              refreshData={refreshData}
-            />
+        {/* BOARD SECTION */}
+      <div className="w-full my-10"> 
+        <div 
+          className="w-full p-10 shadow-2xl border-y-4 border-[#5d4037]/30" 
+          style={{ 
+            backgroundImage: `url(${board})`, 
+            backgroundSize: '100% 100%', // Forces the image to stretch exactly to the container bounds
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center'
+          }}
+        >
+          {/* Content stays centered and readable */}
+          <div className="grid lg:grid-cols-2 gap-10 max-w-6xl mx-auto">
+            <div className="bg-white/80 backdrop-blur-md rounded-2xl p-6 shadow-sm">
+              <BudgetChart categoryStats={categoryStats} />
+            </div>
+            <div className="bg-white/80 backdrop-blur-md rounded-2xl p-6 shadow-sm">
+              <BudgetWorkspace 
+                categories={budgets} 
+                expenses={expenses} 
+                refreshData={refreshData} 
+              />
+            </div>
           </div>
         </div>
+      </div>
 
         {/* ================= TRANSACTION HISTORY ================= */}
         <TransactionList transactions={transactions} />
 
-        {/* ================= AI ASSISTANT ================= */}
-     
+       
 
         {editingCategory && (
           <CategoryEditorModal
@@ -217,7 +231,6 @@ export default function BudgetDashboard({
           />
         )}
       </div>
-         <Sprout onSend={sendChatMessage} onBudgetChange={refreshData} />
     </div>
   );
 }

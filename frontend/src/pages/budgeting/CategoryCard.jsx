@@ -1,9 +1,13 @@
+import React from 'react';
+import note3 from "../../assets/note3.png";
+
 export default function CategoryCard({ category, onClick }) {
   const percent = (category.spent / category.limitAmount) * 100 || 0;
 
   const isOver = percent > 100;
   const displayPercent = Math.min(percent, 100);
 
+  const randomRotation = React.useMemo(() => (Math.random() * 4 - 2).toFixed(2), []);
   return (
     <div
       onClick={() => onClick?.(category)}
@@ -12,6 +16,15 @@ export default function CategoryCard({ category, onClick }) {
         sprout-card p-4 hover:scale-[1.02]
         ${isOver ? 'border-red-400' : ''}
       `}
+      style={{
+        backgroundImage: `url(${note3})`,
+        backgroundSize: "100% 100%", // Ensures the note covers the card area
+        backgroundRepeat: "no-repeat",
+        padding: "35px 25px", // Extra padding to keep text off the paper edges
+        transform: `rotate(${randomRotation}deg)`,
+        filter: "drop-shadow(4px 4px 8px rgba(0,0,0,0.15))",
+        minWidth: "260px"
+      }}
     >
       {/* HEADER ROW */}
       <div className="flex justify-between items-start mb-1">
