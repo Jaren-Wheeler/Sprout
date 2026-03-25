@@ -8,10 +8,12 @@ export default function DashboardCard({ title, route, children }) {
 
   return (
     <div
-      className={`sprout-card p-5 flex flex-col h-[260px]
-                  transition-transform duration-200
-                  hover:scale-[1.02]
-                  ${tilt[Math.floor(Math.random() * tilt.length)]}`}
+      className={`p-6 flex flex-col h-[280px] cursor-pointer
+                bg-[#f8ff94] border-4 border-[#8c4a18] rounded-xl
+                shadow-[8px_8px_0px_0px_rgba(254,240,138,0.3)]
+                transition-all duration-200
+                hover:scale-[1.03] hover:bg-[#fce477]
+                ${tilt[Math.floor(Math.random() * tilt.length)]}`}
       onClick={() => navigate(route)}
     >
 

@@ -1,13 +1,23 @@
 import CalorieCard from './CalorieCard';
 import MacroTargetsCard from './MacroTargetsCard';
+import note1 from "../../../../assets/note1.png";
 
 export default function DietStats({ stats, onEditGoals }) {
   if (!stats) {
     return (
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="flex flex-wrap justify-center gap-8">
         <div
           onClick={onEditGoals}
-          className="sprout-card p-6 cursor-pointer text-center hover:scale-[1.01] transition"
+          style={{
+            backgroundImage: `url(${note1})`,
+            backgroundSize: '100% 100%',
+            backgroundRepeat: 'no-repeat',
+            padding: '50px 40px',
+            minWidth: '280px',
+            textAlign: 'center',
+            transform: 'rotate(-2deg)',
+            filter: 'drop-shadow(4px 4px 8px rgba(0,0,0,0.15))'
+          }}
         >
           <h2 className="text-lg font-semibold text-amber-900 mb-2">
             Energy Summary
@@ -20,7 +30,17 @@ export default function DietStats({ stats, onEditGoals }) {
 
         <div
           onClick={onEditGoals}
-          className="sprout-card p-6 cursor-pointer text-center hover:scale-[1.01] transition"
+           className="cursor-pointer transition-transform hover:scale-105"
+           style={{
+            backgroundImage: `url(${note1})`,
+            backgroundSize: '100% 100%',
+            backgroundRepeat: 'no-repeat',
+            padding: '50px 40px',
+            minWidth: '100px',
+            textAlign: 'center',
+            transform: 'rotate(2deg)',
+            filter: 'drop-shadow(4px 4px 8px rgba(0,0,0,0.15))'
+          }}
         >
           <h2 className="text-lg font-semibold text-amber-900 mb-2">
             Macro Targets
@@ -35,24 +55,29 @@ export default function DietStats({ stats, onEditGoals }) {
   }
 
   return (
-    <div className="grid md:grid-cols-2 gap-4">
-      <CalorieCard
-        calorieGoal={stats.calorieGoal}
-        caloriesConsumed={stats.caloriesConsumed}
-        currentWeight={stats.currentWeight}
-        goalWeight={stats.goalWeight}
-        onEdit={onEditGoals}
-      />
-
-      <MacroTargetsCard
-        proteinGoal={stats.proteinGoal}
-        carbsGoal={stats.carbsGoal}
-        fatGoal={stats.fatGoal}
-        proteinConsumed={stats.proteinConsumed}
-        carbsConsumed={stats.carbsConsumed}
-        fatConsumed={stats.fatConsumed}
-        onEdit={onEditGoals}
-      />
+    <div className="flex flex-wrap justify-center gap-10 items-start">
+      <div className="rotate-[-1.5deg] transition-transform hover:rotate-0 shadow-xl rounded-2xl overflow-hidden">
+        <CalorieCard
+          calorieGoal={stats.calorieGoal}
+          caloriesConsumed={stats.caloriesConsumed}
+          currentWeight={stats.currentWeight}
+          goalWeight={stats.goalWeight}
+          onEdit={onEditGoals}
+        />
+      </div>
+      
+      <div className="rotate-[1.5deg] transition-transform hover:rotate-0 shadow-xl rounded-2xl overflow-hidden">
+        <MacroTargetsCard
+          proteinGoal={stats.proteinGoal}
+          carbsGoal={stats.carbsGoal}
+          fatGoal={stats.fatGoal}
+          proteinConsumed={stats.proteinConsumed}
+          carbsConsumed={stats.carbsConsumed}
+          fatConsumed={stats.fatConsumed}
+          onEdit={onEditGoals}
+        />
+      </div>
+      
     </div>
   );
 }
