@@ -1,6 +1,7 @@
 import React from "react";
 // Import note2 instead
 import note2 from "../../assets/note2.png";
+import board from "../../assets/board.jpg";
 
 export default function SummaryCard({ title, value, color }) {
   const textColors = {

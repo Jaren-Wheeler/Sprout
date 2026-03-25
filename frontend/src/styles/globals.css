@@ -111,8 +111,8 @@
   ===================================================== */
 
   .sprout-paper {
-    @apply rounded-xl border-2 border-yellow-400/70
-           bg-yellow-100/60
+    @apply rounded-xl border-2 border-yellow-400
+           bg-yellow-100
            shadow-[0_14px_24px_rgba(0,0,0,0.10)];
   }
 

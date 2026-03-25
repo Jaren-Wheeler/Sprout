@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import { sendChatMessage } from '../../../api/chatbot';
 
 import background from '../../../assets/bg.png';
+import note4 from '../../../assets/note4.png';
+
 import Sprout from '../../../components/chatbot/Sprout';
 
 import CreateDietModal from '../modals/CreateDietModal';
@@ -55,8 +57,8 @@ export default function DietDashboard() {
     style={{ backgroundImage: `url(${background})` }}
   >
     <AppLayout>
-      <div className="min-h-screen p-6">
-        <div className="max-w-7xl mx-auto space-y-6 p-6">
+      <div className="min-h-screen">
+        <div className="max-w-7xl mx-auto space-y-6 pl-10 pr-10">
 
           {/* FITNESS PROFILE MODAL */}
           {showGoalsModal && (
@@ -82,19 +84,27 @@ export default function DietDashboard() {
 
           {/* MAIN DIET LAYOUT */}
           <DietLayout
-            header={
-              <header className="flex items-start justify-between gap-4">
-                <div>
-                  <h1 className="text-3xl font-bold flex items-center gap-3">
-                    Diet
-                  </h1>
-
-                  <p className="text-[#6B5E5E]">
-                    Track meals, nutrition, and health goals
-                  </p>
+              header={
+                <header className="flex flex-col items-center justify-center">
+                  <div 
+                    className="flex flex-col items-center justify-center"
+                    style={{ 
+                      backgroundImage: `url(${note4})`,
+                      backgroundSize: '90% 65%',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'center',
+                      minWidth: '400px',
+                      minHeight: '250px',
+                      textAlign: 'center',
+                      filter: 'drop-shadow(8px 8px 12px rgba(0,0,0,0.1))'
+                    }}
+                  >
+                  <h1 className="text-5xl font-black text-[#3B2F2F]">Diet Journal</h1>
+                  <p className="text-[#6B5E5E] italic">Track your progress and nutrition</p>
                 </div>
               </header>
-            }
+              }
+
             summary={
               <DietStats
                 stats={stats}
