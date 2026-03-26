@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/layout/dashboard.css";
+import Header from "../../components/Header";
+import SideMenu from "../../components/SideMenu";
 // Assets
 import forest from "../../assets/forest.png";
 import forestdark from "../../assets/forestdark.png";
@@ -23,7 +25,7 @@ import fitnesshover from "../../assets/fitness-hover.png";
 export default function Dashboard() {
   const navigate = useNavigate();
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [sproutOpen, setSproutOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -70,6 +72,17 @@ export default function Dashboard() {
       className="dashboard-bg"
       style={{ backgroundImage: `url(${isDarkMode ? forestdark : forest})` }}
     >
+      <div className="relative z-30">
+        <Header
+          title="Habitat"
+          onMenuClick={() => setMenuOpen((prev) => !prev)}
+          className="border-b-0 bg-transparent"
+          buttonClassName="ml-5"
+          showThemeToggle={false}
+        />
+        <SideMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+      </div>
+
       <div className="dashboard-container">
         {items.map((item) => (
           <div

@@ -25,8 +25,8 @@ html.dark {
   --sprout-ink: #efe4c7;
   --sprout-ink-soft: rgba(239, 228, 199, 0.74);
   --sprout-ink-muted: rgba(239, 228, 199, 0.56);
-  --sprout-paper: rgba(27, 32, 42, 0.9);
-  --sprout-paper-strong: rgba(36, 42, 55, 0.96);
+  --sprout-paper: rgba(15, 18, 24, 0.92);
+  --sprout-paper-strong: rgba(21, 25, 32, 0.97);
   --sprout-border: rgba(198, 209, 230, 0.14);
   --sprout-border-strong: rgba(198, 209, 230, 0.22);
   --sprout-shadow: 0 16px 34px rgba(0, 0, 0, 0.28);
@@ -73,8 +73,8 @@ html.dark {
       radial-gradient(circle at 24px 22px, rgba(255, 255, 255, 0.004) 0 1.7px, transparent 2.1px),
       radial-gradient(circle at 34px 14px, rgba(255, 255, 255, 0.006) 0 3px, transparent 3.5px),
       radial-gradient(circle at 24px 6px, rgba(255, 255, 255, 0.008) 0 4px, transparent 4.5px),
-      radial-gradient(circle at top, rgba(96, 118, 156, 0.18), transparent 34%),
-      linear-gradient(180deg, #0f141d 0%, #161c28 100%);
+      radial-gradient(circle at top, rgba(78, 94, 123, 0.14), transparent 34%),
+      linear-gradient(180deg, #050608 0%, #0b0d10 100%);
     color: var(--sprout-ink);
   }
 
@@ -370,7 +370,7 @@ html.dark {
 
 .dark .auth-card {
   color: var(--sprout-ink);
-  background: linear-gradient(180deg, rgba(27, 32, 42, 0.94), rgba(20, 24, 33, 0.96));
+  background: linear-gradient(180deg, rgba(12, 15, 20, 0.95), rgba(8, 10, 14, 0.97));
   border-color: rgba(255, 255, 255, 0.08);
   box-shadow: 0 24px 56px rgba(0, 0, 0, 0.34);
 }
@@ -388,14 +388,14 @@ html.dark {
 
 .dark .sprout-app-shell {
   background:
-    radial-gradient(circle at top left, rgba(110, 135, 176, 0.18), transparent 34%),
-    linear-gradient(180deg, rgba(14, 19, 28, 0.96), rgba(20, 25, 36, 0.94));
+    radial-gradient(circle at top left, rgba(84, 101, 132, 0.12), transparent 34%),
+    linear-gradient(180deg, rgba(6, 8, 11, 0.97), rgba(10, 12, 16, 0.95));
 }
 
 .dark .sprout-page-shell {
   border-color: rgba(255, 255, 255, 0.08);
   background:
-    linear-gradient(180deg, rgba(23, 29, 39, 0.96), rgba(18, 23, 32, 0.94)),
+    linear-gradient(180deg, rgba(10, 12, 16, 0.96), rgba(14, 17, 21, 0.94)),
     linear-gradient(135deg, rgba(255, 255, 255, 0.06), transparent 55%);
   box-shadow: 0 32px 80px rgba(0, 0, 0, 0.34);
 }
@@ -409,7 +409,7 @@ html.dark {
 .dark .sprout-page-hero {
   border-color: rgba(255, 255, 255, 0.08);
   background:
-    linear-gradient(135deg, rgba(28, 34, 45, 0.96), rgba(22, 27, 37, 0.92)),
+    linear-gradient(135deg, rgba(14, 17, 22, 0.96), rgba(10, 12, 16, 0.92)),
     linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.26);
 }
@@ -442,7 +442,7 @@ html.dark {
 }
 
 .dark .sprout-surface {
-  background: linear-gradient(180deg, rgba(26, 31, 42, 0.94), rgba(19, 24, 33, 0.9));
+  background: linear-gradient(180deg, rgba(12, 15, 20, 0.94), rgba(8, 11, 15, 0.9));
 }
 
 .dark .sprout-glass-panel {
@@ -451,11 +451,11 @@ html.dark {
 
 .dark .sprout-panel,
 .dark .sprout-card {
-  background: linear-gradient(180deg, rgba(32, 38, 50, 0.96), rgba(22, 27, 37, 0.92));
+  background: linear-gradient(180deg, rgba(16, 19, 24, 0.96), rgba(10, 12, 16, 0.92));
 }
 
 .dark .sprout-paper {
-  background: linear-gradient(180deg, rgba(42, 35, 18, 0.86), rgba(31, 27, 18, 0.78));
+  background: linear-gradient(180deg, rgba(24, 20, 11, 0.84), rgba(13, 11, 8, 0.8));
   border-color: rgba(215, 171, 69, 0.36);
 }
 
@@ -518,8 +518,8 @@ html.dark {
 
 .dark .sprout-dashboard {
   background:
-    linear-gradient(180deg, rgba(17, 22, 31, 0.64), rgba(15, 19, 27, 0.88)),
-    #121723;
+    linear-gradient(180deg, rgba(7, 9, 13, 0.74), rgba(9, 11, 15, 0.92)),
+    #090b0f;
 }
 
 @layer utilities {

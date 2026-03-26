@@ -4,6 +4,7 @@ import BudgetDashboardCard from "./BudgetDashboardCard";
 import DietDashboardCard from "./DietDashboardCard";
 import ScheduleDashboardCard from "./ScheduleDashboardCard";
 import NotesDashboardCard from "./NotesDashboardCard";
+import ExploreHabitatButton from "./ExploreHabitatButton";
 import OnboardingTour from "../../components/OnboardingTour";
 import AppLayout from "../../components/AppLayout";
 import backgroundImage from "../../assets/board.jpg";
@@ -14,7 +15,7 @@ export default function DashboardPage({ user, setUser }) {
   const [showTour, setShowTour] = useState(false);
   const pageBackground =
     theme === "dark"
-      ? "radial-gradient(circle at 18% 14%, rgba(212, 178, 116, 0.11), transparent 20%), radial-gradient(circle at 82% 78%, rgba(145, 114, 72, 0.1), transparent 18%), repeating-linear-gradient(-18deg, rgba(255,248,228,0.02) 0 2px, rgba(255,248,228,0) 2px 13px), linear-gradient(180deg, #181410 0%, #241c15 52%, #31251b 100%)"
+      ? "radial-gradient(circle at 18% 14%, rgba(212, 178, 116, 0.08), transparent 20%), radial-gradient(circle at 82% 78%, rgba(145, 114, 72, 0.06), transparent 18%), repeating-linear-gradient(-18deg, rgba(255,248,228,0.015) 0 2px, rgba(255,248,228,0) 2px 13px), linear-gradient(180deg, #040506 0%, #0a0b0d 52%, #12100d 100%)"
       : `radial-gradient(circle at 50% 28%, rgba(255,239,165,0.24), transparent 22%), linear-gradient(180deg, rgba(62,39,20,0.16), rgba(62,39,20,0.08)), url(${backgroundImage})`;
 
   useEffect(() => {
@@ -81,6 +82,10 @@ export default function DashboardPage({ user, setUser }) {
                 <NotesDashboardCard />
               </div>
             </section>
+
+            <div className="flex justify-center pt-2 pb-6">
+              <ExploreHabitatButton />
+            </div>
           </div>
         </AppLayout>
     </div>
