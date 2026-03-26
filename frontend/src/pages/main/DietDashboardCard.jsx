@@ -99,18 +99,18 @@ export default function DietDashboardCard() {
   return (
     <DashboardCard title="Diet" route="/diet">
       <div className="flex justify-between items-baseline">
-        <span className="text-2xl font-semibold text-amber-900">
+        <span className="text-[2rem] font-semibold text-[#7a3d11]">
           {stats.caloriesConsumed} kcal
         </span>
 
-        <span className="text-sm text-amber-700">/ {stats.calorieGoal}</span>
+        <span className="text-sm text-[#b06326]">/ {stats.calorieGoal}</span>
       </div>
 
-      <div className="w-full h-2 bg-[#E8D9A8] rounded-full overflow-hidden">
-        <div className="h-full bg-green-500" style={{ width: `${percent}%` }} />
+      <div className="h-2 w-full overflow-hidden rounded-full bg-[rgba(189,152,92,0.22)]">
+        <div className="h-full rounded-full bg-[linear-gradient(90deg,#5f974a_0%,#84b764_100%)]" style={{ width: `${percent}%` }} />
       </div>
 
-      <div className="text-xs text-amber-800">{remaining} kcal remaining</div>
+      <div className="text-xs text-[rgba(113,64,25,0.82)]">{remaining} kcal remaining</div>
 
       <div className="w-full h-24">
         <ResponsiveContainer width="100%" height="100%">
@@ -122,9 +122,9 @@ export default function DietDashboardCard() {
               paddingAngle={2}
               dataKey="value"
             >
-              <Cell fill="#3B82F6" />
-              <Cell fill="#F59E0B" />
-              <Cell fill="#22C55E" />
+              <Cell fill="#6b8fc8" />
+              <Cell fill="#d59d42" />
+              <Cell fill="#6ea55f" />
             </Pie>
           </PieChart>
         </ResponsiveContainer>

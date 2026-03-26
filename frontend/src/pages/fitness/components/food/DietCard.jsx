@@ -23,7 +23,7 @@ export default function DietCard({
   }, []);
 
   return (
-    <div ref={ref} className="relative w-[200px]">
+    <div ref={ref} className="relative w-full max-w-[240px]">
       {/* Trigger */}
 
       <button

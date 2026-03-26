@@ -2,6 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --sprout-ink: #4a3320;
+  --sprout-ink-soft: rgba(74, 51, 32, 0.72);
+  --sprout-ink-muted: rgba(74, 51, 32, 0.54);
+  --sprout-paper: rgba(255, 250, 240, 0.88);
+  --sprout-paper-strong: rgba(255, 247, 232, 0.96);
+  --sprout-border: rgba(128, 86, 36, 0.24);
+  --sprout-border-strong: rgba(128, 86, 36, 0.38);
+  --sprout-shadow: 0 16px 34px rgba(87, 60, 26, 0.12);
+  --sprout-shadow-strong: 0 22px 48px rgba(87, 60, 26, 0.16);
+  --sprout-shadow-soft: 0 10px 22px rgba(87, 60, 26, 0.09);
+  --sprout-accent: #e5b43d;
+  --sprout-accent-strong: #cc9220;
+  --sprout-green: #67a14f;
+  --sprout-green-deep: #4f7f43;
+  --sprout-rose: #b87266;
+  --sprout-sky: #7ca7c9;
+}
+
+html.dark {
+  --sprout-ink: #efe4c7;
+  --sprout-ink-soft: rgba(239, 228, 199, 0.74);
+  --sprout-ink-muted: rgba(239, 228, 199, 0.56);
+  --sprout-paper: rgba(15, 18, 24, 0.92);
+  --sprout-paper-strong: rgba(21, 25, 32, 0.97);
+  --sprout-border: rgba(198, 209, 230, 0.14);
+  --sprout-border-strong: rgba(198, 209, 230, 0.22);
+  --sprout-shadow: 0 16px 34px rgba(0, 0, 0, 0.28);
+  --sprout-shadow-strong: 0 22px 48px rgba(0, 0, 0, 0.34);
+  --sprout-shadow-soft: 0 10px 22px rgba(0, 0, 0, 0.24);
+  --sprout-accent: #d7ab45;
+  --sprout-accent-strong: #efbe5f;
+  --sprout-green: #88c36d;
+  --sprout-green-deep: #c4dda2;
+  --sprout-rose: #d48a81;
+  --sprout-sky: #8fb7d6;
+}
+
 /* ========================================================
    Base Layer
 ======================================================== */
@@ -13,6 +51,31 @@
 
   body {
     @apply font-sprout;
+    background:
+      radial-gradient(circle at 18px 14px, rgba(122, 91, 44, 0.0025) 0 3px, transparent 3.5px),
+      radial-gradient(circle at 8px 22px, rgba(122, 91, 44, 0.0017) 0 1.7px, transparent 2.1px),
+      radial-gradient(circle at 16px 24px, rgba(122, 91, 44, 0.0017) 0 1.7px, transparent 2.1px),
+      radial-gradient(circle at 24px 22px, rgba(122, 91, 44, 0.0017) 0 1.7px, transparent 2.1px),
+      radial-gradient(circle at 34px 14px, rgba(122, 91, 44, 0.0025) 0 3px, transparent 3.5px),
+      radial-gradient(circle at 24px 6px, rgba(122, 91, 44, 0.0032) 0 4px, transparent 4.5px),
+      radial-gradient(circle at top, rgba(255, 255, 255, 0.9), transparent 36%),
+      linear-gradient(180deg, #fffdf9 0%, #fcf8ef 100%);
+    background-size: 172px 172px, 172px 172px, 172px 172px, 172px 172px, 172px 172px, 172px 172px, auto, auto;
+    color: var(--sprout-ink);
+    min-height: 100vh;
+  }
+
+  html.dark body {
+    background:
+      radial-gradient(circle at 18px 14px, rgba(255, 255, 255, 0.006) 0 3px, transparent 3.5px),
+      radial-gradient(circle at 8px 22px, rgba(255, 255, 255, 0.004) 0 1.7px, transparent 2.1px),
+      radial-gradient(circle at 16px 24px, rgba(255, 255, 255, 0.004) 0 1.7px, transparent 2.1px),
+      radial-gradient(circle at 24px 22px, rgba(255, 255, 255, 0.004) 0 1.7px, transparent 2.1px),
+      radial-gradient(circle at 34px 14px, rgba(255, 255, 255, 0.006) 0 3px, transparent 3.5px),
+      radial-gradient(circle at 24px 6px, rgba(255, 255, 255, 0.008) 0 4px, transparent 4.5px),
+      radial-gradient(circle at top, rgba(78, 94, 123, 0.14), transparent 34%),
+      linear-gradient(180deg, #050608 0%, #0b0d10 100%);
+    color: var(--sprout-ink);
   }
 
   h1,
@@ -38,10 +101,6 @@
 ======================================================== */
 
 @layer components {
-  /* =====================================================
-     Landing / Auth Components
-  ===================================================== */
-
   .sprout-btn {
     @apply px-10 py-5 text-xl font-semibold rounded-full border-4
       transition-transform duration-200 hover:scale-110;
@@ -56,25 +115,27 @@
   }
 
   .auth-card {
-    @apply w-full max-w-lg rounded-3xl
-           bg-blue-500/80 dark:bg-blue-900/80
-           backdrop-blur-md shadow-2xl
-           p-10 space-y-6 text-black dark:text-white;
+    @apply w-full max-w-lg rounded-[30px] border p-10 space-y-6 text-black;
+    background: linear-gradient(180deg, rgba(255, 251, 244, 0.9), rgba(244, 232, 203, 0.88));
+    border-color: var(--sprout-border);
+    box-shadow: var(--sprout-shadow-strong);
+    backdrop-filter: blur(10px);
   }
 
   .auth-input {
-    @apply w-full px-4 py-3 rounded-xl
-           bg-white text-black placeholder-gray-400
-           focus:outline-none focus:ring-4 focus:ring-white/60;
+    @apply w-full px-4 py-3 rounded-2xl border bg-white/85 text-black placeholder-gray-400
+           focus:outline-none;
+    border-color: rgba(128, 86, 36, 0.16);
+    box-shadow: inset 0 1px 2px rgba(87, 60, 26, 0.06);
   }
 
   .auth-button {
-    @apply w-full py-3 rounded-full border-2 border-black
-           font-semibold bg-blue-400 hover:bg-blue-500 transition;
+    @apply w-full py-3 rounded-full border-2 font-semibold text-white transition;
+    background: linear-gradient(180deg, #7fb36d 0%, #5f974a 100%);
+    border-color: #4c7b3d;
+    box-shadow: 0 10px 20px rgba(76, 123, 61, 0.22);
   }
-  /* =====================================================
-     Error Handling 
-  ===================================================== */
+
   .sprout-input-error {
     @apply border-red-500 ring-2 ring-red-400;
   }
@@ -83,53 +144,139 @@
     @apply text-sm text-red-500 mt-1;
   }
 
-  /* =====================================================
-     Sprout Core Surfaces
-  ===================================================== */
-
-  /* General app panel */
   .sprout-panel {
-    @apply bg-white border-2 border-[#E8D9A8] rounded-xl shadow-sm;
+    @apply rounded-2xl border-2;
+    background: linear-gradient(180deg, var(--sprout-paper-strong), var(--sprout-paper));
+    border-color: rgba(229, 205, 140, 0.92);
+    box-shadow: var(--sprout-shadow);
   }
 
-  /* Interactive content card */
+  .sprout-app-shell {
+    @apply relative min-h-screen overflow-hidden;
+    background:
+      radial-gradient(circle at top left, rgba(255, 255, 255, 0.82), transparent 34%),
+      linear-gradient(180deg, rgba(255, 251, 243, 0.78), rgba(248, 242, 227, 0.58));
+  }
+
+  .sprout-page-wrap {
+    @apply min-h-screen px-4 py-4 md:px-6 md:py-6;
+  }
+
+  .sprout-page-shell {
+    @apply relative mx-auto min-h-[calc(100vh-2rem)] max-w-[1400px] overflow-hidden rounded-[32px] border;
+    border-color: rgba(128, 86, 36, 0.15);
+    background:
+      linear-gradient(180deg, rgba(255, 251, 244, 0.92), rgba(248, 242, 228, 0.85)),
+      linear-gradient(135deg, rgba(255, 255, 255, 0.36), transparent 55%);
+    box-shadow: 0 32px 80px rgba(87, 60, 26, 0.14);
+    backdrop-filter: blur(12px);
+  }
+
+  .sprout-page-shell::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at top right, rgba(229, 180, 61, 0.12), transparent 30%),
+      radial-gradient(circle at bottom left, rgba(103, 161, 79, 0.11), transparent 26%);
+  }
+
+  .sprout-page-shell-plain::before {
+    display: none;
+  }
+
+  .sprout-page-content {
+    @apply relative z-10 p-4 md:p-6 lg:p-8;
+  }
+
+  .sprout-page-hero {
+    @apply relative overflow-hidden rounded-[28px] border px-6 py-8 md:px-8 md:py-10;
+    border-color: rgba(128, 86, 36, 0.13);
+    background:
+      linear-gradient(135deg, rgba(255, 251, 244, 0.96), rgba(246, 237, 216, 0.88)),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.4), transparent);
+    box-shadow: var(--sprout-shadow);
+  }
+
+  .sprout-page-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(90deg, rgba(255,255,255,0.22), transparent 30%, transparent 70%, rgba(255,255,255,0.14)),
+      radial-gradient(circle at 12% 20%, rgba(229, 180, 61, 0.14), transparent 20%);
+  }
+
+  .sprout-page-kicker {
+    @apply mb-3 inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em];
+    background: rgba(255, 255, 255, 0.68);
+    color: var(--sprout-green-deep);
+    border-color: rgba(103, 161, 79, 0.22);
+  }
+
+  .sprout-page-title {
+    @apply font-sprout-heading text-4xl leading-none md:text-[3.4rem];
+    color: #52311a;
+  }
+
+  .sprout-page-description {
+    @apply mt-3 max-w-2xl text-sm md:text-base;
+    color: var(--sprout-ink-soft);
+  }
+
+  .sprout-surface {
+    @apply rounded-[24px] border;
+    border-color: rgba(128, 86, 36, 0.12);
+    background: linear-gradient(180deg, rgba(255, 252, 246, 0.92), rgba(248, 241, 225, 0.84));
+    box-shadow: var(--sprout-shadow-soft);
+  }
+
+  .sprout-glass-panel {
+    @apply rounded-[22px] border;
+    border-color: rgba(128, 86, 36, 0.1);
+    background: rgba(255, 255, 255, 0.52);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--sprout-shadow-soft);
+  }
+
+  .sprout-stat-chip {
+    @apply rounded-full border px-3 py-2 text-sm font-medium;
+    border-color: rgba(128, 86, 36, 0.14);
+    background: rgba(255, 255, 255, 0.64);
+    color: #65442a;
+  }
+
   .sprout-card {
-    @apply bg-white rounded-xl border-2 border-[#E8D9A8] shadow-sm
-           transition hover:shadow-md cursor-pointer;
+    @apply rounded-2xl border-2 transition cursor-pointer;
+    background: linear-gradient(180deg, rgba(255, 251, 244, 0.96), rgba(250, 242, 220, 0.92));
+    border-color: rgba(229, 205, 140, 0.92);
+    box-shadow: var(--sprout-shadow);
   }
 
-  /* Add item card */
   .sprout-add-card {
     @apply border-2 border-dashed border-green-400 rounded-xl
            flex flex-col items-center justify-center
            cursor-pointer hover:bg-green-50 transition;
   }
 
-  /* =====================================================
-     Sprout Paper Surface
-     Used everywhere (notes, modals, panels)
-  ===================================================== */
-
   .sprout-paper {
-    @apply rounded-xl border-2 border-yellow-400
-           bg-yellow-100
-           shadow-[0_14px_24px_rgba(0,0,0,0.10)];
+    @apply rounded-2xl border-2;
+    background: linear-gradient(180deg, rgba(255, 246, 220, 0.9), rgba(247, 232, 180, 0.62));
+    border-color: rgba(219, 179, 58, 0.55);
+    box-shadow: var(--sprout-shadow);
   }
-
-  /* =====================================================
-     Sticky Note Card
-  ===================================================== */
 
   .sprout-note-card {
-    @apply relative rounded-xl border-2 border-yellow-400/90 p-5
-           shadow-[0_18px_30px_rgba(0,0,0,0.12)]
+    @apply relative rounded-xl border-2 p-5
            cursor-pointer overflow-hidden
            hover:-translate-y-[2px] transition;
+    background: linear-gradient(180deg, rgba(255, 249, 223, 0.95), rgba(244, 228, 159, 0.9));
+    border-color: rgba(216, 179, 72, 0.8);
+    box-shadow: 0 18px 30px rgba(0,0,0,0.12);
   }
 
-  /* =====================================================
-     Individual Calendar Cells
-  ===================================================== */
   .sprout-day-cell {
     @apply h-20 rounded-xl border-2 flex flex-col p-2
          cursor-pointer transition-all duration-150
@@ -141,49 +288,46 @@
     @apply bg-yellow-200 border-yellow-400 shadow-sm;
   }
 
-  /* =====================================================
-     Page Typography System
-  ===================================================== */
-
   .sprout-title {
-    @apply text-[44px] leading-none text-amber-900/95 tracking-[0.5px] font-sprout-heading;
+    @apply text-[42px] md:text-[46px] leading-none tracking-[0.2px] font-sprout-heading;
+    color: #5a3012;
   }
 
   .sprout-subtitle {
-    @apply text-[16px] text-orange-600/90 font-sprout;
+    @apply text-[16px] md:text-[17px] font-sprout;
+    color: var(--sprout-ink-soft);
   }
-
-  /* =====================================================
-     Forms
-  ===================================================== */
 
   .sprout-input {
-    @apply w-full p-3 rounded-lg bg-[#F9F6EC] border border-[#E8D9A8]
+    @apply w-full p-3 rounded-xl bg-[#F9F6EC] border
            focus:outline-none focus:ring-2 focus:ring-yellow-300;
+    border-color: rgba(229, 205, 140, 0.9);
   }
-
-  /* =====================================================
-     Buttons
-  ===================================================== */
 
   .sprout-btn-base {
     @apply rounded-lg font-medium transition;
   }
 
   .sprout-btn-primary {
-    @apply sprout-btn-base py-3 bg-[#F4A000] text-white hover:opacity-90;
+    @apply sprout-btn-base py-3 text-white;
+    background: linear-gradient(180deg, #f0b240 0%, #d4941f 100%);
+    box-shadow: 0 10px 18px rgba(212, 148, 31, 0.22);
   }
 
   .sprout-btn-success {
-    @apply sprout-btn-base py-3 bg-green-500 text-white hover:opacity-90;
+    @apply sprout-btn-base py-3 text-white;
+    background: linear-gradient(180deg, #7dbb65 0%, #5d9a45 100%);
+    box-shadow: 0 10px 18px rgba(93, 154, 69, 0.2);
   }
 
   .sprout-btn-muted {
-    @apply sprout-btn-base py-2 bg-gray-200 text-gray-600;
+    @apply sprout-btn-base py-2 text-gray-700 border border-white/60;
+    background: rgba(255,255,255,0.7);
   }
 
   .sprout-btn-danger {
-    @apply sprout-btn-base py-2 bg-red-500 text-white;
+    @apply sprout-btn-base py-2 text-white;
+    background: linear-gradient(180deg, #de7361 0%, #c44f43 100%);
   }
 
   .sprout-icon-btn {
@@ -196,16 +340,12 @@
     @apply sprout-icon-btn text-red-500 hover:text-red-600;
   }
 
-  /* =====================================================
-     Editor Toolbar Buttons
-  ===================================================== */
-
   .sprout-toolbar-btn {
     @apply px-3 py-2 rounded-xl text-[14px] font-semibold
            border-2 transition-all duration-150
            focus:outline-none focus:ring-2 focus:ring-yellow-400/60
            active:translate-y-[1px]
-           bg-white border-yellow-300 text-amber-900
+           bg-white/90 border-yellow-300 text-amber-900
            hover:bg-yellow-100 hover:border-yellow-400
            hover:-translate-y-[1px] shadow-sm;
   }
@@ -215,17 +355,12 @@
            shadow-[inset_0_2px_6px_rgba(0,0,0,0.15)];
   }
 
-  /* =====================================================
-     Modal System
-  ===================================================== */
-
   .sprout-modal-backdrop {
     @apply fixed inset-0 bg-black/40 backdrop-blur-sm
          flex items-center justify-center;
     z-index: 50;
   }
 
-  /* Higher level modal (confirm dialogs, alerts) */
   .sprout-modal-backdrop-top {
     @apply fixed inset-0 bg-black/40 backdrop-blur-sm
          flex items-center justify-center;
@@ -233,9 +368,159 @@
   }
 }
 
-/* ========================================================
-   Utility Layer
-======================================================== */
+.dark .auth-card {
+  color: var(--sprout-ink);
+  background: linear-gradient(180deg, rgba(12, 15, 20, 0.95), rgba(8, 10, 14, 0.97));
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.34);
+}
+
+.dark .auth-input {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--sprout-ink);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.dark .auth-input::placeholder {
+  color: rgba(239, 228, 199, 0.42);
+}
+
+.dark .sprout-app-shell {
+  background:
+    radial-gradient(circle at top left, rgba(84, 101, 132, 0.12), transparent 34%),
+    linear-gradient(180deg, rgba(6, 8, 11, 0.97), rgba(10, 12, 16, 0.95));
+}
+
+.dark .sprout-page-shell {
+  border-color: rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(10, 12, 16, 0.96), rgba(14, 17, 21, 0.94)),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.06), transparent 55%);
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.34);
+}
+
+.dark .sprout-page-shell::before {
+  background:
+    radial-gradient(circle at top right, rgba(215, 171, 69, 0.11), transparent 30%),
+    radial-gradient(circle at bottom left, rgba(136, 195, 109, 0.12), transparent 26%);
+}
+
+.dark .sprout-page-hero {
+  border-color: rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(135deg, rgba(14, 17, 22, 0.96), rgba(10, 12, 16, 0.92)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.26);
+}
+
+.dark .sprout-page-kicker {
+  background: rgba(255, 255, 255, 0.05);
+  color: #c4dda2;
+  border-color: rgba(196, 221, 162, 0.2);
+}
+
+.dark .sprout-page-title,
+.dark .sprout-title {
+  color: #f1e5c5;
+}
+
+.dark .sprout-page-description,
+.dark .sprout-subtitle {
+  color: rgba(239, 228, 199, 0.74);
+}
+
+.dark .sprout-surface,
+.dark .sprout-glass-panel,
+.dark .sprout-panel,
+.dark .sprout-card,
+.dark .sprout-paper,
+.dark .sprout-note-card {
+  border-color: rgba(255, 255, 255, 0.08);
+  color: var(--sprout-ink);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.24);
+}
+
+.dark .sprout-surface {
+  background: linear-gradient(180deg, rgba(12, 15, 20, 0.94), rgba(8, 11, 15, 0.9));
+}
+
+.dark .sprout-glass-panel {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.dark .sprout-panel,
+.dark .sprout-card {
+  background: linear-gradient(180deg, rgba(16, 19, 24, 0.96), rgba(10, 12, 16, 0.92));
+}
+
+.dark .sprout-paper {
+  background: linear-gradient(180deg, rgba(24, 20, 11, 0.84), rgba(13, 11, 8, 0.8));
+  border-color: rgba(215, 171, 69, 0.36);
+}
+
+.dark .sprout-note-card {
+  background: linear-gradient(180deg, rgba(59, 49, 26, 0.92), rgba(42, 35, 18, 0.88));
+  border-color: rgba(215, 171, 69, 0.4);
+}
+
+.dark .sprout-stat-chip,
+.dark .sprout-btn-muted,
+.dark .sprout-input,
+.dark .sprout-toolbar-btn,
+.dark .sprout-icon-btn {
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--sprout-ink);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dark .sprout-toolbar-btn-active {
+  background: rgba(215, 171, 69, 0.9);
+  color: #2c2314;
+  border-color: rgba(239, 190, 95, 0.9);
+}
+
+.dark .sprout-day-cell {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: var(--sprout-ink);
+}
+
+.dark .sprout-day-cell:hover {
+  background: rgba(215, 171, 69, 0.12);
+}
+
+.dark .sprout-day-cell-selected {
+  background: rgba(215, 171, 69, 0.24);
+  border-color: rgba(239, 190, 95, 0.52);
+}
+
+.dark .text-amber-900,
+.dark .text-\[\#5a3012\],
+.dark .text-\[\#4f2d16\],
+.dark .text-\[\#52311a\],
+.dark .text-\[\#3B2F2F\],
+.dark .text-gray-900,
+.dark .text-gray-800,
+.dark .text-gray-700 {
+  color: #f1e5c5 !important;
+}
+
+.dark .text-amber-900\/70,
+.dark .text-amber-900\/60,
+.dark .text-amber-900\/55,
+.dark .text-\[\#4f5f34\]\/80,
+.dark .text-\[\#55713c\]\/80,
+.dark .text-\[rgba\(74\,51\,32\,0\.48\)\],
+.dark .text-\[rgba\(74\,51\,32\,0\.62\)\] {
+  color: rgba(241, 229, 197, 0.72) !important;
+}
+
+.dark .sprout-dashboard {
+  background:
+    linear-gradient(180deg, rgba(7, 9, 13, 0.74), rgba(9, 11, 15, 0.92)),
+    #090b0f;
+}
 
 @layer utilities {
   .sprout-bg {
@@ -278,8 +563,6 @@
   }
 }
 
-/* Remove number input arrows */
-
 input[type='number']::-webkit-outer-spin-button,
 input[type='number']::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -289,10 +572,6 @@ input[type='number']::-webkit-inner-spin-button {
 input[type='number'] {
   -moz-appearance: textfield;
 }
-
-/* ========================================================
-   Third Party Overrides
-======================================================== */
 
 .recharts-wrapper:focus {
   outline: none;
@@ -333,12 +612,11 @@ input[type='number'] {
   font-weight: 600;
 }
 
-/* =====================================================
-   Dashboard
-===================================================== */
-
 .sprout-dashboard {
-  @apply w-full min-h-screen mx-auto px-6 py-8 pb-24 bg-[#f3eed9];
+  @apply relative w-full min-h-screen mx-auto;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 249, 0.34), rgba(247, 241, 225, 0.6)),
+    #f3eed9;
 }
 
 .sprout-dashboard-header {
@@ -346,14 +624,24 @@ input[type='number'] {
 }
 
 .sprout-dashboard-grid {
-  @apply grid gap-12
+  @apply relative z-10 grid gap-6
          grid-cols-1
          md:grid-cols-2
          max-w-6xl
          mx-auto;
 }
 
-/* Dashboard cards extend the main card style */
+.sprout-dashboard-shell {
+  @apply mx-auto flex max-w-6xl flex-col gap-6;
+}
+
+.sprout-dashboard-overview {
+  @apply grid gap-6 lg:grid-cols-[1.2fr_0.8fr];
+}
+
+.sprout-dashboard-stack {
+  @apply flex flex-col gap-6;
+}
 
 .sprout-dashboard-card {
   @apply sprout-card p-5 flex flex-col gap-3;
@@ -375,9 +663,6 @@ input[type='number'] {
   @apply text-sm text-amber-800 space-y-1;
 }
 
-/* =====================================================
-   Dashboard Onboarding
-===================================================== */
 .sprout-tour-popover {
   border-radius: 14px !important;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15) !important;
@@ -399,10 +684,6 @@ input[type='number'] {
   padding: 6px 12px !important;
 }
 
-/* =====================================================
-   LANDING PAGE
-===================================================== */
-
 @keyframes sproutFloat {
   0% {
     transform: translateY(0px);
@@ -419,15 +700,30 @@ input[type='number'] {
   animation: sproutFloat 4s ease-in-out infinite;
 }
 
-/* =====================================================
-    STEM GROWING ANIMATION
-===================================================== */
+.sprout-paper-texture {
+  position: relative;
+}
+
+.sprout-paper-texture::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.55;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.3), transparent 34%),
+    repeating-linear-gradient(
+      -12deg,
+      rgba(132, 100, 64, 0.03),
+      rgba(132, 100, 64, 0.03) 1px,
+      transparent 1px,
+      transparent 12px
+    );
+}
 
 .flower {
   transform-origin: 110px 200px;
 }
-
-/* stem grow */
 
 .stem {
   stroke-dasharray: 200;
@@ -437,8 +733,6 @@ input[type='number'] {
 .grow .stem {
   animation: stemGrow 2s ease forwards;
 }
-
-/* leaves */
 
 .leaf {
   opacity: 0;
@@ -454,8 +748,6 @@ input[type='number'] {
   animation: leafPop 0.6s forwards;
   animation-delay: 1.6s;
 }
-
-/* petals */
 
 .petal {
   opacity: 0;
@@ -483,8 +775,6 @@ input[type='number'] {
 .grow .center {
   animation: centerPop 0.5s forwards 3s;
 }
-
-/* sway animation */
 
 .grow {
   animation: sway 5s ease-in-out infinite 3s;
@@ -563,6 +853,42 @@ input[type='number'] {
   animation-delay: 4.1s;
 }
 
+.sprout-diet-card-text {
+  color: #78350f;
+}
+
+.sprout-diet-card-text-muted {
+  color: rgba(120, 53, 15, 0.7);
+}
+
+.dark .sprout-diet-card-text {
+  color: #78350f !important;
+}
+
+.dark .sprout-diet-card-text-muted {
+  color: rgba(120, 53, 15, 0.7) !important;
+}
+
+.dark .sprout-diet-card-force-light-text,
+.dark .sprout-diet-card-force-light-text h1,
+.dark .sprout-diet-card-force-light-text h2,
+.dark .sprout-diet-card-force-light-text h3,
+.dark .sprout-diet-card-force-light-text p,
+.dark .sprout-diet-card-force-light-text span,
+.dark .sprout-diet-card-force-light-text div {
+  color: #78350f !important;
+}
+
+.dark .sprout-diet-card-force-light-text .text-amber-900\/80,
+.dark .sprout-diet-card-force-light-text .text-amber-900\/70,
+.dark .sprout-diet-card-force-light-text .text-amber-900\/60 {
+  color: rgba(120, 53, 15, 0.7) !important;
+}
+
+.dark .sprout-diet-card-force-light-text .text-red-500 {
+  color: rgb(239 68 68) !important;
+}
+
 @keyframes sparkle {
   0% {
     opacity: 0;
@@ -578,7 +904,6 @@ input[type='number'] {
   }
 }
 
-/* Home page */
 @keyframes floatButton {
   0% { transform: translateY(0); }
   100% { transform: translateY(-6px); }

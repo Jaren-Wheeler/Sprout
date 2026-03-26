@@ -1,20 +1,13 @@
 import { useMemo, useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 
 import BudgetChart from './BudgetChart';
 import BudgetWorkspace from './BudgetWorkspace';
-import Sprout from '../../components/chatbot/Sprout';
 
 import SummaryCard from './SummaryCard';
 import CategoryCard from './CategoryCard';
 import TransactionList from './TransactionList';
 import CategoryEditorModal from './CategoryEditorModal';
 import CategoryAddCard from './CategoryAddCard';
-
-import sproutLogo from '../../assets/Logo.png';
-import board from "../../assets/board.jpg";
-
-import { sendChatMessage } from '../../api/chatbot';
 
 export default function BudgetDashboard({
   budgets,
@@ -23,10 +16,6 @@ export default function BudgetDashboard({
   expectedIncome,
   refreshData,
 }) {
-  // =====================================================
-  // DERIVED TOTALS
-  // =====================================================
-
   const totalExpenses = useMemo(() => {
     return expenses.reduce((sum, e) => sum + Number(e.amount), 0);
   }, [expenses]);
@@ -37,10 +26,6 @@ export default function BudgetDashboard({
 
   const totalIncome = expectedIncome + totalIncomeEntries;
   const balance = totalIncome - totalExpenses;
-
-  // =====================================================
-  // DRAG SCROLL CAROUSEL LOGIC
-  // =====================================================
 
   const scrollRef = useRef(null);
   const isDown = useRef(false);
@@ -93,10 +78,6 @@ export default function BudgetDashboard({
     };
   }, []);
 
-  // =====================================================
-  // CATEGORY SPENDING DATA
-  // =====================================================
-
   const categoryStats = useMemo(() => {
     return budgets.map((b) => {
       const spent = expenses
@@ -110,10 +91,6 @@ export default function BudgetDashboard({
       };
     });
   }, [budgets, expenses]);
-
-  // =====================================================
-  // MERGE TRANSACTIONS
-  // =====================================================
 
   const transactions = useMemo(() => {
     const expenseTx = expenses.map((e) => ({
@@ -141,42 +118,46 @@ export default function BudgetDashboard({
 
   const [editingCategory, setEditingCategory] = useState(null);
 
-  // =====================================================
-  // UI
-  // =====================================================
-
   return (
-    <div className="min-h-screen  text-[#3B2F2F]">
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
-        {/* ================= HEADER ================= */}
-        <header>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            Budget
-          </h1>
+    <div className="space-y-6 text-[#3B2F2F]">
+      <section className="sprout-page-hero">
+        <div className="relative z-10">
+          <div>
+            <span className="sprout-page-kicker">Financial snapshot</span>
+            <h1 className="sprout-page-title">Budget</h1>
+            <p className="sprout-page-description">
+              Track spending, compare categories, and keep your money view tidy without losing the handmade warmth.
+            </p>
+          </div>
+        </div>
+      </section>
 
-          <p className="text-[#6B5E5E]">
-            Track your spending and watch your savings grow
-          </p>
-        </header>
+      <div className="grid gap-4 md:grid-cols-3">
+        <SummaryCard title="Income" value={totalIncome} color="income" />
+        <SummaryCard title="Expenses" value={totalExpenses} color="expense" />
+        <SummaryCard title="Balance" value={balance} color="balance" />
+      </div>
 
-        {/* ================= SUMMARY CARDS ================= */}
-        <div className="grid md:grid-cols-3 gap-4">
-          <SummaryCard title="Income" value={totalIncome} color="income" />
-          <SummaryCard title="Expenses" value={totalExpenses} color="expense" />
-          <SummaryCard title="Balance" value={balance} color="balance" />
+      <section className="sprout-surface p-4 md:p-5">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgba(74,51,32,0.48)]">
+              Categories
+            </p>
+            <h2 className="text-xl font-semibold text-[#5a3012]">Your budget spaces</h2>
+          </div>
         </div>
 
-        {/* ================= CATEGORY CAROUSEL ================= */}
-        <div className="relative pb-6 carousel-fade">
+        <div className="relative carousel-fade pb-2">
           <div
             ref={scrollRef}
             onMouseDown={handleMouseDown}
             onMouseLeave={handleMouseLeave}
             onMouseUp={handleMouseUp}
             onMouseMove={handleMouseMove}
-            className="overflow-x-auto hide-scrollbar scroll-smooth cursor-grab select-none px-4"
+            className="hide-scrollbar overflow-x-auto scroll-smooth cursor-grab select-none px-1"
           >
-            <div className="flex gap-4 snap-x snap-mandatory">
+            <div className="flex gap-4 snap-x snap-mandatory pb-2">
               {categoryStats.map((cat) => (
                 <div key={cat.id} className="snap-start">
                   <CategoryCard category={cat} onClick={setEditingCategory} />
@@ -189,48 +170,37 @@ export default function BudgetDashboard({
             </div>
           </div>
         </div>
+      </section>
 
-        {/* ================= MAIN WORKSPACE ================= */}
-        {/* BOARD SECTION */}
-      <div className="w-full my-10"> 
-        <div 
-          className="w-full p-10 shadow-2xl border-y-4 border-[#5d4037]/30" 
-          style={{ 
-            backgroundImage: `url(${board})`, 
-            backgroundSize: '100% 100%', // Forces the image to stretch exactly to the container bounds
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'center'
-          }}
-        >
-          {/* Content stays centered and readable */}
-          <div className="grid lg:grid-cols-2 gap-10 max-w-6xl mx-auto">
-            <div className="bg-white/80 backdrop-blur-md rounded-2xl p-6 shadow-sm">
-              <BudgetChart categoryStats={categoryStats} />
-            </div>
-            <div className="bg-white/80 backdrop-blur-md rounded-2xl p-6 shadow-sm">
-              <BudgetWorkspace 
-                categories={budgets} 
-                expenses={expenses} 
-                refreshData={refreshData} 
-              />
-            </div>
+      <section className="grid gap-6 xl:grid-cols-[1.05fr_1.2fr]">
+        <div className="sprout-surface p-5 md:p-6">
+          <div className="mb-4">
+            <h2 className="text-xl font-semibold text-[#5a3012]">Category breakdown</h2>
           </div>
+          <BudgetChart categoryStats={categoryStats} />
         </div>
-      </div>
 
-        {/* ================= TRANSACTION HISTORY ================= */}
-        <TransactionList transactions={transactions} />
-
-       
-
-        {editingCategory && (
-          <CategoryEditorModal
-            category={editingCategory}
-            onClose={() => setEditingCategory(null)}
-            onSaved={refreshData}
+        <div className="sprout-surface p-5 md:p-6">
+          <div className="mb-4">
+            <h2 className="text-xl font-semibold text-[#5a3012]">Manage budgets and expenses</h2>
+          </div>
+          <BudgetWorkspace
+            categories={budgets}
+            expenses={expenses}
+            refreshData={refreshData}
           />
-        )}
-      </div>
+        </div>
+      </section>
+
+      <TransactionList transactions={transactions} />
+
+      {editingCategory && (
+        <CategoryEditorModal
+          category={editingCategory}
+          onClose={() => setEditingCategory(null)}
+          onSaved={refreshData}
+        />
+      )}
     </div>
   );
 }

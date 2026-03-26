@@ -65,9 +65,12 @@ export default function DietCharts({ dietItems, weightHistory }) {
     .sort((a, b) => a.rawDate - b.rawDate);
 
   return (
-    <div className="flex bg-white h-[200px] w-full justify-center items-center">
-      <div className="sprout-paper p-6 w-[90%] h-[75%]">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="flex w-full justify-center">
+      <div
+        className="sprout-paper w-full p-6"
+        style={{ background: 'rgba(255, 255, 255, 0.96)' }}
+      >
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           {/* MACRO PIE */}
           <div>
             <h2 className="font-semibold text-amber-900 mb-4">
@@ -75,48 +78,50 @@ export default function DietCharts({ dietItems, weightHistory }) {
             </h2>
 
             {pieData.length === 0 ? (
-              <div className="sprout-panel p-4 text-amber-900/70 text-center">
+              <div className="sprout-panel flex min-h-[300px] items-center justify-center p-4 text-center text-amber-900/70">
                 No food logged today.
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={70}
-                    outerRadius={100}
-                    dataKey="value"
-                    label={({ value }) =>
-                      totalMacros > 0
-                        ? `${Math.round((value / totalMacros) * 100)}%`
-                        : ''
-                    }
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell key={index} fill={MACRO_COLORS[entry.name]} />
-                    ))}
-
-                    <Label
-                      value={`${caloriesToday} kcal`}
-                      position="center"
-                      className="fill-amber-900 font-semibold text-lg"
-                    />
-                  </Pie>
-                  <Tooltip
-                    formatter={(value) => {
-                      const percent =
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={70}
+                      outerRadius={100}
+                      dataKey="value"
+                      label={({ value }) =>
                         totalMacros > 0
-                          ? Math.round((value / totalMacros) * 100)
-                          : 0;
+                          ? `${Math.round((value / totalMacros) * 100)}%`
+                          : ''
+                      }
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell key={index} fill={MACRO_COLORS[entry.name]} />
+                      ))}
 
-                      return [`${percent}% (${value} g)`];
-                    }}
-                  />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+                      <Label
+                        value={`${caloriesToday} kcal`}
+                        position="center"
+                        className="fill-amber-900 font-semibold text-lg"
+                      />
+                    </Pie>
+                    <Tooltip
+                      formatter={(value) => {
+                        const percent =
+                          totalMacros > 0
+                            ? Math.round((value / totalMacros) * 100)
+                            : 0;
+
+                        return [`${percent}% (${value} g)`];
+                      }}
+                    />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             )}
           </div>
 
@@ -127,28 +132,30 @@ export default function DietCharts({ dietItems, weightHistory }) {
             </h2>
 
             {weightData.length === 0 ? (
-              <div className="sprout-panel p-4 text-amber-900/70 text-center">
+              <div className="sprout-panel flex min-h-[300px] items-center justify-center p-4 text-center text-amber-900/70">
                 No weight data yet.
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={weightData}>
-                  <CartesianGrid strokeDasharray="3 3" />
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={weightData}>
+                    <CartesianGrid strokeDasharray="3 3" />
 
-                  <XAxis dataKey="date" />
-                  <YAxis domain={['auto', 'auto']} />
+                    <XAxis dataKey="date" />
+                    <YAxis domain={['auto', 'auto']} />
 
-                  <Tooltip />
+                    <Tooltip />
 
-                  <Line
-                    type="monotone"
-                    dataKey="weight"
-                    stroke="#22c55e"
-                    strokeWidth={3}
-                    dot={{ r: 4 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+                    <Line
+                      type="monotone"
+                      dataKey="weight"
+                      stroke="#22c55e"
+                      strokeWidth={3}
+                      dot={{ r: 4 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             )}
           </div>
         </div>

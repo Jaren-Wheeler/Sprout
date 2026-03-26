@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import SetupWizard from "./SetupWizard";
 import BudgetDashboard from "./BudgetDashboard";
-// Update the import path to the one we verified earlier
 import AppLayout from "../../components/AppLayout";
 import background from "../../assets/bg.png";
+import { useTheme } from "../../theme/ThemeContext";
 
 import {
   getBudgets,
@@ -13,6 +13,7 @@ import {
 } from "../../api/finance";
 
 export default function BudgetPage() {
+  const { theme } = useTheme();
   const [loading, setLoading] = useState(true);
   const [needsSetup, setNeedsSetup] = useState(false);
 
@@ -21,9 +22,6 @@ export default function BudgetPage() {
   const [expectedIncome, setExpectedIncome] = useState(0);
   const [incomeEntries, setIncomeEntries] = useState([]);
 
-  // =====================================================
-  // INITIAL LOAD
-  // =====================================================
   useEffect(() => {
     async function loadData() {
       try {
@@ -59,9 +57,6 @@ export default function BudgetPage() {
     loadData();
   }, []);
 
-  // =====================================================
-  // REFRESH HELPER
-  // =====================================================
   async function refreshData() {
     const [
       budgetsData,
@@ -81,9 +76,6 @@ export default function BudgetPage() {
     setIncomeEntries(incomeEntriesData);
   }
 
-  // =====================================================
-  // SETUP COMPLETION HANDLER
-  // =====================================================
   async function handleSetupComplete() {
     setNeedsSetup(false);
     setLoading(true);
@@ -91,17 +83,26 @@ export default function BudgetPage() {
     setLoading(false);
   }
 
-    if (loading) {
-    return <div className="p-6">Loading finances…</div>;
+  if (loading) {
+    return <div className="p-6">Loading finances...</div>;
   }
 
   return (
     <div
-      className="min-h-screen w-full bg-cover bg-center bg-fixed"
-      style={{ backgroundImage: `url(${background})` }}
+      className="sprout-app-shell"
+      style={{
+        backgroundImage:
+          theme === "dark"
+            ? `radial-gradient(circle at 18% 14%, rgba(212, 178, 116, 0.08), transparent 20%), radial-gradient(circle at 82% 78%, rgba(145, 114, 72, 0.06), transparent 18%), repeating-linear-gradient(-18deg, rgba(255,248,228,0.015) 0 2px, rgba(255,248,228,0) 2px 13px), linear-gradient(180deg, #040506 0%, #0a0b0d 52%, #12100d 100%)`
+            : `linear-gradient(180deg, rgba(255,253,249,0.5), rgba(247,241,225,0.72)), url(${background})`,
+        backgroundRepeat: theme === "dark" ? "no-repeat, no-repeat, repeat, no-repeat" : "no-repeat, no-repeat",
+        backgroundSize: theme === "dark" ? "auto, auto, 220px 220px, cover" : "auto, cover",
+        backgroundPosition: theme === "dark" ? "center, center" : "center, center top",
+      }}
     >
-      <AppLayout>
-        <div className="min-h-screen p-6">
+      <div className="sprout-page-wrap">
+      <AppLayout title="Budget">
+        <div>
           {needsSetup ? (
             <SetupWizard onComplete={handleSetupComplete} />
           ) : (
@@ -115,6 +116,7 @@ export default function BudgetPage() {
           )}
         </div>
       </AppLayout>
+      </div>
     </div>
   );
 }

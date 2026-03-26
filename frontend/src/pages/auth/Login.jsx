@@ -51,7 +51,6 @@ export default function Login({ setUser }) {
           onSubmit={handleSubmit(onSubmit)}
           className="space-y-4"
         >
-          {/* EMAIL */}
           <div>
             <input
               type="email"
@@ -67,7 +66,6 @@ export default function Login({ setUser }) {
             )}
           </div>
 
-          {/* PASSWORD */}
           <div>
             <input
               type="password"
@@ -83,7 +81,6 @@ export default function Login({ setUser }) {
             )}
           </div>
 
-          {/* FORM ERROR */}
           {errors.root && (
             <div className="sprout-error-text text-center">
               {errors.root.message}
@@ -95,9 +92,8 @@ export default function Login({ setUser }) {
           </button>
         </form>
 
-        {/* NAV LINK  */}
         <p className="text-center text-sm">
-          Don’t have an account?{' '}
+          Don&apos;t have an account?{' '}
           <span
             onClick={() => navigate('/signup')}
             className="font-semibold cursor-pointer hover:underline"
@@ -106,7 +102,6 @@ export default function Login({ setUser }) {
           </span>
         </p>
 
-        {/* THEME TOGGLE */}
         <div className="flex justify-center gap-6 text-2xl pt-2">
           <span
             onClick={() => setTheme('light')}
@@ -114,7 +109,7 @@ export default function Login({ setUser }) {
               theme === 'light' ? 'scale-125' : 'opacity-50'
             }`}
           >
-            ☀️
+            Light
           </span>
 
           <span
@@ -123,7 +118,7 @@ export default function Login({ setUser }) {
               theme === 'dark' ? 'scale-125' : 'opacity-50'
             }`}
           >
-            🌙
+            Dark
           </span>
         </div>
       </div>

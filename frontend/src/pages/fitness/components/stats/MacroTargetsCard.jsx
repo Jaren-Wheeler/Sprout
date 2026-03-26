@@ -1,3 +1,5 @@
+import note1 from "../../../../assets/note1.png";
+
 function MacroRow({ label, consumed = 0, goal = 0, color }) {
   const value = Number(consumed) || 0;
   const target = Number(goal) || 0;
@@ -11,9 +13,9 @@ function MacroRow({ label, consumed = 0, goal = 0, color }) {
   return (
     <div className="mb-5">
       <div className="flex justify-between items-end mb-1">
-        <span className="text-amber-900/80 text-sm">{label}</span>
+        <span className="text-sm text-amber-900/80">{label}</span>
 
-        <span className="text-amber-900 font-semibold">
+        <span className="font-semibold text-amber-900">
           {Math.round(value)} / {Math.round(target)} g
         </span>
       </div>
@@ -58,32 +60,41 @@ export default function MacroTargetsCard({
   return (
     <div
       onClick={onEdit}
-      className="sprout-card p-6 cursor-pointer hover:scale-[1.01] transition flex flex-col"
+      className="sprout-diet-card-force-light-text w-full cursor-pointer rounded-2xl px-8 pb-14 pt-14 transition hover:scale-[1.01] flex min-h-[260px] flex-col"
+      style={{
+        backgroundImage: `url(${note1})`,
+        backgroundSize: '100% 100%',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center',
+        filter: 'drop-shadow(4px 8px 14px rgba(87, 60, 26, 0.18))',
+      }}
     >
-      <h2 className="text-lg font-semibold text-amber-900 mb-5">
+      <h2 className="mb-8 text-center text-lg font-semibold text-amber-900">
         Macro Targets
       </h2>
 
-      <MacroRow
-        label="Protein"
-        consumed={proteinConsumed}
-        goal={proteinGoal}
-        color="bg-blue-500"
-      />
+      <div className="px-3">
+        <MacroRow
+          label="Protein"
+          consumed={proteinConsumed}
+          goal={proteinGoal}
+          color="bg-blue-500"
+        />
 
-      <MacroRow
-        label="Carbs"
-        consumed={carbsConsumed}
-        goal={carbsGoal}
-        color="bg-green-500"
-      />
+        <MacroRow
+          label="Carbs"
+          consumed={carbsConsumed}
+          goal={carbsGoal}
+          color="bg-green-500"
+        />
 
-      <MacroRow
-        label="Fat"
-        consumed={fatConsumed}
-        goal={fatGoal}
-        color="bg-orange-500"
-      />
+        <MacroRow
+          label="Fat"
+          consumed={fatConsumed}
+          goal={fatGoal}
+          color="bg-orange-500"
+        />
+      </div>
     </div>
   );
 }

@@ -50,45 +50,25 @@ export default function NotesDashboardCard() {
 
   const previewNotes = notes.slice(0, 4);
 
-  const rotations = [
-    "rotate-[-1deg]",
-    "rotate-[1deg]",
-    "rotate-[0.5deg]",
-    "rotate-[-0.5deg]"
-  ];
-
   const colors = [
-    "bg-yellow-100 border-yellow-300",
-    "bg-amber-100 border-amber-300",
-    "bg-orange-100 border-orange-300",
-    "bg-yellow-200 border-yellow-400"
+    "bg-[rgba(255,243,191,0.9)] border-[rgba(224,190,78,0.62)]",
+    "bg-[rgba(252,239,199,0.88)] border-[rgba(214,177,98,0.52)]",
+    "bg-[rgba(251,236,209,0.88)] border-[rgba(209,163,110,0.48)]",
+    "bg-[rgba(255,245,205,0.92)] border-[rgba(226,192,86,0.56)]"
   ];
 
   return (
     <DashboardCard title="Notes" route="/notes">
-
       <div className="grid grid-cols-2 gap-3 h-full">
-
         {previewNotes.map((note, index) => (
-
           <div
             key={note.id}
-            className={`
-              flex items-center justify-center
-              text-center text-sm font-medium
-              p-2 rounded-lg border shadow-sm
-              ${colors[index % colors.length]}
-              ${rotations[index % rotations.length]}
-              truncate
-            `}
+            className={`flex min-h-[86px] items-center justify-center rounded-xl border px-3 py-2 text-center text-sm font-medium text-[#6a3914] shadow-[0_10px_18px_rgba(90,48,18,0.08)] ${colors[index % colors.length]}`}
           >
-            {note.title || "Untitled"}
+            <span className="line-clamp-2">{note.title || "Untitled"}</span>
           </div>
-
         ))}
-
       </div>
-
     </DashboardCard>
   );
 }

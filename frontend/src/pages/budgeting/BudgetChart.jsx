@@ -1,6 +1,9 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { useTheme } from '../../theme/ThemeContext';
 
 export default function BudgetChart({ categoryStats }) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const data = (categoryStats || [])
     .filter((c) => c.spent > 0)
     .map((c) => ({
@@ -34,7 +37,7 @@ export default function BudgetChart({ categoryStats }) {
       <text
         x={x}
         y={y}
-        fill="#3B2F2F"
+        fill={isDark ? '#f4ead0' : '#3B2F2F'}
         textAnchor={x > cx ? 'start' : 'end'}
         dominantBaseline="central"
         style={{ fontSize: 14, fontWeight: 500 }}
@@ -45,13 +48,13 @@ export default function BudgetChart({ categoryStats }) {
   };
 
   return (
-    <div className="sprout-panel p-6 rounded-xl  h-full flex flex-col">
-      <h2 className="font-semibold mb-6 text-[#3B2F2F]">
+    <div className="flex h-full flex-col p-2 md:p-1">
+      <h2 className="mb-6 font-semibold text-[#3B2F2F] dark:text-white">
         Spending by Category
       </h2>
 
       {data.length === 0 ? (
-        <p className="text-sm text-[#6B5E5E] text-center py-12">
+        <p className="text-sm text-[#6B5E5E] text-center py-12 dark:text-white/70">
           No expenses yet
         </p>
       ) : (
@@ -81,17 +84,21 @@ export default function BudgetChart({ categoryStats }) {
                   formatter={(value) => `$${value.toFixed(2)}`}
                   contentStyle={{
                     borderRadius: '8px',
-                    border: '1px solid #E8D9A8',
+                    border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #E8D9A8',
+                    background: isDark ? 'rgba(26, 30, 39, 0.96)' : '#fffaf0',
+                    color: isDark ? '#f4ead0' : '#3B2F2F',
                   }}
+                  labelStyle={{ color: isDark ? '#f4ead0' : '#3B2F2F' }}
+                  itemStyle={{ color: isDark ? '#f4ead0' : '#3B2F2F' }}
                 />
               </PieChart>
             </ResponsiveContainer>
 
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <p className="text-3xl font-bold text-[#3B2F2F]">
+              <p className="text-3xl font-bold text-[#3B2F2F] dark:text-white">
                 ${totalSpent.toFixed(0)}
               </p>
-              <p className="text-sm text-[#6B5E5E]">Total Spent</p>
+              <p className="text-sm text-[#6B5E5E] dark:text-white/70">Total Spent</p>
             </div>
           </div>
         </div>

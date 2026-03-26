@@ -159,8 +159,8 @@ export default function NoteEditorPanel({
         </div>
 
         {/* Toolbar */}
-        <div className="flex flex-wrap justify-center items-center gap-3 max-w-fit mx-auto bg-gradient-to-b from-yellow-100 to-yellow-50 border-2 border-yellow-300 rounded-2xl p-3 shadow-[inset_0_2px_6px_rgba(0,0,0,0.08)]">
-          <div className="flex gap-2 px-2 py-1 bg-white/60 rounded-xl border border-yellow-200">
+        <div className="flex max-w-fit flex-wrap items-center justify-center gap-3 mx-auto rounded-2xl border-2 border-yellow-300 bg-gradient-to-b from-yellow-100 to-yellow-50 p-3 shadow-[inset_0_2px_6px_rgba(0,0,0,0.08)] dark:border-white/10 dark:from-[rgba(45,37,22,0.96)] dark:to-[rgba(30,25,15,0.92)] dark:shadow-[inset_0_2px_6px_rgba(0,0,0,0.28)]">
+          <div className="flex gap-2 rounded-xl border border-yellow-200 bg-white/60 px-2 py-1 dark:border-white/10 dark:bg-white/5">
             <ToolbarButton
               active={editor.isActive('bold')}
               onClick={() => editor.chain().focus().toggleBold().run()}
@@ -176,9 +176,9 @@ export default function NoteEditorPanel({
             </ToolbarButton>
           </div>
 
-          <div className="w-px h-7 bg-yellow-300/80" />
+          <div className="h-7 w-px bg-yellow-300/80 dark:bg-white/10" />
 
-          <div className="flex gap-2 px-2 py-1 bg-white/60 rounded-xl border border-yellow-200">
+          <div className="flex gap-2 rounded-xl border border-yellow-200 bg-white/60 px-2 py-1 dark:border-white/10 dark:bg-white/5">
             <ToolbarButton
               active={editor.isActive('bulletList')}
               onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -194,9 +194,9 @@ export default function NoteEditorPanel({
             </ToolbarButton>
           </div>
 
-          <div className="w-px h-7 bg-yellow-300/80" />
+          <div className="h-7 w-px bg-yellow-300/80 dark:bg-white/10" />
 
-          <div className="flex gap-2 px-2 py-1 bg-white/60 rounded-xl border border-yellow-200">
+          <div className="flex gap-2 rounded-xl border border-yellow-200 bg-white/60 px-2 py-1 dark:border-white/10 dark:bg-white/5">
             <ToolbarButton
               active={editor.isActive('heading', { level: 1 })}
               onClick={() =>
@@ -244,7 +244,7 @@ export default function NoteEditorPanel({
             Cancel
           </button>
 
-          <div className="ml-auto text-[14px] text-amber-900/60">
+          <div className="ml-auto text-[14px] text-amber-900/60 dark:text-[#efe4c7]/60">
             {mode === 'edit' ? 'Editing existing note' : 'Creating new note'}
           </div>
         </div>

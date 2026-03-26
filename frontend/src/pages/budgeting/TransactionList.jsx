@@ -23,15 +23,15 @@ export default function TransactionList({ transactions = [] }) {
   // Safety fallback prevents "undefined.length" crashes
   if (!transactions.length) {
     return (
-      <div className="bg-[#F4EFD8] border-2 border-[#E8D9A8] rounded-xl p-6 text-[#6B5E5E]">
+      <div className="sprout-surface p-6 text-[#6B5E5E]">
         No transactions yet.
       </div>
     );
   }
 
   return (
-    <div className="bg-[#F4EFD8] border-2 border-[#E8D9A8] rounded-xl p-6 space-y-4">
-      <h2 className="text-lg font-semibold text-[#7A3E00]">
+    <div className="sprout-surface space-y-4 p-6">
+      <h2 className="text-lg font-semibold text-[#7A3E00] dark:text-white">
         Recent Transactions
       </h2>
 
@@ -42,19 +42,19 @@ export default function TransactionList({ transactions = [] }) {
           return (
             <div
               key={t.id}
-              className={`flex justify-between items-center rounded-lg p-4 border-2
+              className={`flex items-center justify-between rounded-2xl border p-4
                 ${
                   isIncome
-                    ? 'bg-[#E6F4EC] border-[#9ED4B2]'
-                    : 'bg-[#F7E8E8] border-[#F1A8A8]'
+                    ? 'bg-[#EAF6EE] border-[#B9DFC7]'
+                    : 'bg-[#F9ECEB] border-[#F0C2BE]'
                 }`}
             >
               <div>
-                <p className="font-medium text-[#3B2F2F]">
+                <p className="font-medium text-[#1f1712]">
                   {t.description || t.category}
                 </p>
 
-                <p className="text-sm text-[#6B5E5E]">
+                <p className="text-sm text-[#5a4d47]">
                   {formatDisplayDate(t.date)}
                 </p>
               </div>

@@ -1,17 +1,3 @@
-// =====================================================
-// Prisma Schema
-// =====================================================
-//
-// This schema represents the data contracts
-// for the Sprout application.
-//
-// - Logical ownership is defined here
-// - Physical table creation happens via migrations
-// - Snake_case is used at the database level
-// - camelCase is used at the application level
-//
-// =====================================================
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -21,64 +7,40 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// =====================================================
-// Users
-// =====================================================
-// Central identity table.
-// Owns all user-scoped data across the system.
-// =====================================================
-
 model User {
-  id             String   @id @default(uuid()) @map("id")
-  email          String   @unique @map("email")
-  fullName       String   @map("full_name")
-  passwordHash   String   @map("password_hash")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
-  expectedIncome Decimal? @map("expected_income")
-  hasSeenOnboarding Boolean @default(false)
-
-  budgets         Budget[]
-  expenses        Expense[]
-  incomeEntries   IncomeEntry[]
-  notes           Note[]
-  calendarEvents  CalendarEvent[]
-  fitnessInfo     FitnessInfo?
-  diets           Diet[]
-  chatbotMessages ChatbotMessage[]
-  weightEntries   WeightEntry[]
+  id                String           @id @default(uuid()) @map("id")
+  email             String           @unique @map("email")
+  passwordHash      String           @map("password_hash")
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @updatedAt @map("updated_at")
+  fullName          String           @map("full_name")
+  expectedIncome    Decimal?         @map("expected_income")
+  hasSeenOnboarding Boolean          @default(false)
+  weightEntries     WeightEntry[]
+  budgets           Budget[]
+  calendarEvents    CalendarEvent[]
+  chatbotMessages   ChatbotMessage[]
+  diets             Diet[]
+  expenses          Expense[]
+  fitnessInfo       FitnessInfo?
+  incomeEntries     IncomeEntry[]
+  notes             Note[]
 
   @@map("users")
 }
 
-// =====================================================
-// Budgets
-// =====================================================
-// Logical grouping for expenses.
-// A user may own multiple budgets.
-// =====================================================
-
 model Budget {
-  id          String   @id @default(uuid()) @map("id")
-  name        String   @map("name")
-  limitAmount Decimal  @map("limit_amount")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id])
-
-  expenses Expense[]
+  id          String    @id @default(uuid()) @map("id")
+  name        String    @map("name")
+  limitAmount Decimal   @map("limit_amount")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  userId      String    @map("user_id")
+  user        User      @relation(fields: [userId], references: [id])
+  expenses    Expense[]
 
   @@map("budgets")
 }
-
-// =====================================================
-// Expenses
-// =====================================================
-// Individual financial transactions.
-// Each expense belongs to a budget and a user.
-// =====================================================
 
 model Expense {
   id          String   @id @default(uuid()) @map("id")
@@ -88,22 +50,13 @@ model Expense {
   expenseDate DateTime @map("expense_date")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
-
-  userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id])
-
-  budgetId String @map("budget_id")
-  budget   Budget @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  userId      String   @map("user_id")
+  budgetId    String   @map("budget_id")
+  budget      Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id])
 
   @@map("expenses")
 }
-
-// =====================================================
-// Income Entries
-// =====================================================
-// Represents real income deposits such as paychecks.
-// Used for cashflow tracking and financial analytics.
-// =====================================================
 
 model IncomeEntry {
   id         String   @id @default(uuid()) @map("id")
@@ -111,19 +64,11 @@ model IncomeEntry {
   note       String?  @map("note")
   incomeDate DateTime @default(now()) @map("income_date")
   createdAt  DateTime @default(now()) @map("created_at")
-
-  userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String   @map("user_id")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("income_entries")
 }
-
-// =====================================================
-// Notes
-// =====================================================
-// Lightweight personal notes.
-// Search and organization handled at application level.
-// =====================================================
 
 model Note {
   id        String   @id @default(uuid()) @map("id")
@@ -131,18 +76,11 @@ model Note {
   content   String   @map("content")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-
-  userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id])
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
 
   @@map("notes")
 }
-
-// =====================================================
-// Calendar Events
-// =====================================================
-// Scheduled events used for planning and reminders.
-// =====================================================
 
 model CalendarEvent {
   id          String    @id @default(uuid()) @map("id")
@@ -152,47 +90,28 @@ model CalendarEvent {
   endTime     DateTime? @map("end_time")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
-
-  userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id])
+  userId      String    @map("user_id")
+  user        User      @relation(fields: [userId], references: [id])
 
   @@map("calendar_events")
 }
 
-// =====================================================
-// Fitness Info
-// =====================================================
-// One-to-one extension of User.
-// Stores high-level fitness metrics only.
-// =====================================================
-
 model FitnessInfo {
   id            String   @id @default(uuid()) @map("id")
-
   currentWeight Decimal? @map("current_weight")
   goalWeight    Decimal? @map("goal_weight")
-
   calorieGoal   Int?     @map("calorie_goal")
   proteinGoal   Int?     @map("protein_goal")
   carbsGoal     Int?     @map("carbs_goal")
   fatGoal       Int?     @map("fat_goal")
-
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  userId        String   @unique @map("user_id")
   age           Int?     @map("age")
   heightFt      Decimal? @map("height_ft")
-
-  updatedAt     DateTime @updatedAt @map("updated_at")
-
-  userId        String   @unique @map("user_id")
   user          User     @relation(fields: [userId], references: [id])
 
   @@map("fitness_info")
 }
-
-// =====================================================
-// WeightEntry
-// =====================================================
-// Stores historical weight entry data for users for the purposes of tracking
-// =====================================================
 
 model WeightEntry {
   id        String   @id @default(uuid())
@@ -202,122 +121,84 @@ model WeightEntry {
   user      User     @relation(fields: [userId], references: [id])
 }
 
-// =====================================================
-// Diets
-// =====================================================
-// High-level diet or nutrition templates.
-// Detailed nutrition added later.
-// =====================================================
-
 model Diet {
-  id          String  @id @default(uuid()) @map("id")
-  name        String  @map("name")
-  description String? @map("description")
-
-  isActive Boolean @default(false) @map("is_active")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id])
-
-  presetMealItems PresetMealItems[]
+  id              String            @id @default(uuid()) @map("id")
+  name            String            @map("name")
+  description     String?           @map("description")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+  userId          String            @map("user_id")
+  isActive        Boolean           @default(false) @map("is_active")
   dietItems       DietItem[]
+  presetMealItems PresetMealItems[]
+  user            User              @relation(fields: [userId], references: [id])
 
   @@map("diets")
 }
 
-model FoodCache {
-  id       String  @id @default(uuid())
-  fdcId    Int     @unique
-
-  name     String
-  brand    String?
-  dataType String?
-
-  // Original USDA serving
-  servingSizeOriginal Float? @map("serving_size_original")
-  servingUnitOriginal String? @map("serving_unit_original")
-
-  // Normalized system serving 
-  servingSize Float? @map("serving_size")
-  servingUnit String? @map("serving_unit")
-
-  // Nutrients (normalized per 100 g)
-  calories Float?
-  protein  Float?
-  carbs    Float?
-  fat      Float?
-  sugar    Float?
-
-  createdAt DateTime @default(now())
-
-  @@map("food_cache")
-}
 model DietItem {
-  id   String   @id @default(uuid()) @map("id")
-  name String   @map("name")
-  meal MealType
-
-  quantity Float? @map("quantity")
-  unit     String? @map("unit")
-
-  calories Int
-  protein  Float?
-  carbs    Float?
-  fat      Float?
-  sugar    Float?
-
+  id        String   @id @default(uuid()) @map("id")
+  name      String   @map("name")
+  meal      MealType
+  calories  Int
+  protein   Float?
+  carbs     Float?
+  fat       Float?
+  sugar     Float?
+  quantity  Float?
+  unit      String?
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-
-  loggedAt DateTime @default(now()) @map("logged_at")
-
-  dietId String @map("diet_id")
-  diet   Diet   @relation(fields: [dietId], references: [id], onDelete: Cascade)
+  dietId    String   @map("diet_id")
+  loggedAt  DateTime @default(now()) @map("logged_at")
+  diet      Diet     @relation(fields: [dietId], references: [id], onDelete: Cascade)
 }
 
 model PresetMealItems {
-  id   String   @id @default(uuid()) @map("id")
-  name String   @map("name")
-  meal MealType
-
-  quantity Float?
-  unit     String?
-
+  id       String   @id @default(uuid()) @map("id")
+  name     String   @map("name")
+  meal     MealType
   calories Int
   protein  Float?
   carbs    Float?
   fat      Float?
   sugar    Float?
-
-  dietId String @map("diet_id")
-  diet   Diet   @relation(fields: [dietId], references: [id], onDelete: Cascade)
+  quantity Float?
+  unit     String?
+  dietId   String   @map("diet_id")
+  diet     Diet     @relation(fields: [dietId], references: [id], onDelete: Cascade)
 }
 
-// =====================================================
-// Chatbot Messages
-// =====================================================
-// Stores AI interaction history.
-// Used for conversational context and future improvements.
-// =====================================================
+model FoodCache {
+  id                  String   @id @default(uuid()) @map("id")
+  fdcId               Int      @unique @map("fdcId")
+  name                String   @map("name")
+  brand               String?  @map("brand")
+  dataType            String?  @map("dataType")
+  servingSize         Float?   @map("serving_size")
+  servingSizeOriginal Float?   @map("serving_size_original")
+  servingUnit         String?  @map("serving_unit")
+  servingUnitOriginal String?  @map("serving_unit_original")
+  calories            Float?   @map("calories")
+  protein             Float?   @map("protein")
+  carbs               Float?   @map("carbs")
+  fat                 Float?   @map("fat")
+  sugar               Float?   @map("sugar")
+  createdAt           DateTime @default(now()) @map("createdAt")
+
+  @@map("food_cache")
+}
 
 model ChatbotMessage {
   id        String   @id @default(uuid()) @map("id")
   sender    Sender   @map("sender")
   message   String   @map("message")
   createdAt DateTime @default(now()) @map("created_at")
-
-  userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id])
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
 
   @@map("chatbot_messages")
 }
-
-// =====================================================
-// Enums
-// =====================================================
 
 enum Sender {
   user
