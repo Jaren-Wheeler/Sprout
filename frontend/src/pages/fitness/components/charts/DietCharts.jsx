@@ -66,7 +66,10 @@ export default function DietCharts({ dietItems, weightHistory }) {
 
   return (
     <div className="flex w-full justify-center">
-      <div className="sprout-paper w-full p-6">
+      <div
+        className="sprout-paper w-full p-6"
+        style={{ background: 'rgba(255, 255, 255, 0.96)' }}
+      >
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           {/* MACRO PIE */}
           <div>

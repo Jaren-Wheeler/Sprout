@@ -63,12 +63,12 @@ export default function DailyFoodLogCard({
   const formattedDate = format(date, 'MMM d');
 
   return (
-    <div className="bg-white w-full h-[540px] flex items-center justify-center -rotate-1">
-      <div className="sprout-paper p-5 w-[90%] h-[90%] flex flex-col min-w-0 overflow-hidden ">
+    <div className="w-full h-[540px] flex items-center justify-center -rotate-1 rounded-[28px] bg-white p-4 shadow-[0_18px_40px_rgba(87,60,26,0.08)]">
+      <div className="sprout-paper p-5 w-full h-full flex flex-col min-w-0 overflow-hidden">
         <div className="mb-5 flex flex-wrap items-start justify-between gap-4 border-b border-amber-200/50 pb-4">
           <div className="min-w-0 flex-1 space-y-3">
             <div>
-              <h2 className="font-bold text-amber-900 text-xl whitespace-nowrap">
+              <h2 className="text-xl font-bold text-amber-900 whitespace-nowrap">
                 Your Daily Log
               </h2>
               <p className="mt-1 text-sm text-amber-900/55">
