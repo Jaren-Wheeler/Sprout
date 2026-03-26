@@ -1,3 +1,5 @@
+import note1 from "../../../../assets/note1.png";
+
 export default function CalorieCard({
   calorieGoal = 0,
   caloriesConsumed = 0,
@@ -16,12 +18,19 @@ export default function CalorieCard({
   return (
     <div
       onClick={onEdit}
-      className="sprout-card sprout-diet-card-force-light-text p-6 cursor-pointer hover:scale-[1.01] transition flex flex-col justify-between"
+      className="sprout-diet-card-force-light-text w-full cursor-pointer rounded-2xl px-8 pb-14 pt-14 transition hover:scale-[1.01] flex min-h-[260px] flex-col justify-between"
+      style={{
+        backgroundImage: `url(${note1})`,
+        backgroundSize: '100% 100%',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center',
+        filter: 'drop-shadow(4px 8px 14px rgba(87, 60, 26, 0.18))',
+      }}
     >
       {/* Header + Stats */}
 
       <div>
-        <h2 className="mb-4 text-lg font-semibold text-amber-900">
+        <h2 className="mb-8 text-center text-lg font-semibold text-amber-900">
           Energy Summary
         </h2>
 
@@ -61,13 +70,15 @@ export default function CalorieCard({
 
       {/* Progress Bar */}
 
-      <div className="w-full bg-amber-100 rounded-full h-3 mt-5 overflow-hidden">
-        <div
-          className={`h-full transition-all ${
-            isOver ? 'bg-red-500' : 'bg-orange-500'
-          }`}
-          style={{ width: `${percent}%` }}
-        />
+      <div className="mt-8 px-3">
+        <div className="w-full bg-amber-100 rounded-full h-3 overflow-hidden">
+          <div
+            className={`h-full transition-all ${
+              isOver ? 'bg-red-500' : 'bg-orange-500'
+            }`}
+            style={{ width: `${percent}%` }}
+          />
+        </div>
       </div>
       {/* Weight */}
     </div>

@@ -145,6 +145,8 @@ model DietItem {
   carbs     Float?
   fat       Float?
   sugar     Float?
+  quantity  Float?
+  unit      String?
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   dietId    String   @map("diet_id")
@@ -161,6 +163,8 @@ model PresetMealItems {
   carbs    Float?
   fat      Float?
   sugar    Float?
+  quantity Float?
+  unit     String?
   dietId   String   @map("diet_id")
   diet     Diet     @relation(fields: [dietId], references: [id], onDelete: Cascade)
 }
