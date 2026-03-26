@@ -1,14 +1,14 @@
-import { useState } from 'react';
 import { format } from 'date-fns';
-import { createEvent, deleteEvent } from '../../api/scheduler';
+import { Plus, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { createEvent, deleteEvent, updateEvent } from '../../api/scheduler';
 import { getEventColor } from '../../utils/date';
-import { Trash2 } from 'lucide-react';
 
-import SproutModal from '../../components/ui/SproutModal';
 import ConfirmModal from '../../components/ui/ConfirmModal';
+import SproutModal from '../../components/ui/SproutModal';
 
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import { eventSchema } from '../../validation/calendarSchemas';
 
 export default function EventSidebar({
@@ -49,20 +49,20 @@ export default function EventSidebar({
     setShowModal(true);
   }
 
-function openEdit(event) {
-  setSelectedEvent(event);
+  function openEdit(event) {
+    setSelectedEvent(event);
 
-  const localTime = event.startTime
-    ? format(new Date(event.startTime), 'HH:mm')
-    : '';
+    const localTime = event.startTime
+      ? format(new Date(event.startTime), 'HH:mm')
+      : '';
 
-  reset({
-    title: event.title || '',
-    time: localTime,
-  });
+    reset({
+      title: event.title || '',
+      time: localTime,
+    });
 
-  setShowModal(true);
-}
+    setShowModal(true);
+  }
 
   function closeModal() {
     setShowModal(false);
@@ -74,11 +74,16 @@ function openEdit(event) {
     setLoading(true);
 
     try {
-      await createEvent({
-        id: selectedEvent?.id,
+      const payload = {
         title: data.title.trim(),
         startTime: `${key}T${data.time || '00:00'}`,
-      });
+      };
+
+      if (selectedEvent?.id) {
+        await updateEvent(selectedEvent.id, payload);
+      } else {
+        await createEvent(payload);
+      }
 
       closeModal();
       onEventCreated();
@@ -106,59 +111,66 @@ function openEdit(event) {
 
   return (
     <>
-      <div className="sprout-surface p-6">
-        {/* === AGENDA HEADER === */}
-        <div className="flex items-center gap-4 mb-6">
-          <div className="w-12 h-12 rounded-xl bg-orange-200 border border-orange-400 flex flex-col items-center justify-center text-orange-900">
-            <span className="text-lg font-bold">
-              {format(selectedDate, 'd')}
-            </span>
+      <div className="sprout-surface p-6 h-[300px] flex flex-col">
+        <div className="flex items-center justify-between mb-6">
+          {/* LEFT SIDE */}
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-orange-200 border border-orange-400 flex flex-col items-center justify-center text-orange-900">
+              <span className="text-lg font-bold">
+                {format(selectedDate, 'd')}
+              </span>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-amber-900 leading-tight">
+                Agenda for {format(selectedDate, 'MMMM d')}
+              </h3>
+              <p className="text-sm text-amber-700">Your plans for this day</p>
+            </div>
           </div>
 
-          <div>
-            <h3 className="text-lg font-semibold text-amber-900 leading-tight">
-              Agenda for {format(selectedDate, 'MMMM d')}
-            </h3>
-            <p className="text-sm text-amber-700">Your plans for this day</p>
-          </div>
+          {/* RIGHT SIDE BUTTON */}
+          <button
+            onClick={openCreate}
+            className="sprout-btn-primary px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5"
+          >
+            <Plus size={25} />
+          </button>
         </div>
 
-        {/* ADD EVENT BUTTON */}
-        <button onClick={openCreate} className="sprout-btn-primary w-full mb-6">
-          + Add Event
-        </button>
-
         {/* === EMPTY STATE / EVENTS LIST === */}
-        {events.length === 0 ? (
-          <div className="text-center text-amber-700 space-y-2 mt-10">
-            <p className="font-medium text-lg">Nothing planned yet</p>
-            <p className="text-sm">Start by adding an event for this day.</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {events.map((e) => {
-              const colorClass = getEventColor(e.id);
+        <div className="flex-1 overflow-y-auto">
+          {events.length === 0 ? (
+            <div className="text-center text-amber-700 space-y-2 mt-10">
+              <p className="font-medium text-lg">Nothing planned yet</p>
+              <p className="text-sm">Start by adding an event for this day.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {events.map((e) => {
+                const colorClass = getEventColor(e.id);
 
-              return (
-                <div
-                  key={e.id}
-                  onClick={() => openEdit(e)}
-                  className={`sprout-card p-3 cursor-pointer ${colorClass}`}
-                >
-                  <p className="font-semibold">{e.title}</p>
+                return (
+                  <div
+                    key={e.id}
+                    onClick={() => openEdit(e)}
+                    className={`sprout-card p-3 cursor-pointer ${colorClass}`}
+                  >
+                    <p className="font-semibold">{e.title}</p>
 
-                  {e.startTime && (
-                    <p className="text-sm text-amber-800">
-                      {format(new Date(e.startTime), 'HH:mm') === '00:00'
-                        ? 'All day'
-                        : format(new Date(e.startTime), 'hh:mm a')}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
+                    {e.startTime && (
+                      <p className="text-sm text-amber-800">
+                        {format(new Date(e.startTime), 'HH:mm') === '00:00'
+                          ? 'All day'
+                          : format(new Date(e.startTime), 'hh:mm a')}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ================= MAIN MODAL ================= */}

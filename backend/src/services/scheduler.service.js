@@ -1,4 +1,4 @@
-  const prisma = require("../clients/prisma.client");
+const prisma = require('../clients/prisma.client');
 
 // =====================================================
 // Scheduler Service
@@ -14,32 +14,30 @@
  * @returns {Object} Created event
  */
 const createEvent = async (userId, data) => {
-
   if (!data.title) {
-    const err = new Error("Title is required");
+    const err = new Error('Title is required');
     err.status = 400;
     throw err;
   }
 
   if (!data.startTime) {
-    const err = new Error("Start time is required");
+    const err = new Error('Start time is required');
     err.status = 400;
     throw err;
   }
 
   const event = await prisma.calendarEvent.create({
-  data: {
-    title: data.title,
-    description: data.description || null,
-    startTime: new Date(data.startTime),
-    endTime: data.endTime ? new Date(data.endTime) : null,
+    data: {
+      title: data.title,
+      description: data.description || null,
+      startTime: new Date(data.startTime),
+      endTime: data.endTime ? new Date(data.endTime) : null,
 
-    user: {
-      connect: { id: userId }
-    }
-  }
-});
-
+      user: {
+        connect: { id: userId },
+      },
+    },
+  });
 
   return event;
 };
@@ -50,10 +48,9 @@ const createEvent = async (userId, data) => {
  * @returns {Array} Events
  */
 const getEvents = async (userId) => {
-
   const events = await prisma.calendarEvent.findMany({
     where: { userId },
-    orderBy: { startTime: "desc" }
+    orderBy: { startTime: 'desc' },
   });
 
   return events;
@@ -65,14 +62,41 @@ const getEvents = async (userId) => {
  * @param {string} eventId
  */
 const deleteEvent = async (userId, eventId) => {
-
   await prisma.calendarEvent.delete({
-    where: { id: eventId }
+    where: { id: eventId },
+  });
+};
+
+const updateEvent = async (userId, eventId, data) => {
+  if (!data.title) {
+    const err = new Error('Title is required');
+    err.status = 400;
+    throw err;
+  }
+
+  if (!data.startTime) {
+    const err = new Error('Start time is required');
+    err.status = 400;
+    throw err;
+  }
+
+  return prisma.calendarEvent.update({
+    where: {
+      id: eventId,
+      userId,
+    },
+    data: {
+      title: data.title,
+      description: data.description || null,
+      startTime: new Date(data.startTime),
+      endTime: data.endTime ? new Date(data.endTime) : null,
+    },
   });
 };
 
 module.exports = {
   createEvent,
   getEvents,
-  deleteEvent
+  deleteEvent,
+  updateEvent,
 };

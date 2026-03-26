@@ -52,27 +52,83 @@ html.dark {
   body {
     @apply font-sprout;
     background:
-      radial-gradient(circle at 18px 14px, rgba(122, 91, 44, 0.0025) 0 3px, transparent 3.5px),
-      radial-gradient(circle at 8px 22px, rgba(122, 91, 44, 0.0017) 0 1.7px, transparent 2.1px),
-      radial-gradient(circle at 16px 24px, rgba(122, 91, 44, 0.0017) 0 1.7px, transparent 2.1px),
-      radial-gradient(circle at 24px 22px, rgba(122, 91, 44, 0.0017) 0 1.7px, transparent 2.1px),
-      radial-gradient(circle at 34px 14px, rgba(122, 91, 44, 0.0025) 0 3px, transparent 3.5px),
-      radial-gradient(circle at 24px 6px, rgba(122, 91, 44, 0.0032) 0 4px, transparent 4.5px),
+      radial-gradient(
+        circle at 18px 14px,
+        rgba(122, 91, 44, 0.0025) 0 3px,
+        transparent 3.5px
+      ),
+      radial-gradient(
+        circle at 8px 22px,
+        rgba(122, 91, 44, 0.0017) 0 1.7px,
+        transparent 2.1px
+      ),
+      radial-gradient(
+        circle at 16px 24px,
+        rgba(122, 91, 44, 0.0017) 0 1.7px,
+        transparent 2.1px
+      ),
+      radial-gradient(
+        circle at 24px 22px,
+        rgba(122, 91, 44, 0.0017) 0 1.7px,
+        transparent 2.1px
+      ),
+      radial-gradient(
+        circle at 34px 14px,
+        rgba(122, 91, 44, 0.0025) 0 3px,
+        transparent 3.5px
+      ),
+      radial-gradient(
+        circle at 24px 6px,
+        rgba(122, 91, 44, 0.0032) 0 4px,
+        transparent 4.5px
+      ),
       radial-gradient(circle at top, rgba(255, 255, 255, 0.9), transparent 36%),
       linear-gradient(180deg, #fffdf9 0%, #fcf8ef 100%);
-    background-size: 172px 172px, 172px 172px, 172px 172px, 172px 172px, 172px 172px, 172px 172px, auto, auto;
+    background-size:
+      172px 172px,
+      172px 172px,
+      172px 172px,
+      172px 172px,
+      172px 172px,
+      172px 172px,
+      auto,
+      auto;
     color: var(--sprout-ink);
     min-height: 100vh;
   }
 
   html.dark body {
     background:
-      radial-gradient(circle at 18px 14px, rgba(255, 255, 255, 0.006) 0 3px, transparent 3.5px),
-      radial-gradient(circle at 8px 22px, rgba(255, 255, 255, 0.004) 0 1.7px, transparent 2.1px),
-      radial-gradient(circle at 16px 24px, rgba(255, 255, 255, 0.004) 0 1.7px, transparent 2.1px),
-      radial-gradient(circle at 24px 22px, rgba(255, 255, 255, 0.004) 0 1.7px, transparent 2.1px),
-      radial-gradient(circle at 34px 14px, rgba(255, 255, 255, 0.006) 0 3px, transparent 3.5px),
-      radial-gradient(circle at 24px 6px, rgba(255, 255, 255, 0.008) 0 4px, transparent 4.5px),
+      radial-gradient(
+        circle at 18px 14px,
+        rgba(255, 255, 255, 0.006) 0 3px,
+        transparent 3.5px
+      ),
+      radial-gradient(
+        circle at 8px 22px,
+        rgba(255, 255, 255, 0.004) 0 1.7px,
+        transparent 2.1px
+      ),
+      radial-gradient(
+        circle at 16px 24px,
+        rgba(255, 255, 255, 0.004) 0 1.7px,
+        transparent 2.1px
+      ),
+      radial-gradient(
+        circle at 24px 22px,
+        rgba(255, 255, 255, 0.004) 0 1.7px,
+        transparent 2.1px
+      ),
+      radial-gradient(
+        circle at 34px 14px,
+        rgba(255, 255, 255, 0.006) 0 3px,
+        transparent 3.5px
+      ),
+      radial-gradient(
+        circle at 24px 6px,
+        rgba(255, 255, 255, 0.008) 0 4px,
+        transparent 4.5px
+      ),
       radial-gradient(circle at top, rgba(78, 94, 123, 0.14), transparent 34%),
       linear-gradient(180deg, #050608 0%, #0b0d10 100%);
     color: var(--sprout-ink);
@@ -116,7 +172,11 @@ html.dark {
 
   .auth-card {
     @apply w-full max-w-lg rounded-[30px] border p-10 space-y-6 text-black;
-    background: linear-gradient(180deg, rgba(255, 251, 244, 0.9), rgba(244, 232, 203, 0.88));
+    background: linear-gradient(
+      180deg,
+      rgba(255, 251, 244, 0.9),
+      rgba(244, 232, 203, 0.88)
+    );
     border-color: var(--sprout-border);
     box-shadow: var(--sprout-shadow-strong);
     backdrop-filter: blur(10px);
@@ -146,7 +206,11 @@ html.dark {
 
   .sprout-panel {
     @apply rounded-2xl border-2;
-    background: linear-gradient(180deg, var(--sprout-paper-strong), var(--sprout-paper));
+    background: linear-gradient(
+      180deg,
+      var(--sprout-paper-strong),
+      var(--sprout-paper)
+    );
     border-color: rgba(229, 205, 140, 0.92);
     box-shadow: var(--sprout-shadow);
   }
@@ -154,19 +218,30 @@ html.dark {
   .sprout-app-shell {
     @apply relative min-h-screen overflow-hidden;
     background:
-      radial-gradient(circle at top left, rgba(255, 255, 255, 0.82), transparent 34%),
-      linear-gradient(180deg, rgba(255, 251, 243, 0.78), rgba(248, 242, 227, 0.58));
+      radial-gradient(
+        circle at top left,
+        rgba(255, 255, 255, 0.82),
+        transparent 34%
+      ),
+      linear-gradient(
+        180deg,
+        rgba(255, 251, 243, 0.78),
+        rgba(248, 242, 227, 0.58)
+      );
   }
 
   .sprout-page-wrap {
-    @apply min-h-screen px-4 py-4 md:px-6 md:py-6;
+    @apply h-full w-full px-4 py-4 md:px-6 md:py-6;
   }
-
   .sprout-page-shell {
     @apply relative mx-auto min-h-[calc(100vh-2rem)] max-w-[1400px] overflow-hidden rounded-[32px] border;
     border-color: rgba(128, 86, 36, 0.15);
     background:
-      linear-gradient(180deg, rgba(255, 251, 244, 0.92), rgba(248, 242, 228, 0.85)),
+      linear-gradient(
+        180deg,
+        rgba(255, 251, 244, 0.92),
+        rgba(248, 242, 228, 0.85)
+      ),
       linear-gradient(135deg, rgba(255, 255, 255, 0.36), transparent 55%);
     box-shadow: 0 32px 80px rgba(87, 60, 26, 0.14);
     backdrop-filter: blur(12px);
@@ -178,8 +253,16 @@ html.dark {
     inset: 0;
     pointer-events: none;
     background:
-      radial-gradient(circle at top right, rgba(229, 180, 61, 0.12), transparent 30%),
-      radial-gradient(circle at bottom left, rgba(103, 161, 79, 0.11), transparent 26%);
+      radial-gradient(
+        circle at top right,
+        rgba(229, 180, 61, 0.12),
+        transparent 30%
+      ),
+      radial-gradient(
+        circle at bottom left,
+        rgba(103, 161, 79, 0.11),
+        transparent 26%
+      );
   }
 
   .sprout-page-shell-plain::before {
@@ -194,7 +277,11 @@ html.dark {
     @apply relative overflow-hidden rounded-[28px] border px-6 py-8 md:px-8 md:py-10;
     border-color: rgba(128, 86, 36, 0.13);
     background:
-      linear-gradient(135deg, rgba(255, 251, 244, 0.96), rgba(246, 237, 216, 0.88)),
+      linear-gradient(
+        135deg,
+        rgba(255, 251, 244, 0.96),
+        rgba(246, 237, 216, 0.88)
+      ),
       linear-gradient(180deg, rgba(255, 255, 255, 0.4), transparent);
     box-shadow: var(--sprout-shadow);
   }
@@ -205,8 +292,18 @@ html.dark {
     inset: 0;
     pointer-events: none;
     background:
-      linear-gradient(90deg, rgba(255,255,255,0.22), transparent 30%, transparent 70%, rgba(255,255,255,0.14)),
-      radial-gradient(circle at 12% 20%, rgba(229, 180, 61, 0.14), transparent 20%);
+      linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.22),
+        transparent 30%,
+        transparent 70%,
+        rgba(255, 255, 255, 0.14)
+      ),
+      radial-gradient(
+        circle at 12% 20%,
+        rgba(229, 180, 61, 0.14),
+        transparent 20%
+      );
   }
 
   .sprout-page-kicker {
@@ -229,7 +326,11 @@ html.dark {
   .sprout-surface {
     @apply rounded-[24px] border;
     border-color: rgba(128, 86, 36, 0.12);
-    background: linear-gradient(180deg, rgba(255, 252, 246, 0.92), rgba(248, 241, 225, 0.84));
+    background: linear-gradient(
+      180deg,
+      rgba(255, 252, 246, 0.92),
+      rgba(248, 241, 225, 0.84)
+    );
     box-shadow: var(--sprout-shadow-soft);
   }
 
@@ -250,7 +351,11 @@ html.dark {
 
   .sprout-card {
     @apply rounded-2xl border-2 transition cursor-pointer;
-    background: linear-gradient(180deg, rgba(255, 251, 244, 0.96), rgba(250, 242, 220, 0.92));
+    background: linear-gradient(
+      180deg,
+      rgba(255, 251, 244, 0.96),
+      rgba(250, 242, 220, 0.92)
+    );
     border-color: rgba(229, 205, 140, 0.92);
     box-shadow: var(--sprout-shadow);
   }
@@ -263,7 +368,11 @@ html.dark {
 
   .sprout-paper {
     @apply rounded-2xl border-2;
-    background: linear-gradient(180deg, rgba(255, 246, 220, 0.9), rgba(247, 232, 180, 0.62));
+    background: linear-gradient(
+      180deg,
+      rgba(255, 246, 220, 0.9),
+      rgba(247, 232, 180, 0.62)
+    );
     border-color: rgba(219, 179, 58, 0.55);
     box-shadow: var(--sprout-shadow);
   }
@@ -272,9 +381,13 @@ html.dark {
     @apply relative rounded-xl border-2 p-5
            cursor-pointer overflow-hidden
            hover:-translate-y-[2px] transition;
-    background: linear-gradient(180deg, rgba(255, 249, 223, 0.95), rgba(244, 228, 159, 0.9));
+    background: linear-gradient(
+      180deg,
+      rgba(255, 249, 223, 0.95),
+      rgba(244, 228, 159, 0.9)
+    );
     border-color: rgba(216, 179, 72, 0.8);
-    box-shadow: 0 18px 30px rgba(0,0,0,0.12);
+    box-shadow: 0 18px 30px rgba(0, 0, 0, 0.12);
   }
 
   .sprout-day-cell {
@@ -322,7 +435,7 @@ html.dark {
 
   .sprout-btn-muted {
     @apply sprout-btn-base py-2 text-gray-700 border border-white/60;
-    background: rgba(255,255,255,0.7);
+    background: rgba(255, 255, 255, 0.7);
   }
 
   .sprout-btn-danger {
@@ -370,7 +483,11 @@ html.dark {
 
 .dark .auth-card {
   color: var(--sprout-ink);
-  background: linear-gradient(180deg, rgba(12, 15, 20, 0.95), rgba(8, 10, 14, 0.97));
+  background: linear-gradient(
+    180deg,
+    rgba(12, 15, 20, 0.95),
+    rgba(8, 10, 14, 0.97)
+  );
   border-color: rgba(255, 255, 255, 0.08);
   box-shadow: 0 24px 56px rgba(0, 0, 0, 0.34);
 }
@@ -388,7 +505,11 @@ html.dark {
 
 .dark .sprout-app-shell {
   background:
-    radial-gradient(circle at top left, rgba(84, 101, 132, 0.12), transparent 34%),
+    radial-gradient(
+      circle at top left,
+      rgba(84, 101, 132, 0.12),
+      transparent 34%
+    ),
     linear-gradient(180deg, rgba(6, 8, 11, 0.97), rgba(10, 12, 16, 0.95));
 }
 
@@ -402,8 +523,16 @@ html.dark {
 
 .dark .sprout-page-shell::before {
   background:
-    radial-gradient(circle at top right, rgba(215, 171, 69, 0.11), transparent 30%),
-    radial-gradient(circle at bottom left, rgba(136, 195, 109, 0.12), transparent 26%);
+    radial-gradient(
+      circle at top right,
+      rgba(215, 171, 69, 0.11),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at bottom left,
+      rgba(136, 195, 109, 0.12),
+      transparent 26%
+    );
 }
 
 .dark .sprout-page-hero {
@@ -442,7 +571,11 @@ html.dark {
 }
 
 .dark .sprout-surface {
-  background: linear-gradient(180deg, rgba(12, 15, 20, 0.94), rgba(8, 11, 15, 0.9));
+  background: linear-gradient(
+    180deg,
+    rgba(12, 15, 20, 0.94),
+    rgba(8, 11, 15, 0.9)
+  );
 }
 
 .dark .sprout-glass-panel {
@@ -451,16 +584,28 @@ html.dark {
 
 .dark .sprout-panel,
 .dark .sprout-card {
-  background: linear-gradient(180deg, rgba(16, 19, 24, 0.96), rgba(10, 12, 16, 0.92));
+  background: linear-gradient(
+    180deg,
+    rgba(16, 19, 24, 0.96),
+    rgba(10, 12, 16, 0.92)
+  );
 }
 
 .dark .sprout-paper {
-  background: linear-gradient(180deg, rgba(24, 20, 11, 0.84), rgba(13, 11, 8, 0.8));
+  background: linear-gradient(
+    180deg,
+    rgba(24, 20, 11, 0.84),
+    rgba(13, 11, 8, 0.8)
+  );
   border-color: rgba(215, 171, 69, 0.36);
 }
 
 .dark .sprout-note-card {
-  background: linear-gradient(180deg, rgba(59, 49, 26, 0.92), rgba(42, 35, 18, 0.88));
+  background: linear-gradient(
+    180deg,
+    rgba(59, 49, 26, 0.92),
+    rgba(42, 35, 18, 0.88)
+  );
   border-color: rgba(215, 171, 69, 0.4);
 }
 
@@ -615,7 +760,11 @@ input[type='number'] {
 .sprout-dashboard {
   @apply relative w-full min-h-screen mx-auto;
   background:
-    linear-gradient(180deg, rgba(255, 253, 249, 0.34), rgba(247, 241, 225, 0.6)),
+    linear-gradient(
+      180deg,
+      rgba(255, 253, 249, 0.34),
+      rgba(247, 241, 225, 0.6)
+    ),
     #f3eed9;
 }
 
@@ -711,7 +860,7 @@ input[type='number'] {
   pointer-events: none;
   opacity: 0.55;
   background:
-    linear-gradient(135deg, rgba(255,255,255,0.3), transparent 34%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.3), transparent 34%),
     repeating-linear-gradient(
       -12deg,
       rgba(132, 100, 64, 0.03),
@@ -905,6 +1054,10 @@ input[type='number'] {
 }
 
 @keyframes floatButton {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-6px); }
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-6px);
+  }
 }

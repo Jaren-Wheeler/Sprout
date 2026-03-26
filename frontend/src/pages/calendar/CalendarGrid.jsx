@@ -1,16 +1,16 @@
 import {
-  format,
-  startOfMonth,
-  endOfMonth,
   eachDayOfInterval,
+  endOfMonth,
+  format,
   getDay,
-} from "date-fns";
+  startOfMonth,
+} from 'date-fns';
 import {
+  CalendarCheck,
+  CalendarDays,
   ChevronLeft,
   ChevronRight,
-  CalendarDays,
-  CalendarCheck,
-} from "lucide-react";
+} from 'lucide-react';
 
 export default function CalendarGrid({
   currentMonth,
@@ -39,7 +39,7 @@ export default function CalendarGrid({
   const today = new Date();
 
   const isViewingTodayMonth =
-    format(currentMonth, "yyyy-MM") === format(today, "yyyy-MM");
+    format(currentMonth, 'yyyy-MM') === format(today, 'yyyy-MM');
 
   const goToToday = () => {
     setCurrentMonth(today);
@@ -47,11 +47,9 @@ export default function CalendarGrid({
   };
 
   return (
-    <div className="sprout-surface p-5 md:p-6 xl:min-h-[720px]">
-
+    <div className="sprout-surface p-5 md:p-6 h-full overflow-hidden">
       {/* HEADER */}
       <div className="flex flex-col items-center mb-6">
-
         {/* Month navigation row */}
         <div className="flex items-center justify-between w-full">
           <button onClick={prevMonth} className="sprout-icon-btn">
@@ -59,7 +57,7 @@ export default function CalendarGrid({
           </button>
 
           <h2 className="text-2xl font-semibold text-amber-900 tracking-wide">
-            {format(currentMonth, "MMMM yyyy")}
+            {format(currentMonth, 'MMMM yyyy')}
           </h2>
 
           <button onClick={nextMonth} className="sprout-icon-btn">
@@ -77,12 +75,11 @@ export default function CalendarGrid({
             Today
           </button>
         )}
-
       </div>
 
       {/* WEEK LABELS */}
       <div className="grid grid-cols-7 text-center font-medium mb-3 text-amber-800">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
           <div key={d}>{d}</div>
         ))}
       </div>
@@ -94,13 +91,11 @@ export default function CalendarGrid({
         ))}
 
         {days.map((day) => {
-          const key = format(day, "yyyy-MM-dd");
+          const key = format(day, 'yyyy-MM-dd');
 
-          const isSelected =
-            key === format(selectedDate, "yyyy-MM-dd");
+          const isSelected = key === format(selectedDate, 'yyyy-MM-dd');
 
-          const isToday =
-            key === format(today, "yyyy-MM-dd");
+          const isToday = key === format(today, 'yyyy-MM-dd');
 
           const dayEvents = eventsByDate[key] || [];
 
@@ -109,16 +104,16 @@ export default function CalendarGrid({
               key={key}
               onClick={() => setSelectedDate(day)}
               className={`sprout-day-cell relative ${
-                isSelected ? "sprout-day-cell-selected" : ""
-              } ${isToday && !isSelected ? "ring-2 ring-orange-400" : ""}`}
+                isSelected ? 'sprout-day-cell-selected' : ''
+              } ${isToday && !isSelected ? 'ring-2 ring-orange-400' : ''}`}
             >
               {/* DAY NUMBER */}
               <span
                 className={`text-sm text-amber-900 ${
-                  isToday ? "font-bold" : "font-medium"
+                  isToday ? 'font-bold' : 'font-medium'
                 }`}
               >
-                {format(day, "d")}
+                {format(day, 'd')}
               </span>
 
               {/* EVENT COUNT BADGE */}
@@ -132,7 +127,6 @@ export default function CalendarGrid({
           );
         })}
       </div>
-
     </div>
   );
 }
