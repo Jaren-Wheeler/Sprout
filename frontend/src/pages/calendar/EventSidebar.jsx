@@ -111,42 +111,44 @@ export default function EventSidebar({
 
   return (
     <>
-      <div className="sprout-surface p-6 h-[300px] flex flex-col">
-        <div className="flex items-center justify-between mb-6">
-          {/* LEFT SIDE */}
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-orange-200 border border-orange-400 flex flex-col items-center justify-center text-orange-900">
-              <span className="text-lg font-bold">
+      <div className="sprout-surface p-5 h-[600px] flex flex-col">
+        <div className="flex items-center justify-between mb-5">
+          {/* LEFT */}
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-lg bg-orange-200 border border-orange-400 flex flex-col items-center justify-center text-orange-900 shadow-sm">
+              <span className="text-base font-bold">
                 {format(selectedDate, 'd')}
               </span>
             </div>
 
-            <div>
-              <h3 className="text-lg font-semibold text-amber-900 leading-tight">
-                Agenda for {format(selectedDate, 'MMMM d')}
+            <div className="leading-tight">
+              <h3 className="text-[15px] font-semibold text-amber-900">
+                {format(selectedDate, 'MMMM d')}
               </h3>
-              <p className="text-sm text-amber-700">Your plans for this day</p>
+              <p className="text-xs text-amber-700">Agenda</p>
             </div>
           </div>
 
-          {/* RIGHT SIDE BUTTON */}
+          {/* ADD BUTTON */}
           <button
             onClick={openCreate}
-            className="sprout-btn-primary px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5"
+            className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-b from-[#f0b240] to-[#d4941f] text-white shadow-md hover:scale-[1.05] transition"
           >
-            <Plus size={25} />
+            <Plus size={18} />
           </button>
         </div>
 
         {/* === EMPTY STATE / EVENTS LIST === */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 min-h-0 overflow-y-auto">
           {events.length === 0 ? (
-            <div className="text-center text-amber-700 space-y-2 mt-10">
-              <p className="font-medium text-lg">Nothing planned yet</p>
-              <p className="text-sm">Start by adding an event for this day.</p>
+            <div className="flex flex-col items-center justify-center text-center text-amber-700 flex-1">
+              <p className="font-medium text-base">No events</p>
+              <p className="text-xs opacity-70 mt-1">
+                Add something to get started
+              </p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2 pr-1">
               {events.map((e) => {
                 const colorClass = getEventColor(e.id);
 
@@ -154,17 +156,19 @@ export default function EventSidebar({
                   <div
                     key={e.id}
                     onClick={() => openEdit(e)}
-                    className={`sprout-card p-3 cursor-pointer ${colorClass}`}
+                    className={`group sprout-card px-3 py-2.5 cursor-pointer transition-all duration-150 hover:-translate-y-[1px] ${colorClass}`}
                   >
-                    <p className="font-semibold">{e.title}</p>
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium text-sm truncate">{e.title}</p>
 
-                    {e.startTime && (
-                      <p className="text-sm text-amber-800">
-                        {format(new Date(e.startTime), 'HH:mm') === '00:00'
-                          ? 'All day'
-                          : format(new Date(e.startTime), 'hh:mm a')}
-                      </p>
-                    )}
+                      <span className="text-[11px] text-amber-700 opacity-70 group-hover:opacity-100 transition">
+                        {e.startTime
+                          ? format(new Date(e.startTime), 'HH:mm') === '00:00'
+                            ? 'All day'
+                            : format(new Date(e.startTime), 'hh:mm a')
+                          : ''}
+                      </span>
+                    </div>
                   </div>
                 );
               })}

@@ -7,7 +7,6 @@ import { useTheme } from '../../theme/ThemeContext';
 import { groupEventsByDate } from '../../utils/date';
 import CalendarGrid from './CalendarGrid';
 import EventSidebar from './EventSidebar';
-import TodayAgenda from './TodayAgenda';
 
 export default function CalendarPage() {
   const { theme } = useTheme();
@@ -74,7 +73,6 @@ export default function CalendarPage() {
 
               <div className="flex flex-col gap-6 h-full">
                 {/* fixed height */}
-                <TodayAgenda eventsByDate={eventsByDate} />
 
                 {/* scrollable area */}
                 <div className="flex-1 min-h-0">
