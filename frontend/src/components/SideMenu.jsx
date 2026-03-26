@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
 
-// Standardizing path: src/components/SideMenu.jsx -> src/assets/
 import settings from "../assets/settings.png";
 import settingshover from "../assets/settings-hover.png";
 import scheduler from "../assets/scheduler.png";
@@ -26,10 +25,8 @@ export default function SideMenu({ isOpen, onClose, setUser }) {
   ];
 
   const handleLogout = () => {
-    // Clear stored session
     localStorage.removeItem("sprout_user");
 
-    // Clear React state
     if (setUser) setUser(null);
   
     onClose();
@@ -38,33 +35,36 @@ export default function SideMenu({ isOpen, onClose, setUser }) {
 
   return (
     <>
-      {/* Overlay */}
       <div
-        className="fixed inset-0 z-40 bg-black/5"
+        className="fixed inset-0 z-40 bg-black/10 backdrop-blur-[1px]"
         onClick={onClose}
       />
 
-      {/* Menu */}
       <div
-        className="absolute top-16 left-6 z-50 w-64 rounded-2xl shadow-xl border-2 overflow-hidden animate-dropDown"
+        className="absolute left-10 top-24 z-50 w-72 overflow-hidden rounded-[28px] border animate-dropDown"
         style={{
-          backgroundColor: "#E7FAA2",
-          borderColor: "#4C8038",
+          background:
+            "linear-gradient(180deg, rgba(250,252,239,0.98), rgba(238,245,213,0.96))",
+          borderColor: "rgba(103, 161, 79, 0.32)",
+          boxShadow: "0 26px 54px rgba(87,60,26,0.2)",
         }}
       >
-        <div className="p-2 flex flex-col gap-1">
+        <div className="border-b border-[rgba(103,161,79,0.14)] px-5 py-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#55713c]/80">
+            Menu
+          </p>
+          <p className="mt-1 text-sm text-[#4f5f34]/80">
+            Jump between your spaces.
+          </p>
+        </div>
+
+        <div className="p-3 flex flex-col gap-1">
           {menuItems.map((item) => (
             <Link
               key={item.to}
               to={item.to}
               onClick={onClose}
-              className="flex items-center gap-4 px-4 py-3 rounded-xl transition-all font-medium group text-gray-900"
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor = "#8ae070")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundColor = "transparent")
-              }
+              className="flex items-center gap-4 rounded-2xl border border-transparent px-4 py-3 font-medium text-gray-900 transition-all group hover:border-white/50 hover:bg-white/55 hover:shadow-[0_10px_20px_rgba(87,60,26,0.08)]"
             >
               <div className="relative w-8 h-8 flex-shrink-0">
                 <img
@@ -80,31 +80,20 @@ export default function SideMenu({ isOpen, onClose, setUser }) {
               </div>
 
               <span className="flex-1 text-gray-900">{item.label}</span>
-              <span className="opacity-0 group-hover:opacity-100 text-xs transition-opacity text-gray-900">
-                →
+              <span className="opacity-0 group-hover:opacity-100 text-xs transition-opacity text-[#5b7a42]">
+                View
               </span>
             </Link>
           ))}
 
-          {/* Logout Button */}
-          <div className="mt-2 border-t border-[#4C8038]/30 pt-2">
+          <div className="mt-2 border-t border-[#4C8038]/20 pt-2">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-4 px-4 py-3 rounded-xl transition-all font-medium group text-red-700 w-full"
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor = "#ffb3b3")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundColor = "transparent")
-              }
+              className="flex w-full items-center rounded-2xl px-4 py-3 font-medium text-red-700 transition-all group hover:bg-white/55"
             >
-              <div className="w-8 h-8 flex items-center justify-center text-lg">
-                ⏻
-              </div>
-
               <span className="flex-1 text-left">Log Out</span>
               <span className="opacity-0 group-hover:opacity-100 text-xs transition-opacity">
-                →
+                Exit
               </span>
             </button>
           </div>

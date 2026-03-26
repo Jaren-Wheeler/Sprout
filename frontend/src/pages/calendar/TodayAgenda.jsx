@@ -8,34 +8,28 @@ export default function TodayAgenda({ eventsByDate }) {
   const events = eventsByDate[key] || [];
 
   return (
-    <div className="sprout-paper p-6 w-[350px]">
-
-      {/* HEADER */}
-      <div className="flex items-center gap-4 mb-6">
-
-        {/* Today badge */}
-        <div className="w-12 h-12 rounded-xl bg-green-200 border border-green-400 flex flex-col items-center justify-center text-green-900">
+    <div className="sprout-surface p-6">
+      <div className="mb-6 flex items-center gap-4">
+        <div className="flex h-12 w-12 flex-col items-center justify-center rounded-2xl border border-green-300 bg-green-100 text-green-900">
           <span className="text-lg font-bold">
             {format(today, "d")}
           </span>
         </div>
 
         <div>
-          <h3 className="text-lg font-semibold text-amber-900 leading-tight">
-            Today’s Agenda
+          <h3 className="text-lg font-semibold leading-tight text-amber-900">
+            Today&apos;s Agenda
           </h3>
           <p className="text-sm text-amber-700">
             {format(today, "MMMM d, yyyy")}
           </p>
         </div>
-
       </div>
 
-      {/* EMPTY STATE */}
       {events.length === 0 ? (
-        <div className="text-center text-amber-700 space-y-2 mt-6">
-          <p className="font-medium text-lg">
-            You’re free today 
+        <div className="mt-6 space-y-2 text-center text-amber-700">
+          <p className="text-lg font-medium">
+            You&apos;re free today
           </p>
           <p className="text-sm">
             Enjoy the day or plan something.

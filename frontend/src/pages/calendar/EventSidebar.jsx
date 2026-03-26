@@ -106,7 +106,7 @@ function openEdit(event) {
 
   return (
     <>
-      <div className="sprout-paper p-6 w-[350px]">
+      <div className="sprout-surface p-6">
         {/* === AGENDA HEADER === */}
         <div className="flex items-center gap-4 mb-6">
           <div className="w-12 h-12 rounded-xl bg-orange-200 border border-orange-400 flex flex-col items-center justify-center text-orange-900">
@@ -117,7 +117,7 @@ function openEdit(event) {
 
           <div>
             <h3 className="text-lg font-semibold text-amber-900 leading-tight">
-              Agenda for {format(selectedDate, 'MMMM yyyy')}
+              Agenda for {format(selectedDate, 'MMMM d')}
             </h3>
             <p className="text-sm text-amber-700">Your plans for this day</p>
           </div>

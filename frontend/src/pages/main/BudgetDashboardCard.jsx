@@ -74,25 +74,18 @@ export default function BudgetDashboardCard() {
 
   return (
     <DashboardCard title="Budget" route="/budget">
-
       <div className="flex items-baseline justify-between">
-
-        <span className="text-2xl font-semibold text-amber-900">
+        <span className="text-[2rem] font-semibold text-[#7a3d11]">
           ${spent.toFixed(2)}
         </span>
-
-        <span className="text-sm text-amber-700">
+        <span className="text-sm text-[#b06326]">
           / ${budgetTotal.toFixed(2)}
         </span>
-
       </div>
 
-      <div className="w-full h-28">
-
+      <div className="h-28 w-full">
         <ResponsiveContainer width="100%" height="100%">
-
           <PieChart>
-
             <Pie
               data={chartData}
               innerRadius={30}
@@ -100,27 +93,19 @@ export default function BudgetDashboardCard() {
               paddingAngle={2}
               dataKey="value"
             >
-
-              <Cell fill="#E25555" />
-              <Cell fill="#E8D9A8" />
-
+              <Cell fill="#cb6a4c" />
+              <Cell fill="#ead8b7" />
             </Pie>
-
           </PieChart>
-
         </ResponsiveContainer>
-
       </div>
 
-      <div className="w-full h-2 bg-[#E8D9A8] rounded-full overflow-hidden">
-
+      <div className="h-2 w-full overflow-hidden rounded-full bg-[rgba(189,152,92,0.22)]">
         <div
-          className="h-full bg-[#F4A000]"
+          className="h-full rounded-full bg-[linear-gradient(90deg,#d0782d_0%,#e2a54e_100%)]"
           style={{ width: `${percent}%` }}
         />
-
       </div>
-
     </DashboardCard>
   );
 }

@@ -10,6 +10,7 @@ import Dashboard from './pages/dashboard/Dashboard';
 import DietDashboard from './pages/fitness/pages/DietDashboard';
 import DashboardPage from './pages/main/DashboardPage';
 import NotesPage from './pages/notes/NotesPage';
+import { apiFetch } from './api/client';
 
 export default function App() {
   const [user, setUser] = useState(null);

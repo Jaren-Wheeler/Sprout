@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 
 import { getEvents } from '../../api/scheduler';
 import CalendarGrid from './CalendarGrid';
 import EventSidebar from './EventSidebar';
 import { groupEventsByDate } from '../../utils/date';
 import Sprout from '../../components/chatbot/Sprout';
-import sproutLogo from '../../assets/Logo.png';
 import { sendChatMessage } from '../../api/chatbot';
 import TodayAgenda from './TodayAgenda';
 import background from '../../assets/bg.png';
@@ -17,7 +15,6 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
-  // ================= LOAD EVENTS =================
   useEffect(() => {
     loadEvents();
   }, []);
@@ -33,55 +30,58 @@ export default function CalendarPage() {
 
   const eventsByDate = groupEventsByDate(events);
 
-  // ================= UI =================
   async function sendCalendarChatMessage(message) {
-  const now = new Date();
+    const now = new Date();
 
-  return sendChatMessage(message, {
-    clientNowIso: now.toISOString(),
-    clientLocalDate: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`,
-    clientTimezoneOffsetMinutes: now.getTimezoneOffset()
-  });
-}
+    return sendChatMessage(message, {
+      clientNowIso: now.toISOString(),
+      clientLocalDate: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`,
+      clientTimezoneOffsetMinutes: now.getTimezoneOffset()
+    });
+  }
 
   return (
-  <div
-    className="min-h-screen w-full bg-cover bg-center bg-fixed "
-    style={{ backgroundImage: `url(${background})` }}
-  >
-    <AppLayout>
-      <div className="min-h-screen p-6">
-        <div className="max-w-7xl mx-auto space-y-6 p-6">
+    <div
+      className="sprout-app-shell"
+      style={{ backgroundImage: `linear-gradient(180deg, rgba(255,253,249,0.5), rgba(247,241,225,0.72)), url(${background})` }}
+    >
+      <div className="sprout-page-wrap">
+        <AppLayout title="Calendar">
+          <div className="space-y-6">
+            <section className="sprout-page-hero">
+              <div className="relative z-10">
+                <div>
+                  <span className="sprout-page-kicker">Planning board</span>
+                  <h1 className="sprout-page-title">Calendar</h1>
+                  <p className="sprout-page-description">
+                    A calmer schedule view with clearer hierarchy, softer paper tones, and a little handcrafted character.
+                  </p>
+                </div>
+              </div>
+            </section>
 
-          <header className="space-y-1">
-            <h1 className="sprout-title">Calendar</h1>
-            <p className="sprout-subtitle">Plan your days ahead</p>
-          </header>
-
-          <div className="flex gap-8 items-start">
-
-            <CalendarGrid
-              currentMonth={currentMonth}
-              setCurrentMonth={setCurrentMonth}
-              selectedDate={selectedDate}
-              setSelectedDate={setSelectedDate}
-              eventsByDate={eventsByDate}
-            />
-
-            <div className="flex flex-col gap-6">
-              <TodayAgenda eventsByDate={eventsByDate} />
-
-              <EventSidebar
+            <div className="grid gap-6 xl:grid-cols-[1.65fr_0.85fr]">
+              <CalendarGrid
+                currentMonth={currentMonth}
+                setCurrentMonth={setCurrentMonth}
                 selectedDate={selectedDate}
+                setSelectedDate={setSelectedDate}
                 eventsByDate={eventsByDate}
-                onEventCreated={loadEvents}
               />
+
+              <div className="flex flex-col gap-6">
+                <TodayAgenda eventsByDate={eventsByDate} />
+
+                <EventSidebar
+                  selectedDate={selectedDate}
+                  eventsByDate={eventsByDate}
+                  onEventCreated={loadEvents}
+                />
+              </div>
             </div>
           </div>
-
-        </div>
+        </AppLayout>
       </div>
-    </AppLayout>
       <Sprout onSend={sendCalendarChatMessage} onBudgetChange={loadEvents} />
     </div>
   );

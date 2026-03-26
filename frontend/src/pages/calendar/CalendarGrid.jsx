@@ -47,7 +47,7 @@ export default function CalendarGrid({
   };
 
   return (
-    <div className="sprout-paper p-6 w-[700px]">
+    <div className="sprout-surface p-5 md:p-6 xl:min-h-[720px]">
 
       {/* HEADER */}
       <div className="flex flex-col items-center mb-6">

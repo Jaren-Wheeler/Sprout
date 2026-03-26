@@ -72,22 +72,19 @@ export default function BudgetWorkspace({ categories, expenses, refreshData }) {
   }
 
   return (
-    <div className="sprout-panel p-4 flex flex-col h-full">
-      <h2 className="font-semibold text-lg text-[#3B2F2F] mb-6">
+    <div className="flex h-full flex-col px-2 pb-10 pt-2 md:px-1 md:pb-9 md:pt-1">
+      <h2 className="mb-6 text-lg font-semibold text-[#3B2F2F]">
         Add Transaction
       </h2>
 
       <form
         onSubmit={handleSubmit(onSubmit)}
         noValidate
-        className="flex flex-col flex-1"
+        className="flex flex-1 min-h-[400px] flex-col"
       >
-        {/* Hidden type field for schema */}
         <input type="hidden" {...register('type')} />
 
-        {/* Inputs */}
-        <div className="space-y-4">
-          {/* Description */}
+        <div className="flex-1 space-y-4">
           <div>
             <input
               className={`sprout-input ${
@@ -101,7 +98,6 @@ export default function BudgetWorkspace({ categories, expenses, refreshData }) {
             )}
           </div>
 
-          {/* Amount */}
           <SproutCurrencyInput
             register={register}
             name="amount"
@@ -109,7 +105,6 @@ export default function BudgetWorkspace({ categories, expenses, refreshData }) {
             placeholder="Amount"
           />
 
-          {/* Category */}
           {type === 'expense' && (
             <div>
               <select
@@ -133,13 +128,12 @@ export default function BudgetWorkspace({ categories, expenses, refreshData }) {
           )}
         </div>
 
-        {/* Buttons */}
         <div className="mt-auto space-y-4 pt-6">
           <div className="flex gap-3">
             <button
               type="button"
               onClick={() => setValue('type', 'expense')}
-              className={`flex-1 ${
+              className={`flex-1 min-w-0 ${
                 type === 'expense'
                   ? 'sprout-btn-base sprout-btn-danger'
                   : 'sprout-btn-muted'
@@ -151,7 +145,7 @@ export default function BudgetWorkspace({ categories, expenses, refreshData }) {
             <button
               type="button"
               onClick={() => setValue('type', 'income')}
-              className={`flex-1 ${
+              className={`flex-1 min-w-0 ${
                 type === 'income'
                   ? 'sprout-btn-base sprout-btn-success'
                   : 'sprout-btn-muted'
@@ -165,7 +159,7 @@ export default function BudgetWorkspace({ categories, expenses, refreshData }) {
             disabled={loading || isSubmitting}
             className="w-full sprout-btn-primary"
           >
-            {loading ? 'Adding…' : '+ Add Transaction'}
+            {loading ? 'Adding...' : '+ Add Transaction'}
           </button>
         </div>
       </form>

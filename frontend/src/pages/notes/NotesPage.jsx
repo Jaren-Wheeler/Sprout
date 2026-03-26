@@ -2,7 +2,6 @@ import Sprout from '@/components/chatbot/Sprout';
 import { useMemo, useState } from 'react';
 import { sendChatMessage } from '../../api/chatbot';
 import background from '../../assets/bg.png';
-import notepadBg from '../../assets/notepad.png';
 import AppLayout from '../../components/AppLayout';
 import ConfirmModal from '../../components/ui/ConfirmModal';
 import NoteEditorPanel from './NoteEditorPanel';
@@ -40,7 +39,6 @@ export default function NotesPage() {
   const handleSave = async ({ title, content }) => {
     const t = title.trim();
     const c = content.trim();
-    5;
 
     if (!t) {
       setError('Title is required');
@@ -79,72 +77,74 @@ export default function NotesPage() {
       setError(e?.message || 'Failed to delete note');
     }
   };
+
   return (
     <div
-      className="min-h-screen w-full bg-cover bg-center bg-fixed"
-      style={{ backgroundImage: `url(${background})` }}
+      className="sprout-app-shell"
+      style={{ backgroundImage: `linear-gradient(180deg, rgba(255,253,249,0.5), rgba(247,241,225,0.72)), url(${background})` }}
     >
-      <AppLayout>
-        <div
-          className="min-h-screen p-10 bg-cover bg-center flex justify-center"
-          style={{
-            backgroundImage: `url(${notepadBg})`,
-            // If you want to force specific stretching:
-            backgroundSize: '100% 100%',
-          }}
-        >
-          {/* The "Page" Area Wrapper */}
-          <div className="w-full max-w-3xl h-auto p-12 mt-10 rounded-r-lg shadow-sm">
-            {/* Your content goes here */}
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold text-amber-900">My Notes</h2>
-              <p className="text-amber-800/60">Take some notes!</p>
-            </div>
-
-            <NotesToolbar onAdd={openCreate} />
-
-            {error && (
-              <div className="mt-3 mb-4 px-4 py-3 rounded-xl bg-red-200/50 border border-red-400/40 text-red-900/95">
-                {error}
-              </div>
-            )}
-
-            {/* EDITOR MODAL */}
-            {editorOpen && (
-              <div className="sprout-modal-backdrop">
-                <div className="absolute inset-0" onClick={closeEditor} />
-                <div className="relative z-10 w-full max-w-[560px] mx-4 animate-scaleIn">
-                  <NoteEditorPanel
-                    initialTitle={editingNote?.title || ''}
-                    initialContent={editingNote?.content || ''}
-                    saving={saving}
-                    mode={isEditing ? 'edit' : 'create'}
-                    onSave={handleSave}
-                    onCancel={closeEditor}
-                  />
+      <div className="sprout-page-wrap">
+        <AppLayout title="Notes">
+          <div className="space-y-6">
+            <section className="sprout-page-hero">
+              <div className="relative z-10">
+                <div>
+                  <span className="sprout-page-kicker">Notes hub</span>
+                  <h1 className="sprout-page-title">My Notes</h1>
+                  <p className="sprout-page-description">
+                    A cleaner workspace for quick capture, loose ideas, and drafts that still feel pinned to paper.
+                  </p>
                 </div>
               </div>
-            )}
+            </section>
 
-            <NotesGrid
-              notes={notes}
-              loading={loading}
-              onEdit={openEdit}
-              onDelete={handleDelete}
-            />
+            <section className="sprout-surface p-5 md:p-6">
+              <NotesToolbar onAdd={openCreate} />
+
+              {error && (
+                <div className="mb-4 mt-4 rounded-2xl border border-red-400/30 bg-red-100/60 px-4 py-3 text-red-900/95">
+                  {error}
+                </div>
+              )}
+
+              {editorOpen && (
+                <div className="sprout-modal-backdrop">
+                  <div className="absolute inset-0" onClick={closeEditor} />
+                  <div className="relative z-10 mx-4 w-full max-w-[560px] animate-scaleIn">
+                    <NoteEditorPanel
+                      initialTitle={editingNote?.title || ''}
+                      initialContent={editingNote?.content || ''}
+                      saving={saving}
+                      mode={isEditing ? 'edit' : 'create'}
+                      onSave={handleSave}
+                      onCancel={closeEditor}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-6">
+                <NotesGrid
+                  notes={notes}
+                  loading={loading}
+                  onEdit={openEdit}
+                  onDelete={handleDelete}
+                />
+              </div>
+            </section>
+
+            {confirmingId && (
+              <ConfirmModal
+                title="Delete Note"
+                message="Are you sure you want to delete this note? This cannot be undone."
+                confirmText="Delete"
+                onConfirm={confirmDelete}
+                onCancel={() => setConfirmingId(null)}
+              />
+            )}
           </div>
-          {/* CONFIRM DELETE MODAL */}
-          {confirmingId && (
-            <ConfirmModal
-              title="Delete Note"
-              message="Are you sure you want to delete this note? This cannot be undone."
-              confirmText="Delete"
-              onConfirm={confirmDelete}
-              onCancel={() => setConfirmingId(null)}
-            />
-          )}
-        </div>
-      </AppLayout>
+        </AppLayout>
+      </div>
 
       <Sprout onSend={sendChatMessage} />
     </div>

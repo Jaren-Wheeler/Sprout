@@ -1,17 +1,24 @@
-import logo from "../assets/Logo.png"; // Import your logo
-export default function Header({ title, onMenuClick }) {
+import logo from "../assets/Logo.png";
+
+export default function Header({
+  title,
+  onMenuClick,
+  className = "",
+  buttonClassName = "",
+}) {
   return (
-    <header className="flex items-center p-0"> 
-      <button onClick={onMenuClick} className="w-32 h-24 transition-transform hover:scale-105 ml-6">
-        <img 
-          src={logo} 
-          alt="Menu" 
-          // 'w-full h-full' makes the image fill the button size
-          className="w-full h-full object-contain cursor-pointer" 
+    <header className={`relative z-20 flex items-center border-b border-[rgba(128,86,36,0.1)] px-4 py-4 md:px-6 md:py-5 ${className}`.trim()}>
+      <button
+        onClick={onMenuClick}
+        className={`flex h-20 w-20 items-center justify-center rounded-[26px] border border-[rgba(128,86,36,0.12)] bg-white/70 shadow-[0_12px_24px_rgba(87,60,26,0.08)] transition-all duration-200 hover:-translate-y-[1px] hover:shadow-[0_16px_28px_rgba(87,60,26,0.12)] ${buttonClassName}`.trim()}
+        aria-label="Open navigation"
+      >
+        <img
+          src={logo}
+          alt="Sprout logo"
+          className="h-16 w-16 object-contain"
         />
       </button>
-
-      <h1>{title}</h1>
     </header>
   );
 }

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import SetupWizard from "./SetupWizard";
 import BudgetDashboard from "./BudgetDashboard";
-// Update the import path to the one we verified earlier
 import AppLayout from "../../components/AppLayout";
 import background from "../../assets/bg.png";
 
@@ -21,9 +20,6 @@ export default function BudgetPage() {
   const [expectedIncome, setExpectedIncome] = useState(0);
   const [incomeEntries, setIncomeEntries] = useState([]);
 
-  // =====================================================
-  // INITIAL LOAD
-  // =====================================================
   useEffect(() => {
     async function loadData() {
       try {
@@ -59,9 +55,6 @@ export default function BudgetPage() {
     loadData();
   }, []);
 
-  // =====================================================
-  // REFRESH HELPER
-  // =====================================================
   async function refreshData() {
     const [
       budgetsData,
@@ -81,9 +74,6 @@ export default function BudgetPage() {
     setIncomeEntries(incomeEntriesData);
   }
 
-  // =====================================================
-  // SETUP COMPLETION HANDLER
-  // =====================================================
   async function handleSetupComplete() {
     setNeedsSetup(false);
     setLoading(true);
@@ -91,17 +81,18 @@ export default function BudgetPage() {
     setLoading(false);
   }
 
-    if (loading) {
-    return <div className="p-6">Loading finances…</div>;
+  if (loading) {
+    return <div className="p-6">Loading finances...</div>;
   }
 
   return (
     <div
-      className="min-h-screen w-full bg-cover bg-center bg-fixed"
-      style={{ backgroundImage: `url(${background})` }}
+      className="sprout-app-shell"
+      style={{ backgroundImage: `linear-gradient(180deg, rgba(255,253,249,0.5), rgba(247,241,225,0.72)), url(${background})` }}
     >
-      <AppLayout>
-        <div className="min-h-screen p-6">
+      <div className="sprout-page-wrap">
+      <AppLayout title="Budget">
+        <div>
           {needsSetup ? (
             <SetupWizard onComplete={handleSetupComplete} />
           ) : (
@@ -115,6 +106,7 @@ export default function BudgetPage() {
           )}
         </div>
       </AppLayout>
+      </div>
     </div>
   );
 }

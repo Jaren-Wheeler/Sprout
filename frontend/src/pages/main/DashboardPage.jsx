@@ -1,101 +1,83 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import BudgetDashboardCard from "./BudgetDashboardCard";
 import DietDashboardCard from "./DietDashboardCard";
 import ScheduleDashboardCard from "./ScheduleDashboardCard";
 import NotesDashboardCard from "./NotesDashboardCard";
-import ExploreHabitatButton from "./ExploreHabitatButton";
 import OnboardingTour from "../../components/OnboardingTour";
+import AppLayout from "../../components/AppLayout";
 import backgroundImage from "../../assets/board.jpg";
-import note3 from "../../assets/note1.png";
 
 export default function DashboardPage({ user, setUser }) {
-
   const [showTour, setShowTour] = useState(false);
-  
+
   useEffect(() => {
     if (!user) return;
 
     const localKey = `hasSeenOnboarding_${user.uid}`;
     const hasSeenLocal = localStorage.getItem(localKey);
 
-    // ✅ Show ONLY if both say false
     if (!user.hasSeenOnboarding && !hasSeenLocal) {
       setShowTour(true);
     } else {
       setShowTour(false);
     }
-
   }, [user]);
 
   const handleTourComplete = () => {
     const localKey = `hasSeenOnboarding_${user.uid}`;
-    localStorage.setItem(localKey, "true"); // ✅ FIXED
-
+    localStorage.setItem(localKey, "true");
     setShowTour(false);
   };
 
   return (
-    <div className="sprout-dashboard"
-      style={{ 
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: '100% 100%',    
-        backgroundPosition: 'top center', 
-        backgroundAttachment: 'scroll'
-    }}>
-
+    <div
+      className="min-h-screen bg-cover bg-top"
+      style={{
+        backgroundImage: `
+          radial-gradient(circle at 50% 28%, rgba(255,239,165,0.24), transparent 22%),
+          linear-gradient(180deg, rgba(62,39,20,0.16), rgba(62,39,20,0.08)),
+          url(${backgroundImage})
+        `,
+      }}
+    >
       {showTour && (
         <OnboardingTour user={user} onComplete={handleTourComplete} setUser={setUser} />
       )}
 
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        width: '100%' 
-      }}>
-        <div 
-          className="dashboard-header-card"
-          style={{ 
-            backgroundImage: `url(${note3})`,
-            backgroundSize: '100% 85%', 
-            backgroundRepeat: 'no-repeat',
-            padding: '40px 60px',
-            display: 'inline-block', 
-            minWidth: '180px' 
-          }}
-        >
-          <div className="sprout-dashboard-header">
-            <h1 className="sprout-title">Dashboard</h1>
-            <p className="sprout-subtitle">
-                Overview of your activity
-            </p>
+      <AppLayout
+        title="Dashboard"
+        plainShell
+        shellClassName="min-h-screen"
+        headerButtonClassName="ml-5 border-[rgba(255,255,255,0.4)] bg-[rgba(255,250,244,0.82)] shadow-[0_20px_34px_rgba(62,39,20,0.18)]"
+        contentClassName="px-4 py-8 md:px-6 md:py-10"
+      >
+          <div className="mx-auto w-full max-w-5xl space-y-8">
+            <header className="px-1 text-center">
+              <h1 className="text-[3.15rem] font-semibold tracking-[-0.03em] text-[#4f2d16] md:text-[4rem]">
+                Dashboard
+              </h1>
+            </header>
+
+            <section className="grid w-full grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-2">
+              <div className="budget-tour">
+                <BudgetDashboardCard />
+              </div>
+
+              <div className="diet-tour">
+                <DietDashboardCard />
+              </div>
+
+              <div className="schedule-tour">
+                <ScheduleDashboardCard />
+              </div>
+
+              <div className="notes-tour">
+                <NotesDashboardCard />
+              </div>
+            </section>
           </div>
-        </div>
-      </div>
-
-      <div className="sprout-dashboard-grid">
-
-        <div className="budget-tour">
-          <BudgetDashboardCard />
-        </div>
-
-        <div className="diet-tour">
-          <DietDashboardCard />
-        </div>
-
-        <div className="schedule-tour">
-          <ScheduleDashboardCard />
-        </div>
-
-        <div className="notes-tour">
-          <NotesDashboardCard />
-        </div>
-
-      </div>
-
-      <ExploreHabitatButton className="explore-tour" />
-
+        </AppLayout>
     </div>
   );
 }
