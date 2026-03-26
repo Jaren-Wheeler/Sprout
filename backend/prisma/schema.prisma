@@ -169,6 +169,26 @@ model PresetMealItems {
   diet     Diet     @relation(fields: [dietId], references: [id], onDelete: Cascade)
 }
 
+model FoodCache {
+  id                  String   @id @default(uuid()) @map("id")
+  fdcId               Int      @unique @map("fdcId")
+  name                String   @map("name")
+  brand               String?  @map("brand")
+  dataType            String?  @map("dataType")
+  servingSize         Float?   @map("serving_size")
+  servingSizeOriginal Float?   @map("serving_size_original")
+  servingUnit         String?  @map("serving_unit")
+  servingUnitOriginal String?  @map("serving_unit_original")
+  calories            Float?   @map("calories")
+  protein             Float?   @map("protein")
+  carbs               Float?   @map("carbs")
+  fat                 Float?   @map("fat")
+  sugar               Float?   @map("sugar")
+  createdAt           DateTime @default(now()) @map("createdAt")
+
+  @@map("food_cache")
+}
+
 model ChatbotMessage {
   id        String   @id @default(uuid()) @map("id")
   sender    Sender   @map("sender")
