@@ -853,6 +853,42 @@ input[type='number'] {
   animation-delay: 4.1s;
 }
 
+.sprout-diet-card-text {
+  color: #78350f;
+}
+
+.sprout-diet-card-text-muted {
+  color: rgba(120, 53, 15, 0.7);
+}
+
+.dark .sprout-diet-card-text {
+  color: #78350f !important;
+}
+
+.dark .sprout-diet-card-text-muted {
+  color: rgba(120, 53, 15, 0.7) !important;
+}
+
+.dark .sprout-diet-card-force-light-text,
+.dark .sprout-diet-card-force-light-text h1,
+.dark .sprout-diet-card-force-light-text h2,
+.dark .sprout-diet-card-force-light-text h3,
+.dark .sprout-diet-card-force-light-text p,
+.dark .sprout-diet-card-force-light-text span,
+.dark .sprout-diet-card-force-light-text div {
+  color: #78350f !important;
+}
+
+.dark .sprout-diet-card-force-light-text .text-amber-900\/80,
+.dark .sprout-diet-card-force-light-text .text-amber-900\/70,
+.dark .sprout-diet-card-force-light-text .text-amber-900\/60 {
+  color: rgba(120, 53, 15, 0.7) !important;
+}
+
+.dark .sprout-diet-card-force-light-text .text-red-500 {
+  color: rgb(239 68 68) !important;
+}
+
 @keyframes sparkle {
   0% {
     opacity: 0;

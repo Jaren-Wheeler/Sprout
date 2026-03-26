@@ -8,15 +8,17 @@ export default function SproutModal({
 }) {
   return createPortal(
     <div
-      className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center"
+      className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm"
       style={{ zIndex: level }}
     >
       {/* click outside */}
-      <div className="absolute inset-0" onClick={onClose} />
+      <div className="absolute inset-0 z-0" onClick={onClose} />
 
       {/* modal content */}
       <div
-        className={`relative z-10 w-full ${maxWidth} mx-4 animate-scaleIn max-h-[90vh] overflow-y-auto`}
+        className={`relative z-10 mx-4 w-full ${maxWidth} max-h-[90vh] overflow-y-auto animate-scaleIn pointer-events-auto`}
+        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
       >
         {children}
       </div>
