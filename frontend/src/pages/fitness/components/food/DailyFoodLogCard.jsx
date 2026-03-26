@@ -65,12 +65,33 @@ export default function DailyFoodLogCard({
   return (
     <div className="bg-white w-full h-[540px] flex items-center justify-center -rotate-1">
       <div className="sprout-paper p-5 w-[90%] h-[90%] flex flex-col min-w-0 overflow-hidden ">
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-6 border-b border-amber-200/50 pb-4">
-          <h2 className="font-bold text-amber-900 text-xl whitespace-nowrap">Your Daily Log</h2>
+        <div className="mb-5 flex flex-wrap items-start justify-between gap-4 border-b border-amber-200/50 pb-4">
+          <div className="min-w-0 flex-1 space-y-3">
+            <div>
+              <h2 className="font-bold text-amber-900 text-xl whitespace-nowrap">
+                Your Daily Log
+              </h2>
+              <p className="mt-1 text-sm text-amber-900/55">
+                Choose a diet and log meals for the day.
+              </p>
+            </div>
 
-          <div className="flex items-center gap-2 bg-amber-50/50 px-3 py-1 rounded-full border border-amber-100">
-            <button onClick={prevDay}
-            className="text-amber-700 hover:text-amber-900 transition-colors">
+            <div className="max-w-[240px]">
+              <DietCard
+                diets={diets}
+                selectedDiet={diet}
+                onSelect={onSelectDiet}
+                onCreate={openCreateDiet}
+                onDelete={onDeleteDiet}
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 rounded-full border border-amber-100 bg-amber-50/50 px-3 py-1">
+            <button
+              onClick={prevDay}
+              className="text-amber-700 transition-colors hover:text-amber-900"
+            >
               <ChevronLeft size={22} />
             </button>
 
@@ -82,17 +103,6 @@ export default function DailyFoodLogCard({
               <ChevronRight size={22} />
             </button>
           </div>
-
-          <div className="flex-shrink-0"> 
-            <DietCard
-              diets={diets}
-              selectedDiet={diet}
-              onSelect={onSelectDiet}
-              onCreate={openCreateDiet}
-              onDelete={onDeleteDiet}
-            />
-          </div>
-          
         </div>
 
         <div className="flex items-center justify-center gap-2 mb-4 pb-3 border-b border-yellow-300/40">

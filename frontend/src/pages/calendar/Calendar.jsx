@@ -4,13 +4,13 @@ import { getEvents } from '../../api/scheduler';
 import CalendarGrid from './CalendarGrid';
 import EventSidebar from './EventSidebar';
 import { groupEventsByDate } from '../../utils/date';
-import Sprout from '../../components/chatbot/Sprout';
-import { sendChatMessage } from '../../api/chatbot';
 import TodayAgenda from './TodayAgenda';
 import background from '../../assets/bg.png';
 import AppLayout from '@/components/AppLayout';
+import { useTheme } from '../../theme/ThemeContext';
 
 export default function CalendarPage() {
+  const { theme } = useTheme();
   const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -29,21 +29,18 @@ export default function CalendarPage() {
   }
 
   const eventsByDate = groupEventsByDate(events);
-
-  async function sendCalendarChatMessage(message) {
-    const now = new Date();
-
-    return sendChatMessage(message, {
-      clientNowIso: now.toISOString(),
-      clientLocalDate: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`,
-      clientTimezoneOffsetMinutes: now.getTimezoneOffset()
-    });
-  }
-
   return (
     <div
       className="sprout-app-shell"
-      style={{ backgroundImage: `linear-gradient(180deg, rgba(255,253,249,0.5), rgba(247,241,225,0.72)), url(${background})` }}
+      style={{
+        backgroundImage:
+          theme === 'dark'
+            ? `radial-gradient(circle at 18% 14%, rgba(212, 178, 116, 0.11), transparent 20%), radial-gradient(circle at 82% 78%, rgba(145, 114, 72, 0.1), transparent 18%), repeating-linear-gradient(-18deg, rgba(255,248,228,0.02) 0 2px, rgba(255,248,228,0) 2px 13px), linear-gradient(180deg, #181410 0%, #241c15 52%, #31251b 100%)`
+            : `linear-gradient(180deg, rgba(255,253,249,0.5), rgba(247,241,225,0.72)), url(${background})`,
+        backgroundRepeat: theme === 'dark' ? 'no-repeat, no-repeat, repeat, no-repeat' : 'no-repeat, no-repeat',
+        backgroundSize: theme === 'dark' ? 'auto, auto, 220px 220px, cover' : 'auto, cover',
+        backgroundPosition: theme === 'dark' ? 'center, center' : 'center, center top',
+      }}
     >
       <div className="sprout-page-wrap">
         <AppLayout title="Calendar">
@@ -82,7 +79,6 @@ export default function CalendarPage() {
           </div>
         </AppLayout>
       </div>
-      <Sprout onSend={sendCalendarChatMessage} onBudgetChange={loadEvents} />
     </div>
   );
 }

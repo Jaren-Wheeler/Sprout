@@ -13,13 +13,13 @@ export default function DietLayout({
       {summary}
 
       <div
-        className="flex flex-col gap-12 w-[120%]"
+        className="flex w-full max-w-[1280px] flex-col gap-12"
         style={{ 
             backgroundImage: `url(${note6})`, 
-            backgroundSize: '110% 110%',
+            backgroundSize: '100% 100%',
             backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',
-            padding: '150px 200px', // Adjusted padding to let items sit closer to the edges
+            padding: '150px 150px',
             minHeight: '600px',   // Ensures the board stays large even if content is light
             minWidth: '800px',
       }}>

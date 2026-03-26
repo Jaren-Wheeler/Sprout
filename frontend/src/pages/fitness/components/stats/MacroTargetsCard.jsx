@@ -1,4 +1,10 @@
+import { useTheme } from '../../../../theme/ThemeContext';
+
 function MacroRow({ label, consumed = 0, goal = 0, color }) {
+  const { theme } = useTheme();
+  const darkTextStyle = theme === 'dark' ? { color: '#000000' } : undefined;
+  const darkMutedTextStyle =
+    theme === 'dark' ? { color: 'rgba(0, 0, 0, 0.78)' } : undefined;
   const value = Number(consumed) || 0;
   const target = Number(goal) || 0;
 
@@ -11,9 +17,9 @@ function MacroRow({ label, consumed = 0, goal = 0, color }) {
   return (
     <div className="mb-5">
       <div className="flex justify-between items-end mb-1">
-        <span className="text-amber-900/80 text-sm">{label}</span>
+        <span className="text-sm text-amber-900/80" style={darkMutedTextStyle}>{label}</span>
 
-        <span className="text-amber-900 font-semibold">
+        <span className="font-semibold text-amber-900" style={darkTextStyle}>
           {Math.round(value)} / {Math.round(target)} g
         </span>
       </div>
@@ -21,12 +27,13 @@ function MacroRow({ label, consumed = 0, goal = 0, color }) {
       {/* Remaining / Over feedback */}
 
       <div className="flex justify-between text-xs mb-2">
-        <span className="text-amber-900/60">
+        <span className="text-amber-900/60" style={darkMutedTextStyle}>
           {isOver ? 'Over goal' : 'Remaining'}
         </span>
 
         <span
           className={`font-semibold ${isOver ? 'text-red-500' : 'text-amber-900'}`}
+          style={!isOver ? darkTextStyle : undefined}
         >
           {Math.abs(Math.round(remaining))} g
         </span>
@@ -55,12 +62,15 @@ export default function MacroTargetsCard({
   fatConsumed,
   onEdit,
 }) {
+  const { theme } = useTheme();
+  const darkTextStyle = theme === 'dark' ? { color: '#000000' } : undefined;
+
   return (
     <div
       onClick={onEdit}
       className="sprout-card p-6 cursor-pointer hover:scale-[1.01] transition flex flex-col"
     >
-      <h2 className="text-lg font-semibold text-amber-900 mb-5">
+      <h2 className="mb-5 text-lg font-semibold text-amber-900" style={darkTextStyle}>
         Macro Targets
       </h2>
 

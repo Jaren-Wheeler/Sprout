@@ -2,15 +2,12 @@ import { useMemo, useState, useRef, useEffect } from 'react';
 
 import BudgetChart from './BudgetChart';
 import BudgetWorkspace from './BudgetWorkspace';
-import Sprout from '../../components/chatbot/Sprout';
 
 import SummaryCard from './SummaryCard';
 import CategoryCard from './CategoryCard';
 import TransactionList from './TransactionList';
 import CategoryEditorModal from './CategoryEditorModal';
 import CategoryAddCard from './CategoryAddCard';
-
-import { sendChatMessage } from '../../api/chatbot';
 
 export default function BudgetDashboard({
   budgets,
@@ -204,8 +201,6 @@ export default function BudgetDashboard({
           onSaved={refreshData}
         />
       )}
-
-      <Sprout onSend={sendChatMessage} />
     </div>
   );
 }

@@ -31,7 +31,7 @@ export default function TransactionList({ transactions = [] }) {
 
   return (
     <div className="sprout-surface space-y-4 p-6">
-      <h2 className="text-lg font-semibold text-[#7A3E00]">
+      <h2 className="text-lg font-semibold text-[#7A3E00] dark:text-white">
         Recent Transactions
       </h2>
 
@@ -50,11 +50,11 @@ export default function TransactionList({ transactions = [] }) {
                 }`}
             >
               <div>
-                <p className="font-medium text-[#3B2F2F]">
+                <p className="font-medium text-[#1f1712]">
                   {t.description || t.category}
                 </p>
 
-                <p className="text-sm text-[#6B5E5E]">
+                <p className="text-sm text-[#5a4d47]">
                   {formatDisplayDate(t.date)}
                 </p>
               </div>

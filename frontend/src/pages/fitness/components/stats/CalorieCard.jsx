@@ -1,3 +1,5 @@
+import { useTheme } from '../../../../theme/ThemeContext';
+
 export default function CalorieCard({
   calorieGoal = 0,
   caloriesConsumed = 0,
@@ -5,6 +7,10 @@ export default function CalorieCard({
   goalWeight = null,
   onEdit,
 }) {
+  const { theme } = useTheme();
+  const darkTextStyle = theme === 'dark' ? { color: '#000000' } : undefined;
+  const darkMutedTextStyle =
+    theme === 'dark' ? { color: 'rgba(0, 0, 0, 0.78)' } : undefined;
   const goal = Number(calorieGoal) || 0;
   const consumed = Number(caloriesConsumed) || 0;
 
@@ -21,15 +27,15 @@ export default function CalorieCard({
       {/* Header + Stats */}
 
       <div>
-        <h2 className="text-lg font-semibold text-amber-900 mb-4">
+        <h2 className="mb-4 text-lg font-semibold text-amber-900" style={darkTextStyle}>
           Energy Summary
         </h2>
 
         {currentWeight != null && goalWeight != null && (
           <div className="flex justify-between items-end mt-3">
-            <span className="text-amber-900/70 text-sm">Weight</span>
+            <span className="text-sm text-amber-900/70" style={darkMutedTextStyle}>Weight</span>
 
-            <span className="text-amber-900 font-semibold text-lg">
+            <span className="text-lg font-semibold text-amber-900" style={darkTextStyle}>
               {currentWeight} / {goalWeight} lbs
             </span>
           </div>
@@ -37,9 +43,9 @@ export default function CalorieCard({
         {/* Main Calories Line */}
 
         <div className="flex justify-between items-end mb-3">
-          <span className="text-amber-900/70 text-sm">Calories</span>
+          <span className="text-sm text-amber-900/70" style={darkMutedTextStyle}>Calories</span>
 
-          <span className="text-amber-900 font-semibold text-lg">
+          <span className="text-lg font-semibold text-amber-900" style={darkTextStyle}>
             {Math.round(consumed)} / {Math.round(goal)} kcal
           </span>
         </div>
@@ -47,14 +53,13 @@ export default function CalorieCard({
         {/* Remaining / Over */}
 
         <div className="flex justify-between text-sm">
-          <span className="text-amber-900/70">
+          <span className="text-amber-900/70" style={darkMutedTextStyle}>
             {isOver ? 'Over goal' : 'Remaining'}
           </span>
 
           <span
-            className={`font-semibold ${
-              isOver ? 'text-red-500' : 'text-amber-900'
-            }`}
+            className={`font-semibold ${isOver ? 'text-red-500' : 'text-amber-900'}`}
+            style={!isOver ? darkTextStyle : undefined}
           >
             {Math.abs(Math.round(difference))} kcal
           </span>

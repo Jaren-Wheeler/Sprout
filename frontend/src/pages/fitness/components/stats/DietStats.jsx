@@ -19,11 +19,11 @@ export default function DietStats({ stats, onEditGoals }) {
             filter: 'drop-shadow(4px 4px 8px rgba(0,0,0,0.15))'
           }}
         >
-          <h2 className="text-lg font-semibold text-amber-900 mb-2">
+          <h2 className="mb-2 text-lg font-semibold text-amber-900 dark:text-[#3f2612]">
             Energy Summary
           </h2>
 
-          <p className="text-sm text-amber-900/70">
+          <p className="text-sm text-amber-900/70 dark:text-[rgba(63,38,18,0.78)]">
             Click to create your diet goals!
           </p>
         </div>
@@ -42,11 +42,11 @@ export default function DietStats({ stats, onEditGoals }) {
             filter: 'drop-shadow(4px 4px 8px rgba(0,0,0,0.15))'
           }}
         >
-          <h2 className="text-lg font-semibold text-amber-900 mb-2">
+          <h2 className="mb-2 text-lg font-semibold text-amber-900 dark:text-[#3f2612]">
             Macro Targets
           </h2>
 
-          <p className="text-sm text-amber-900/70">
+          <p className="text-sm text-amber-900/70 dark:text-[rgba(63,38,18,0.78)]">
             Click to add your diet goals!
           </p>
         </div>
