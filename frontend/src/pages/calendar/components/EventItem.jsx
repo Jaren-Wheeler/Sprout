@@ -1,21 +1,23 @@
 import { format } from 'date-fns';
 import { Pin } from 'lucide-react';
+import { togglePinEvent } from '../../../api/scheduler';
 import { getEventColor } from '../../../utils/date';
 
 export default function EventItem({ event, onClick, setError }) {
   const colorClass = getEventColor(event.id);
 
-  async function handleDelete(t, refreshData) {
-    try {
-      if (t.type === 'income') {
-        await deleteIncome(t.id);
-      } else {
-        await deleteExpense(t.id);
-      }
+  async function handlePin(e) {
+    e.stopPropagation();
 
-      await refreshData();
+    try {
+      await togglePinEvent(event.id);
+      window.dispatchEvent(new Event('eventsUpdated'));
     } catch (err) {
-      console.error('Failed to delete transaction', err);
+      if (err.message.includes('Maximum')) {
+        setError('You can only pin up to 3 events');
+      } else {
+        setError('Something went wrong');
+      }
     }
   }
 

@@ -30,7 +30,7 @@ async function handleDelete(t, refreshData) {
       await deleteExpense(t.id);
     }
 
-    await refreshData(); // 🔥 THIS IS THE FIX
+    await refreshData();
   } catch (err) {
     console.error('Failed to delete transaction', err);
   }
