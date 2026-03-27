@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { getEventColor } from '../../utils/date';
+import { getEventColor } from '../../../utils/date';
 
 export default function TodayAgenda({ eventsByDate }) {
   const today = new Date();

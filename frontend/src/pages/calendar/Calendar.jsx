@@ -1,31 +1,31 @@
 import { useEffect, useState } from 'react';
 
 import AppLayout from '@/components/AppLayout';
-import { getEvents } from '../../api/scheduler';
 import background from '../../assets/bg.png';
 import { useTheme } from '../../theme/ThemeContext';
 import { groupEventsByDate } from '../../utils/date';
-import CalendarGrid from './CalendarGrid';
-import EventSidebar from './EventSidebar';
+import CalendarGrid from './components/CalendarGrid';
+import EventSidebar from './components/EventSidebar';
+import HeaderQuickEvents from './components/HeaderQuickEvents';
+import useEvents from './hooks/useEvents';
 
 export default function CalendarPage() {
   const { theme } = useTheme();
-  const [events, setEvents] = useState([]);
+  const { events, loadEvents } = useEvents();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   useEffect(() => {
-    loadEvents();
-  }, []);
-
-  async function loadEvents() {
-    try {
-      const data = await getEvents();
-      setEvents(data);
-    } catch (err) {
-      console.error('Failed to load events', err);
+    function handleEventsUpdated() {
+      loadEvents();
     }
-  }
+
+    window.addEventListener('eventsUpdated', handleEventsUpdated);
+
+    return () => {
+      window.removeEventListener('eventsUpdated', handleEventsUpdated);
+    };
+  }, []);
 
   const eventsByDate = groupEventsByDate(events);
   return (
@@ -50,14 +50,23 @@ export default function CalendarPage() {
         <AppLayout title="Calendar">
           <div className="flex flex-col h-full min-h-0">
             <section className="sprout-page-hero shrink-0">
-              <div className="relative z-10">
-                <div>
+              <div className="relative z-10 flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+                {/* LEFT SIDE */}
+                <div className="max-w-xl">
                   <span className="sprout-page-kicker">Planning board</span>
                   <h1 className="sprout-page-title">Calendar</h1>
                   <p className="sprout-page-description">
                     A calmer schedule view with clearer hierarchy, softer paper
                     tones, and a little handcrafted character.
                   </p>
+                </div>
+
+                {/* RIGHT SIDE (QUICK EVENTS) */}
+                <div className="flex flex-wrap gap-2 md:max-w-[300px] justify-start md:justify-end">
+                  <HeaderQuickEvents
+                    eventsByDate={eventsByDate}
+                    onSelectDate={setSelectedDate}
+                  />
                 </div>
               </div>
             </section>
@@ -71,17 +80,13 @@ export default function CalendarPage() {
                 eventsByDate={eventsByDate}
               />
 
-              <div className="flex flex-col gap-6 h-full">
-                {/* fixed height */}
-
-                {/* scrollable area */}
-                <div className="flex-1 min-h-0">
-                  <EventSidebar
-                    selectedDate={selectedDate}
-                    eventsByDate={eventsByDate}
-                    onEventCreated={loadEvents}
-                  />
-                </div>
+              {/* scrollable area */}
+              <div className="flex-1 min-h-0">
+                <EventSidebar
+                  selectedDate={selectedDate}
+                  eventsByDate={eventsByDate}
+                  onEventCreated={loadEvents}
+                />
               </div>
             </div>
           </div>

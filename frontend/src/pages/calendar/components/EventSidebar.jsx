@@ -1,15 +1,16 @@
 import { format } from 'date-fns';
 import { Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { createEvent, deleteEvent, updateEvent } from '../../api/scheduler';
-import { getEventColor } from '../../utils/date';
+import { createEvent, deleteEvent, updateEvent } from '../../../api/scheduler';
 
-import ConfirmModal from '../../components/ui/ConfirmModal';
-import SproutModal from '../../components/ui/SproutModal';
+import ConfirmModal from '../../../components/ui/ConfirmModal';
+import SproutModal from '../../../components/ui/SproutModal';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { eventSchema } from '../../validation/calendarSchemas';
+import { eventSchema } from '../../../validation/calendarSchemas';
+
+import EventList from './EventList';
 
 export default function EventSidebar({
   selectedDate,
@@ -112,10 +113,10 @@ export default function EventSidebar({
   return (
     <>
       <div className="sprout-surface p-5 h-[600px] flex flex-col">
+        {/* HEADER */}
         <div className="flex items-center justify-between mb-5">
-          {/* LEFT */}
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-lg bg-orange-200 border border-orange-400 flex flex-col items-center justify-center text-orange-900 shadow-sm">
+            <div className="w-11 h-11 rounded-lg bg-orange-200 border border-orange-400 flex items-center justify-center text-orange-900 shadow-sm">
               <span className="text-base font-bold">
                 {format(selectedDate, 'd')}
               </span>
@@ -129,7 +130,6 @@ export default function EventSidebar({
             </div>
           </div>
 
-          {/* ADD BUTTON */}
           <button
             onClick={openCreate}
             className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-b from-[#f0b240] to-[#d4941f] text-white shadow-md hover:scale-[1.05] transition"
@@ -138,46 +138,13 @@ export default function EventSidebar({
           </button>
         </div>
 
-        {/* === EMPTY STATE / EVENTS LIST === */}
+        {/* LIST AREA */}
         <div className="flex-1 min-h-0 overflow-y-auto">
-          {events.length === 0 ? (
-            <div className="flex flex-col items-center justify-center text-center text-amber-700 flex-1">
-              <p className="font-medium text-base">No events</p>
-              <p className="text-xs opacity-70 mt-1">
-                Add something to get started
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2 pr-1">
-              {events.map((e) => {
-                const colorClass = getEventColor(e.id);
-
-                return (
-                  <div
-                    key={e.id}
-                    onClick={() => openEdit(e)}
-                    className={`group sprout-card px-3 py-2.5 cursor-pointer transition-all duration-150 hover:-translate-y-[1px] ${colorClass}`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <p className="font-medium text-sm truncate">{e.title}</p>
-
-                      <span className="text-[11px] text-amber-700 opacity-70 group-hover:opacity-100 transition">
-                        {e.startTime
-                          ? format(new Date(e.startTime), 'HH:mm') === '00:00'
-                            ? 'All day'
-                            : format(new Date(e.startTime), 'hh:mm a')
-                          : ''}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          <EventList events={events} onEventClick={openEdit} />
         </div>
       </div>
 
-      {/* ================= MAIN MODAL ================= */}
+      {/* ================= MODAL ================= */}
 
       {showModal && (
         <SproutModal onClose={closeModal}>
@@ -190,7 +157,6 @@ export default function EventSidebar({
               {isNew ? 'Add Event' : 'Edit Event'}
             </h2>
 
-            {/* Title */}
             <div>
               <input
                 className={`sprout-input ${errors.title ? 'sprout-input-error' : ''}`}
@@ -203,7 +169,6 @@ export default function EventSidebar({
               </p>
             </div>
 
-            {/* Time */}
             <div>
               <input
                 type="time"
@@ -222,7 +187,6 @@ export default function EventSidebar({
                   type="button"
                   onClick={() => setConfirmDeleteOpen(true)}
                   className="sprout-icon-btn-danger"
-                  title="Delete event"
                 >
                   <Trash2 size={18} />
                 </button>
@@ -233,16 +197,11 @@ export default function EventSidebar({
                   type="button"
                   onClick={closeModal}
                   className="sprout-btn-muted px-4 py-2"
-                  disabled={loading || isSubmitting}
                 >
                   Cancel
                 </button>
 
-                <button
-                  type="submit"
-                  disabled={loading || isSubmitting}
-                  className="sprout-btn-primary px-5 py-2 disabled:opacity-50"
-                >
+                <button type="submit" className="sprout-btn-primary px-5 py-2">
                   {loading ? 'Saving...' : 'Save'}
                 </button>
               </div>
@@ -251,8 +210,7 @@ export default function EventSidebar({
         </SproutModal>
       )}
 
-      {/* ================= DELETE CONFIRM ================= */}
-
+      {/* DELETE CONFIRM */}
       {confirmDeleteOpen && (
         <ConfirmModal
           title="Delete Event"
