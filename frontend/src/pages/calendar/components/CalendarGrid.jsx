@@ -1,10 +1,5 @@
-import {
-  eachDayOfInterval,
-  endOfMonth,
-  format,
-  getDay,
-  startOfMonth,
-} from 'date-fns';
+import { addDays, format, getDay, startOfMonth } from 'date-fns';
+
 import {
   CalendarCheck,
   CalendarDays,
@@ -19,12 +14,24 @@ export default function CalendarGrid({
   setSelectedDate,
   eventsByDate,
 }) {
+  // ================= DATE SETUP =================
+
   const monthStart = startOfMonth(currentMonth);
-  const monthEnd = endOfMonth(currentMonth);
-  const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
   const startOffset = getDay(monthStart);
-  const blanks = Array.from({ length: startOffset });
+
+  // Start from first visible cell (includes previous month days)
+  const calendarStart = addDays(monthStart, -startOffset);
+
+  // Always 6 weeks (42 cells)
+  const days = Array.from({ length: 42 }, (_, i) => addDays(calendarStart, i));
+
+  const today = new Date();
+
+  const isViewingTodayMonth =
+    format(currentMonth, 'yyyy-MM') === format(today, 'yyyy-MM');
+
+  // ================= NAVIGATION =================
 
   const nextMonth = () =>
     setCurrentMonth(
@@ -36,21 +43,17 @@ export default function CalendarGrid({
       new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1)
     );
 
-  const today = new Date();
-
-  const isViewingTodayMonth =
-    format(currentMonth, 'yyyy-MM') === format(today, 'yyyy-MM');
-
   const goToToday = () => {
     setCurrentMonth(today);
     setSelectedDate(today);
   };
 
+  // ================= UI =================
+
   return (
-    <div className="sprout-surface p-5 md:p-6 h-full overflow-hidden">
+    <div className="sprout-surface p-5 md:p-6 h-full min-h-[720px] overflow-hidden">
       {/* HEADER */}
       <div className="flex flex-col items-center mb-6">
-        {/* Month navigation row */}
         <div className="flex items-center justify-between w-full">
           <button onClick={prevMonth} className="sprout-icon-btn">
             <ChevronLeft size={18} />
@@ -65,7 +68,6 @@ export default function CalendarGrid({
           </button>
         </div>
 
-        {/* Today button (only when useful) */}
         {!isViewingTodayMonth && (
           <button
             onClick={goToToday}
@@ -86,16 +88,14 @@ export default function CalendarGrid({
 
       {/* GRID */}
       <div className="grid grid-cols-7 gap-3">
-        {blanks.map((_, i) => (
-          <div key={i} />
-        ))}
-
         {days.map((day) => {
           const key = format(day, 'yyyy-MM-dd');
 
           const isSelected = key === format(selectedDate, 'yyyy-MM-dd');
-
           const isToday = key === format(today, 'yyyy-MM-dd');
+
+          const isCurrentMonth =
+            format(day, 'yyyy-MM') === format(currentMonth, 'yyyy-MM');
 
           const dayEvents = eventsByDate[key] || [];
 
@@ -103,15 +103,18 @@ export default function CalendarGrid({
             <div
               key={key}
               onClick={() => setSelectedDate(day)}
-              className={`sprout-day-cell relative ${
-                isSelected ? 'sprout-day-cell-selected' : ''
-              } ${isToday && !isSelected ? 'ring-2 ring-orange-400' : ''}`}
+              className={`
+                sprout-day-cell relative transition
+                ${isSelected ? 'sprout-day-cell-selected' : ''}
+                ${isToday && !isSelected ? 'ring-2 ring-orange-400' : ''}
+                ${!isCurrentMonth ? 'opacity-40 hover:opacity-60' : ''}
+              `}
             >
               {/* DAY NUMBER */}
               <span
-                className={`text-sm text-amber-900 ${
+                className={`text-sm ${
                   isToday ? 'font-bold' : 'font-medium'
-                }`}
+                } text-amber-900`}
               >
                 {format(day, 'd')}
               </span>

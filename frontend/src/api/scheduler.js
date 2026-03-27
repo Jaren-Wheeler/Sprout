@@ -45,3 +45,10 @@ export const updateEvent = (id, data) => {
     body: JSON.stringify(data),
   });
 };
+
+// Pin an event
+export const togglePinEvent = (id) => {
+  return apiFetch(`/api/scheduler/${id}/pin`, {
+    method: 'PATCH',
+  });
+};

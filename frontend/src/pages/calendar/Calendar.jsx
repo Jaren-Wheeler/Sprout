@@ -6,7 +6,7 @@ import { useTheme } from '../../theme/ThemeContext';
 import { groupEventsByDate } from '../../utils/date';
 import CalendarGrid from './components/CalendarGrid';
 import EventSidebar from './components/EventSidebar';
-import HeaderQuickEvents from './components/HeaderQuickEvents';
+import PinnedEvents from './components/PinnedEvents';
 import useEvents from './hooks/useEvents';
 
 export default function CalendarPage() {
@@ -14,6 +14,7 @@ export default function CalendarPage() {
   const { events, loadEvents } = useEvents();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     function handleEventsUpdated() {
@@ -26,6 +27,18 @@ export default function CalendarPage() {
       window.removeEventListener('eventsUpdated', handleEventsUpdated);
     };
   }, []);
+
+  useEffect(() => {
+    if (!error) return;
+
+    const timer = setTimeout(() => setError(null), 2000);
+    return () => clearTimeout(timer);
+  }, [error]);
+
+  const pinnedEvents = events
+    .filter((e) => e.isPinned)
+    .sort((a, b) => new Date(b.pinnedAt) - new Date(a.pinnedAt))
+    .slice(0, 3);
 
   const eventsByDate = groupEventsByDate(events);
   return (
@@ -49,22 +62,21 @@ export default function CalendarPage() {
       <div className="sprout-page-wrap">
         <AppLayout title="Calendar">
           <div className="flex flex-col h-full min-h-0">
-            <section className="sprout-page-hero shrink-0">
+            <section className="sprout-page-hero shrink-0 mb-6 relative min-h-[225px]">
               <div className="relative z-10 flex flex-col md:flex-row md:items-start md:justify-between gap-6">
                 {/* LEFT SIDE */}
                 <div className="max-w-xl">
                   <span className="sprout-page-kicker">Planning board</span>
                   <h1 className="sprout-page-title">Calendar</h1>
                   <p className="sprout-page-description">
-                    A calmer schedule view with clearer hierarchy, softer paper
-                    tones, and a little handcrafted character.
+                    Plan your days with clarity. No clutter. Just what matters.
                   </p>
                 </div>
 
-                {/* RIGHT SIDE (QUICK EVENTS) */}
-                <div className="flex flex-wrap gap-2 md:max-w-[300px] justify-start md:justify-end">
-                  <HeaderQuickEvents
-                    eventsByDate={eventsByDate}
+                {/* RIGHT SIDE */}
+                <div className="hidden md:block absolute top-0 right-0 w-[300px]">
+                  <PinnedEvents
+                    events={pinnedEvents}
                     onSelectDate={setSelectedDate}
                   />
                 </div>
@@ -86,12 +98,22 @@ export default function CalendarPage() {
                   selectedDate={selectedDate}
                   eventsByDate={eventsByDate}
                   onEventCreated={loadEvents}
+                  setError={setError}
                 />
               </div>
             </div>
           </div>
         </AppLayout>
       </div>
+      {error && (
+        <div
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 
+                   bg-red-500 text-white text-sm px-4 py-2 
+                   rounded-lg shadow-lg z-50"
+        >
+          {error}
+        </div>
+      )}
     </div>
   );
 }

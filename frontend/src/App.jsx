@@ -42,7 +42,6 @@ function AppSprout() {
         clientTimezoneOffsetMinutes: now.getTimezoneOffset(),
       });
 
-      // ✅ NOW this actually runs
       window.dispatchEvent(new Event('eventsUpdated'));
     } else {
       reply = await sendChatMessage(message);

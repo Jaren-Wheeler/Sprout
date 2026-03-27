@@ -16,6 +16,7 @@ export default function EventSidebar({
   selectedDate,
   eventsByDate,
   onEventCreated,
+  setError,
 }) {
   const key = format(selectedDate, 'yyyy-MM-dd');
   const events = eventsByDate[key] || [];
@@ -112,7 +113,7 @@ export default function EventSidebar({
 
   return (
     <>
-      <div className="sprout-surface p-5 h-[600px] flex flex-col">
+      <div className="sprout-surface p-5 h-[720px] flex flex-col">
         {/* HEADER */}
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
@@ -140,7 +141,11 @@ export default function EventSidebar({
 
         {/* LIST AREA */}
         <div className="flex-1 min-h-0 overflow-y-auto">
-          <EventList events={events} onEventClick={openEdit} />
+          <EventList
+            events={events}
+            onEventClick={openEdit}
+            setError={setError}
+          />
         </div>
       </div>
 

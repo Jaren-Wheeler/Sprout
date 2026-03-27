@@ -67,9 +67,23 @@ const updateEvent = async (req, res, next) => {
   }
 };
 
+const togglePinEvent = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const updated = await schedulerService.togglePinEvent(
+      userId,
+      req.params.id
+    );
+    res.json(updated);
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   createEvent,
   getEvents,
   deleteEvent,
   updateEvent,
+  togglePinEvent,
 };

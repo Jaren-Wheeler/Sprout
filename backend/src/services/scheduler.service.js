@@ -94,9 +94,55 @@ const updateEvent = async (userId, eventId, data) => {
   });
 };
 
+const MAX_PINNED = 3;
+
+const togglePinEvent = async (userId, eventId) => {
+  const event = await prisma.calendarEvent.findFirst({
+    where: { id: eventId, userId },
+  });
+
+  if (!event) {
+    const err = new Error('Event not found');
+    err.status = 404;
+    throw err;
+  }
+
+  // If already pinned → unpin
+  if (event.isPinned) {
+    return prisma.calendarEvent.update({
+      where: { id: eventId },
+      data: {
+        isPinned: false,
+        pinnedAt: null,
+      },
+    });
+  }
+
+  // Count current pinned events
+  const pinnedCount = await prisma.calendarEvent.count({
+    where: { userId, isPinned: true },
+  });
+
+  if (pinnedCount >= MAX_PINNED) {
+    const err = new Error('Maximum of 3 pinned events allowed');
+    err.status = 400;
+    throw err;
+  }
+
+  // Pin event
+  return prisma.calendarEvent.update({
+    where: { id: eventId },
+    data: {
+      isPinned: true,
+      pinnedAt: new Date(),
+    },
+  });
+};
+
 module.exports = {
   createEvent,
   getEvents,
   deleteEvent,
   updateEvent,
+  togglePinEvent,
 };

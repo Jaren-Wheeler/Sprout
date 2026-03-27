@@ -7,6 +7,7 @@ const {
   getEvents,
   deleteEvent,
   updateEvent,
+  togglePinEvent,
 } = require('../controllers/scheduler.controller');
 
 // =====================================================
@@ -26,5 +27,7 @@ router.delete('/:id', auth, deleteEvent);
 
 // Edit event
 router.put('/:id', auth, updateEvent);
+
+router.patch('/:id/pin', auth, togglePinEvent);
 
 module.exports = router;
