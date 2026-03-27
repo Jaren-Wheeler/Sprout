@@ -12,3 +12,9 @@ export function stripCurrencyFormatting(value) {
   if (!value) return '';
   return value.replace(/[^0-9.]/g, '');
 }
+
+export function parseCurrencyInput(value) {
+  const cleaned = stripCurrencyFormatting(value);
+  const parsed = Number(cleaned);
+  return Number.isFinite(parsed) ? parsed : NaN;
+}

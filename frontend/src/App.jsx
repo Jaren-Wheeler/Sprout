@@ -43,6 +43,10 @@ function AppSprout() {
       });
 
       window.dispatchEvent(new Event('eventsUpdated'));
+    } else if (location.pathname === '/notes') {
+      reply = await sendChatMessage(message);
+
+      window.dispatchEvent(new Event('notesUpdated'));
     } else {
       reply = await sendChatMessage(message);
     }

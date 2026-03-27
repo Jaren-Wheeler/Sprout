@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
 
 const {
@@ -20,48 +20,47 @@ const {
   createIncomeEntry,
   getIncomeEntries,
   getExpectedIncome,
+  deleteIncomeEntry,
 
   // Analytics
-  getCategoryTotals
-} = require("../controllers/finance.controller");
+  getCategoryTotals,
+} = require('../controllers/finance.controller');
 
-const auth = require("../middleware/auth");
-
+const auth = require('../middleware/auth');
 
 // =====================================================
 // Budget Routes
 // =====================================================
 
-router.post("/budgets", auth, createBudget);
-router.get("/budgets", auth, getBudgets);
-router.get("/budgets/:id", auth, getBudgetById);
-router.put("/budgets/:id", auth, updateBudget);
-router.delete("/budgets/:id", auth, deleteBudget);
-
+router.post('/budgets', auth, createBudget);
+router.get('/budgets', auth, getBudgets);
+router.get('/budgets/:id', auth, getBudgetById);
+router.put('/budgets/:id', auth, updateBudget);
+router.delete('/budgets/:id', auth, deleteBudget);
 
 // =====================================================
 // Expense Routes
 // =====================================================
 
-router.post("/expenses", auth, createExpense);
-router.get("/expenses", auth, getExpenses);
-router.put("/expenses/:id", auth, updateExpense);
-router.delete("/expenses/:id", auth, deleteExpense);
-
+router.post('/expenses', auth, createExpense);
+router.get('/expenses', auth, getExpenses);
+router.put('/expenses/:id', auth, updateExpense);
+router.delete('/expenses/:id', auth, deleteExpense);
 
 // =====================================================
 // Analytics Routes
 // =====================================================
 
-router.get("/analytics/categories", auth, getCategoryTotals);
+router.get('/analytics/categories', auth, getCategoryTotals);
 
 // =====================================================
 // Income Routes
 // =====================================================
 
-router.patch("/income/expected", auth, updateExpectedIncome);
-router.post("/income", auth, createIncomeEntry);
-router.get("/income", auth, getIncomeEntries);
-router.get("/income/expected", auth, getExpectedIncome);
+router.patch('/income/expected', auth, updateExpectedIncome);
+router.post('/income', auth, createIncomeEntry);
+router.get('/income', auth, getIncomeEntries);
+router.get('/income/expected', auth, getExpectedIncome);
+router.delete('/income/:id', auth, deleteIncomeEntry);
 
 module.exports = router;
