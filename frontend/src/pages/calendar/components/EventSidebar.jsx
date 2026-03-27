@@ -1,20 +1,22 @@
-import { useState } from 'react';
 import { format } from 'date-fns';
-import { createEvent, deleteEvent } from '../../api/scheduler';
-import { getEventColor } from '../../utils/date';
-import { Trash2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { createEvent, deleteEvent, updateEvent } from '../../../api/scheduler';
 
-import SproutModal from '../../components/ui/SproutModal';
-import ConfirmModal from '../../components/ui/ConfirmModal';
+import ConfirmModal from '../../../components/ui/ConfirmModal';
+import SproutModal from '../../../components/ui/SproutModal';
 
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { eventSchema } from '../../validation/calendarSchemas';
+import { useForm } from 'react-hook-form';
+import { eventSchema } from '../../../validation/calendarSchemas';
+
+import EventList from './EventList';
 
 export default function EventSidebar({
   selectedDate,
   eventsByDate,
   onEventCreated,
+  setError,
 }) {
   const key = format(selectedDate, 'yyyy-MM-dd');
   const events = eventsByDate[key] || [];
@@ -49,20 +51,20 @@ export default function EventSidebar({
     setShowModal(true);
   }
 
-function openEdit(event) {
-  setSelectedEvent(event);
+  function openEdit(event) {
+    setSelectedEvent(event);
 
-  const localTime = event.startTime
-    ? format(new Date(event.startTime), 'HH:mm')
-    : '';
+    const localTime = event.startTime
+      ? format(new Date(event.startTime), 'HH:mm')
+      : '';
 
-  reset({
-    title: event.title || '',
-    time: localTime,
-  });
+    reset({
+      title: event.title || '',
+      time: localTime,
+    });
 
-  setShowModal(true);
-}
+    setShowModal(true);
+  }
 
   function closeModal() {
     setShowModal(false);
@@ -74,11 +76,16 @@ function openEdit(event) {
     setLoading(true);
 
     try {
-      await createEvent({
-        id: selectedEvent?.id,
+      const payload = {
         title: data.title.trim(),
         startTime: `${key}T${data.time || '00:00'}`,
-      });
+      };
+
+      if (selectedEvent?.id) {
+        await updateEvent(selectedEvent.id, payload);
+      } else {
+        await createEvent(payload);
+      }
 
       closeModal();
       onEventCreated();
@@ -106,62 +113,43 @@ function openEdit(event) {
 
   return (
     <>
-      <div className="sprout-surface p-6">
-        {/* === AGENDA HEADER === */}
-        <div className="flex items-center gap-4 mb-6">
-          <div className="w-12 h-12 rounded-xl bg-orange-200 border border-orange-400 flex flex-col items-center justify-center text-orange-900">
-            <span className="text-lg font-bold">
-              {format(selectedDate, 'd')}
-            </span>
+      <div className="sprout-surface p-5 h-[720px] flex flex-col">
+        {/* HEADER */}
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-lg bg-orange-200 border border-orange-400 flex items-center justify-center text-orange-900 shadow-sm">
+              <span className="text-base font-bold">
+                {format(selectedDate, 'd')}
+              </span>
+            </div>
+
+            <div className="leading-tight">
+              <h3 className="text-[15px] font-semibold text-amber-900">
+                {format(selectedDate, 'MMMM d')}
+              </h3>
+              <p className="text-xs text-amber-700">Agenda</p>
+            </div>
           </div>
 
-          <div>
-            <h3 className="text-lg font-semibold text-amber-900 leading-tight">
-              Agenda for {format(selectedDate, 'MMMM d')}
-            </h3>
-            <p className="text-sm text-amber-700">Your plans for this day</p>
-          </div>
+          <button
+            onClick={openCreate}
+            className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-b from-[#f0b240] to-[#d4941f] text-white shadow-md hover:scale-[1.05] transition"
+          >
+            <Plus size={18} />
+          </button>
         </div>
 
-        {/* ADD EVENT BUTTON */}
-        <button onClick={openCreate} className="sprout-btn-primary w-full mb-6">
-          + Add Event
-        </button>
-
-        {/* === EMPTY STATE / EVENTS LIST === */}
-        {events.length === 0 ? (
-          <div className="text-center text-amber-700 space-y-2 mt-10">
-            <p className="font-medium text-lg">Nothing planned yet</p>
-            <p className="text-sm">Start by adding an event for this day.</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {events.map((e) => {
-              const colorClass = getEventColor(e.id);
-
-              return (
-                <div
-                  key={e.id}
-                  onClick={() => openEdit(e)}
-                  className={`sprout-card p-3 cursor-pointer ${colorClass}`}
-                >
-                  <p className="font-semibold">{e.title}</p>
-
-                  {e.startTime && (
-                    <p className="text-sm text-amber-800">
-                      {format(new Date(e.startTime), 'HH:mm') === '00:00'
-                        ? 'All day'
-                        : format(new Date(e.startTime), 'hh:mm a')}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
+        {/* LIST AREA */}
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          <EventList
+            events={events}
+            onEventClick={openEdit}
+            setError={setError}
+          />
+        </div>
       </div>
 
-      {/* ================= MAIN MODAL ================= */}
+      {/* ================= MODAL ================= */}
 
       {showModal && (
         <SproutModal onClose={closeModal}>
@@ -174,7 +162,6 @@ function openEdit(event) {
               {isNew ? 'Add Event' : 'Edit Event'}
             </h2>
 
-            {/* Title */}
             <div>
               <input
                 className={`sprout-input ${errors.title ? 'sprout-input-error' : ''}`}
@@ -187,7 +174,6 @@ function openEdit(event) {
               </p>
             </div>
 
-            {/* Time */}
             <div>
               <input
                 type="time"
@@ -206,7 +192,6 @@ function openEdit(event) {
                   type="button"
                   onClick={() => setConfirmDeleteOpen(true)}
                   className="sprout-icon-btn-danger"
-                  title="Delete event"
                 >
                   <Trash2 size={18} />
                 </button>
@@ -217,16 +202,11 @@ function openEdit(event) {
                   type="button"
                   onClick={closeModal}
                   className="sprout-btn-muted px-4 py-2"
-                  disabled={loading || isSubmitting}
                 >
                   Cancel
                 </button>
 
-                <button
-                  type="submit"
-                  disabled={loading || isSubmitting}
-                  className="sprout-btn-primary px-5 py-2 disabled:opacity-50"
-                >
+                <button type="submit" className="sprout-btn-primary px-5 py-2">
                   {loading ? 'Saving...' : 'Save'}
                 </button>
               </div>
@@ -235,8 +215,7 @@ function openEdit(event) {
         </SproutModal>
       )}
 
-      {/* ================= DELETE CONFIRM ================= */}
-
+      {/* DELETE CONFIRM */}
       {confirmDeleteOpen && (
         <ConfirmModal
           title="Delete Event"

@@ -1,4 +1,4 @@
-import { apiFetch } from "./client";
+import { apiFetch } from './client';
 
 // =====================================================
 // Scheduler API Module
@@ -10,7 +10,7 @@ import { apiFetch } from "./client";
  * Fetch all events for logged in user
  */
 export const getEvents = () => {
-  return apiFetch("/api/scheduler");
+  return apiFetch('/api/scheduler');
 };
 
 /**
@@ -22,9 +22,9 @@ export const getEvents = () => {
  * @param {string} data.endTime
  */
 export const createEvent = (data) => {
-  return apiFetch("/api/scheduler", {
-    method: "POST",
-    body: JSON.stringify(data)
+  return apiFetch('/api/scheduler', {
+    method: 'POST',
+    body: JSON.stringify(data),
   });
 };
 
@@ -34,6 +34,21 @@ export const createEvent = (data) => {
  */
 export const deleteEvent = (id) => {
   return apiFetch(`/api/scheduler/${id}`, {
-    method: "DELETE"
+    method: 'DELETE',
+  });
+};
+
+// Edit an event
+export const updateEvent = (id, data) => {
+  return apiFetch(`/api/scheduler/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+};
+
+// Pin an event
+export const togglePinEvent = (id) => {
+  return apiFetch(`/api/scheduler/${id}/pin`, {
+    method: 'PATCH',
   });
 };

@@ -1,4 +1,4 @@
-const schedulerService = require("../services/scheduler.service");
+const schedulerService = require('../services/scheduler.service');
 
 // =====================================================
 // Scheduler Controller
@@ -49,8 +49,41 @@ const deleteEvent = async (req, res, next) => {
   }
 };
 
+/**
+ * Update event
+ * PUT /api/scheduler/:id
+ */
+const updateEvent = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const updated = await schedulerService.updateEvent(
+      userId,
+      req.params.id,
+      req.body
+    );
+    res.json(updated);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const togglePinEvent = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const updated = await schedulerService.togglePinEvent(
+      userId,
+      req.params.id
+    );
+    res.json(updated);
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   createEvent,
   getEvents,
-  deleteEvent
+  deleteEvent,
+  updateEvent,
+  togglePinEvent,
 };

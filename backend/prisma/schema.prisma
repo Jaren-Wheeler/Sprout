@@ -88,6 +88,8 @@ model CalendarEvent {
   description String?   @map("description")
   startTime   DateTime  @map("start_time")
   endTime     DateTime? @map("end_time")
+  isPinned    Boolean   @default(false) @map("is_pinned")
+  pinnedAt    DateTime? @map("pinned_at")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
   userId      String    @map("user_id")
