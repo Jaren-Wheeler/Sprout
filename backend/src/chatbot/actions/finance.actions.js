@@ -318,6 +318,35 @@ function getTodayIsoDate() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function shiftIsoDate(days) {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
+function normalizeDateInput(value) {
+  const text = String(value || "").trim().toLowerCase();
+  if (!text) return null;
+
+  if (text === "today") return getTodayIsoDate();
+  if (text === "yesterday") return shiftIsoDate(-1);
+  if (text === "tomorrow") return shiftIsoDate(1);
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+    const exactDate = new Date(`${text}T00:00:00`);
+    if (!Number.isNaN(exactDate.getTime())) {
+      return text;
+    }
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+
+  return parsed.toISOString().slice(0, 10);
+}
+
 // Entry point used by actionRouter.js
 async function handle(ai, user) {
   switch (ai.name) {
@@ -424,6 +453,7 @@ async function deleteCategory(ai, user) {
 // -----------------------------
 async function addExpense(ai, user) {
   const { amount, category, description, expenseDate } = ai.params || {};
+  const normalizedExpenseDate = normalizeDateInput(expenseDate);
 
   if (!Number.isFinite(amount) || amount <= 0) {
     return {
@@ -443,6 +473,13 @@ async function addExpense(ai, user) {
     return {
       role: "assistant",
       content: "What date should I log this expense for?"
+    };
+  }
+
+  if (!normalizedExpenseDate) {
+    return {
+      role: "assistant",
+      content: "Please use a valid date like today, yesterday, or YYYY-MM-DD."
     };
   }
 
@@ -487,7 +524,7 @@ async function addExpense(ai, user) {
       amount,
       category: budget.name,
       description: normalizedDescription,
-      expenseDate,
+      expenseDate: normalizedExpenseDate,
       budgetId: budget.id
     });
 
@@ -510,6 +547,7 @@ async function addExpense(ai, user) {
 // -----------------------------
 async function addIncome(ai, user) {
   const { amount, note, incomeDate } = ai.params || {};
+  const normalizedIncomeDate = normalizeDateInput(incomeDate) || getTodayIsoDate();
 
   if (!Number.isFinite(amount) || amount <= 0) {
     return {
@@ -519,7 +557,6 @@ async function addIncome(ai, user) {
   }
 
   const normalizedNote = String(note || "income").trim() || "income";
-  const normalizedIncomeDate = incomeDate || getTodayIsoDate();
 
   try {
     await financeService.createIncomeEntry(user.id, {

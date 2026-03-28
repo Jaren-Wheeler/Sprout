@@ -58,7 +58,7 @@ async function createEvent(ai, user) {
     };
   }
 
-  await schedulerService.createEvent(user.id, {
+  const event = await schedulerService.createEvent(user.id, {
     title,
     description,
     startTime,
@@ -67,7 +67,11 @@ async function createEvent(ai, user) {
 
   return {
     role: "assistant",
-    content: `Your event "${title}" has been scheduled.`
+    content: `Your event "${title}" has been scheduled.`,
+    effects: {
+      schedulerChanged: true,
+      schedulerFocusDate: event.startTime
+    }
   };
 }
 
@@ -113,7 +117,10 @@ async function deleteEvent(ai, user) {
 
   return {
     role: "assistant",
-    content: `The event "${title}" has been deleted.`
+    content: `The event "${title}" has been deleted.`,
+    effects: {
+      schedulerChanged: true
+    }
   };
 }
 

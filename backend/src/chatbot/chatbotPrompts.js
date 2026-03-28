@@ -48,6 +48,7 @@ FINANCE RULES:
 - Treat money earned, received, paid to the user, refunded to the user, or deposited to the user as an income action when the user is clearly describing money coming in.
 - The application may already handle many common finance cases deterministically before your response is used.
 - When finance intent is clear, return an action instead of a message.
+- If the user asks for multiple finance actions in one prompt, return one ordered action_batch containing every action that should run.
 - If a finance request is ambiguous and the missing information is truly required, ask one short clarification question.
 - If the user asks for unsupported finance read questions such as balances, summaries, or category status, respond with a message instead of inventing a finance action.
 
@@ -635,6 +636,24 @@ If the user IS requesting an action, respond with:
   "params": { ... }
 }
 
+If the user is requesting MULTIPLE actions in one prompt, respond with:
+
+{
+  "type": "action_batch",
+  "actions": [
+    {
+      "name": "<action_name>",
+      "params": { ... }
+    }
+  ]
+}
+
+BATCH RULES:
+- Preserve the user-requested order.
+- Include one action object per requested action.
+- Do not wrap a single action in action_batch unless the user clearly requested multiple actions.
+- Never explain the batch in prose.
+
 DELETE RULES (CRITICAL):
 - Users refer to objects by NAME, not ID.
 - You MUST NOT invent or request internal IDs.
@@ -666,6 +685,29 @@ Final action must be:
     "name": "Food",
     "limitAmount": 200
   }
+}
+
+User: create categories Food for 200 and Transport for 150
+
+Return:
+{
+  "type": "action_batch",
+  "actions": [
+    {
+      "name": "create_category",
+      "params": {
+        "name": "Food",
+        "limitAmount": 200
+      }
+    },
+    {
+      "name": "create_category",
+      "params": {
+        "name": "Transport",
+        "limitAmount": 150
+      }
+    }
+  ]
 }
 
 MEAL TYPE RULE:

@@ -17,7 +17,16 @@ export default function CalendarPage() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    function handleEventsUpdated() {
+    function handleEventsUpdated(event) {
+      const focusDate = event?.detail?.focusDate
+        ? new Date(event.detail.focusDate)
+        : null;
+
+      if (focusDate && !Number.isNaN(focusDate.getTime())) {
+        setSelectedDate(focusDate);
+        setCurrentMonth(focusDate);
+      }
+
       loadEvents();
     }
 

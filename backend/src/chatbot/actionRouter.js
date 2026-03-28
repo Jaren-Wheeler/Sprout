@@ -3,6 +3,35 @@ const healthActions = require("./actions/health.actions");
 const notesActions = require("./actions/notes.actions");
 const schedulerActions = require("./actions/scheduler.actions");
 
+const ACTION_DOMAINS = {
+  create_category: "finance",
+  delete_category: "finance",
+  add_expense: "finance",
+  delete_expense: "finance",
+  add_income: "finance",
+  add_info: "health",
+  change_info: "health",
+  create_diet: "health",
+  delete_diet: "health",
+  log_food: "health",
+  delete_food: "health",
+  create_preset_meal: "health",
+  delete_preset_meal: "health",
+  create_note: "notes",
+  update_note: "notes",
+  delete_note: "notes",
+  create_event: "scheduler",
+  delete_event: "scheduler"
+};
+
+function isSupportedAction(name) {
+  return Boolean(ACTION_DOMAINS[name]);
+}
+
+function getActionDomain(name) {
+  return ACTION_DOMAINS[name] || null;
+}
+
 async function execute(ai, user) {
   switch (ai.name) {
     /* ================= FINANCE ================= */
@@ -49,4 +78,8 @@ async function execute(ai, user) {
   }
 }
 
-module.exports = { execute };
+module.exports = {
+  execute,
+  isSupportedAction,
+  getActionDomain
+};

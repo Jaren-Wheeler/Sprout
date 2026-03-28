@@ -29,25 +29,38 @@ function AppSprout() {
   }
 
   async function handleSend(message) {
-    let reply;
+    const isCalendarPage = location.pathname === '/calendar';
+    let response;
 
-    if (location.pathname === '/calendar') {
+    if (isCalendarPage) {
       const now = new Date();
 
-      reply = await sendChatMessage(message, {
+      response = await sendChatMessage(message, {
         clientNowIso: now.toISOString(),
         clientLocalDate: `${now.getFullYear()}-${String(
           now.getMonth() + 1
         ).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`,
         clientTimezoneOffsetMinutes: now.getTimezoneOffset(),
       });
-
-      window.dispatchEvent(new Event('eventsUpdated'));
     } else {
-      reply = await sendChatMessage(message);
+      response = await sendChatMessage(message);
     }
 
-    return reply;
+    if (isCalendarPage && response?.effects?.schedulerChanged) {
+      window.dispatchEvent(
+        new CustomEvent('eventsUpdated', {
+          detail: {
+            focusDate: response.effects.schedulerFocusDate || null,
+          },
+        })
+      );
+    }
+
+    if (response?.effects?.financeChanged) {
+      window.dispatchEvent(new Event('budgetUpdated'));
+    }
+
+    return response?.reply || 'No reply received.';
   }
 
   return <Sprout onSend={handleSend} />;

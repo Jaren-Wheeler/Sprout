@@ -1,22 +1,37 @@
 
+function stringifyJson(value) {
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return "";
+  }
+}
+
 // -----------------------------
 // Helper: extract AI output
 // -----------------------------
 function extractAiOutput(response) {
-  const item = response.output?.[0]?.content?.[0];
-  if (!item) return "";
+  const outputs = Array.isArray(response?.output) ? response.output : [];
+  const parts = [];
 
-  if (item.type === "output_text") {
-    return item.text;
+  for (const output of outputs) {
+    const content = Array.isArray(output?.content) ? output.content : [];
+
+    for (const item of content) {
+      if (item?.type === "output_text" && typeof item.text === "string") {
+        parts.push(item.text);
+        continue;
+      }
+
+      if (item?.type === "output_json" && item.json !== undefined) {
+        parts.push(stringifyJson(item.json));
+      }
+    }
   }
 
-  if (item.type === "output_json") {
-    return JSON.stringify(item.json);
-  }
-
-  return "";
-};
+  return parts.filter(Boolean).join("\n").trim();
+}
 
 module.exports = {
-    extractAiOutput
-}
+  extractAiOutput
+};

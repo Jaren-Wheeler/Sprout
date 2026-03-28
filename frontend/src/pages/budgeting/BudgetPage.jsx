@@ -57,6 +57,20 @@ export default function BudgetPage() {
     loadData();
   }, []);
 
+  useEffect(() => {
+    function handleBudgetUpdated() {
+      refreshData().catch((err) => {
+        console.error("Failed to refresh budgeting data after chatbot action:", err);
+      });
+    }
+
+    window.addEventListener("budgetUpdated", handleBudgetUpdated);
+
+    return () => {
+      window.removeEventListener("budgetUpdated", handleBudgetUpdated);
+    };
+  }, []);
+
   async function refreshData() {
     const [
       budgetsData,

@@ -15,7 +15,10 @@ export async function sendChatMessage(message, context = {}) {
   });
 
   if (data?.reply) {
-    return data.reply;
+    return {
+      reply: data.reply,
+      effects: data.effects || {}
+    };
   }
 
   throw new Error("Chat API returned no reply");
