@@ -1,9 +1,10 @@
-import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema } from '../../validation/authSchemas';
+import { Moon, Sun } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../../api/auth';
 import { useTheme } from '../../theme/ThemeContext';
+import { loginSchema } from '../../validation/authSchemas';
 
 export default function Login({ setUser }) {
   const { theme, setTheme } = useTheme();
@@ -31,7 +32,7 @@ export default function Login({ setUser }) {
           ...(user?.id && { id: user.id }),
         })
       );
-        
+
       setUser(user);
       navigate('/dashboard');
     } catch (err) {
@@ -102,24 +103,30 @@ export default function Login({ setUser }) {
           </span>
         </p>
 
-        <div className="flex justify-center gap-6 text-2xl pt-2">
-          <span
+        <div className="flex justify-center gap-6 pt-2">
+          <button
+            type="button"
             onClick={() => setTheme('light')}
-            className={`cursor-pointer ${
-              theme === 'light' ? 'scale-125' : 'opacity-50'
+            className={`transition-all duration-200 ${
+              theme === 'light'
+                ? 'scale-125 text-yellow-400'
+                : 'opacity-50 hover:opacity-100'
             }`}
           >
-            Light
-          </span>
+            <Sun size={28} />
+          </button>
 
-          <span
+          <button
+            type="button"
             onClick={() => setTheme('dark')}
-            className={`cursor-pointer ${
-              theme === 'dark' ? 'scale-125' : 'opacity-50'
+            className={`transition-all duration-200 ${
+              theme === 'dark'
+                ? 'scale-125 text-blue-400'
+                : 'opacity-50 hover:opacity-100'
             }`}
           >
-            Dark
-          </span>
+            <Moon size={28} />
+          </button>
         </div>
       </div>
     </div>
