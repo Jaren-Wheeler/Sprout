@@ -1,16 +1,16 @@
-import { useEffect, useState } from "react";
-import SetupWizard from "./SetupWizard";
-import BudgetDashboard from "./BudgetDashboard";
-import AppLayout from "../../components/AppLayout";
-import background from "../../assets/bg.png";
-import { useTheme } from "../../theme/ThemeContext";
+import { useEffect, useState } from 'react';
+import background from '../../assets/bg.png';
+import AppLayout from '../../components/AppLayout';
+import { useTheme } from '../../theme/ThemeContext';
+import BudgetDashboard from './BudgetDashboard';
+import SetupWizard from './SetupWizard';
 
 import {
   getBudgets,
-  getExpenses,
   getExpectedIncome,
+  getExpenses,
   getIncomeEntries,
-} from "../../api/finance";
+} from '../../api/finance';
 
 export default function BudgetPage() {
   const { theme } = useTheme();
@@ -25,17 +25,13 @@ export default function BudgetPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [
-          budgetsData,
-          expensesData,
-          incomeData,
-          incomeEntriesData,
-        ] = await Promise.all([
-          getBudgets(),
-          getExpenses(),
-          getExpectedIncome(),
-          getIncomeEntries(),
-        ]);
+        const [budgetsData, expensesData, incomeData, incomeEntriesData] =
+          await Promise.all([
+            getBudgets(),
+            getExpenses(),
+            getExpectedIncome(),
+            getIncomeEntries(),
+          ]);
 
         const budgetsArray = Array.isArray(budgetsData) ? budgetsData : [];
 
@@ -48,7 +44,7 @@ export default function BudgetPage() {
           setNeedsSetup(true);
         }
       } catch (err) {
-        console.error("Failed to load budgeting data:", err);
+        console.error('Failed to load budgeting data:', err);
       } finally {
         setLoading(false);
       }
@@ -58,17 +54,13 @@ export default function BudgetPage() {
   }, []);
 
   async function refreshData() {
-    const [
-      budgetsData,
-      expensesData,
-      incomeData,
-      incomeEntriesData,
-    ] = await Promise.all([
-      getBudgets(),
-      getExpenses(),
-      getExpectedIncome(),
-      getIncomeEntries(),
-    ]);
+    const [budgetsData, expensesData, incomeData, incomeEntriesData] =
+      await Promise.all([
+        getBudgets(),
+        getExpenses(),
+        getExpectedIncome(),
+        getIncomeEntries(),
+      ]);
 
     setBudgets(budgetsData);
     setExpenses(expensesData);
@@ -92,20 +84,22 @@ export default function BudgetPage() {
       className="sprout-app-shell"
       style={{
         backgroundImage:
-          theme === "dark"
+          theme === 'dark'
             ? `radial-gradient(circle at 18% 14%, rgba(212, 178, 116, 0.08), transparent 20%), radial-gradient(circle at 82% 78%, rgba(145, 114, 72, 0.06), transparent 18%), repeating-linear-gradient(-18deg, rgba(255,248,228,0.015) 0 2px, rgba(255,248,228,0) 2px 13px), linear-gradient(180deg, #040506 0%, #0a0b0d 52%, #12100d 100%)`
             : `linear-gradient(180deg, rgba(255,253,249,0.5), rgba(247,241,225,0.72)), url(${background})`,
-        backgroundRepeat: theme === "dark" ? "no-repeat, no-repeat, repeat, no-repeat" : "no-repeat, no-repeat",
-        backgroundSize: theme === "dark" ? "auto, auto, 220px 220px, cover" : "auto, cover",
-        backgroundPosition: theme === "dark" ? "center, center" : "center, center top",
+        backgroundRepeat:
+          theme === 'dark'
+            ? 'no-repeat, no-repeat, repeat, no-repeat'
+            : 'no-repeat, no-repeat',
+        backgroundSize:
+          theme === 'dark' ? 'auto, auto, 220px 220px, cover' : 'auto, cover',
+        backgroundPosition:
+          theme === 'dark' ? 'center, center' : 'center, center top',
       }}
     >
       <div className="sprout-page-wrap">
-      <AppLayout title="Budget">
-        <div>
-          {needsSetup ? (
-            <SetupWizard onComplete={handleSetupComplete} />
-          ) : (
+        <AppLayout title="Budget">
+          <div>
             <BudgetDashboard
               budgets={budgets}
               expenses={expenses}
@@ -113,9 +107,10 @@ export default function BudgetPage() {
               expectedIncome={expectedIncome}
               refreshData={refreshData}
             />
-          )}
-        </div>
-      </AppLayout>
+
+            {needsSetup && <SetupWizard onComplete={handleSetupComplete} />}
+          </div>
+        </AppLayout>
       </div>
     </div>
   );

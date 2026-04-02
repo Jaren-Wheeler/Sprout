@@ -1,23 +1,14 @@
-import { useState } from 'react';
-import { updateExpectedIncome, createBudget } from '../../api/finance';
-import { Trash2 } from 'lucide-react';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { incomeSchema, categorySchema } from '../../validation/budgetSchema';
+import { Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { createBudget, updateExpectedIncome } from '../../api/finance';
+import { categorySchema, incomeSchema } from '../../validation/budgetSchema';
 
 const defaultCategories = [
   { id: 1, name: 'Housing', limitAmount: 1200 },
-  { id: 2, name: 'Utilities', limitAmount: 300 },
   { id: 3, name: 'Food', limitAmount: 400 },
   { id: 4, name: 'Transportation', limitAmount: 300 },
-  { id: 5, name: 'Savings & Investments', limitAmount: 200 },
-  { id: 6, name: 'Health', limitAmount: 150 },
-  { id: 7, name: 'Family & Kids', limitAmount: 150 },
-  { id: 8, name: 'Debt Payments', limitAmount: 200 },
-  { id: 9, name: 'Personal Spending', limitAmount: 150 },
-  { id: 10, name: 'Entertainment', limitAmount: 100 },
-  { id: 11, name: 'Pet Care', limitAmount: 100 },
-  { id: 12, name: 'Sinking Funds', limitAmount: 150 },
 ];
 
 export default function SetupWizard({ onComplete }) {
@@ -100,8 +91,8 @@ export default function SetupWizard({ onComplete }) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-bg">
-      <div className="sprout-panel w-full max-w-lg p-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-md">
+      <div className="sprout-panel w-full max-w-lg p-8 shadow-xl scale-100 animate-in fade-in zoom-in-95">
         {step === 1 && (
           <>
             <h2 className="text-xl font-semibold mb-2">
