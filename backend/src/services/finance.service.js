@@ -1,5 +1,4 @@
-const prisma = require("../clients/prisma.client");
-
+const prisma = require('../clients/prisma.client');
 
 // =====================================================
 // Budget Services
@@ -22,8 +21,8 @@ async function createBudget(userId, data) {
     data: {
       name: data.name,
       limitAmount: data.limitAmount,
-      userId
-    }
+      userId,
+    },
   });
 }
 
@@ -37,22 +36,19 @@ async function getBudgets(userId) {
   const budgets = await prisma.budget.findMany({
     where: { userId },
     include: {
-      expenses: true
-    }
+      expenses: true,
+    },
   });
 
-  return budgets.map(b => {
-    const totalSpent = b.expenses.reduce(
-      (sum, e) => sum + Number(e.amount),
-      0
-    );
+  return budgets.map((b) => {
+    const totalSpent = b.expenses.reduce((sum, e) => sum + Number(e.amount), 0);
 
     return {
       id: b.id,
       name: b.name,
       limitAmount: b.limitAmount,
       totalSpent,
-      remaining: Number(b.limitAmount) - totalSpent
+      remaining: Number(b.limitAmount) - totalSpent,
     };
   });
 }
@@ -70,8 +66,8 @@ async function updateBudget(budgetId, data) {
     where: { id: budgetId },
     data: {
       name: data.name,
-      limitAmount: data.limitAmount
-    }
+      limitAmount: data.limitAmount,
+    },
   });
 }
 
@@ -82,7 +78,7 @@ async function updateBudget(budgetId, data) {
  */
 async function deleteBudget(budgetId) {
   return prisma.budget.delete({
-    where: { id: budgetId }
+    where: { id: budgetId },
   });
 }
 
@@ -94,15 +90,14 @@ async function deleteBudget(budgetId) {
  * @returns {Object|null} Budget with totals or null if not found
  */
 async function getBudgetById(budgetId, userId) {
-
   const budget = await prisma.budget.findFirst({
     where: {
       id: budgetId,
-      userId
+      userId,
     },
     include: {
-      expenses: true
-    }
+      expenses: true,
+    },
   });
 
   if (!budget) return null;
@@ -118,10 +113,9 @@ async function getBudgetById(budgetId, userId) {
     limitAmount: budget.limitAmount,
     totalSpent,
     remaining: Number(budget.limitAmount) - totalSpent,
-    expenses: budget.expenses
+    expenses: budget.expenses,
   };
 }
-
 
 // =====================================================
 // Expense Services
@@ -150,12 +144,12 @@ async function createExpense(userId, data) {
       description: data.description,
       expenseDate: new Date(data.expenseDate),
       user: {
-        connect: {id: userId}
+        connect: { id: userId },
       },
       budget: {
-        connect: {id: data.budgetId}
-      }
-    }
+        connect: { id: data.budgetId },
+      },
+    },
   });
 }
 
@@ -169,7 +163,6 @@ async function createExpense(userId, data) {
  * @returns {Array<Object>} Filtered expenses
  */
 async function getExpenses(userId, filters = {}) {
-
   const where = { userId };
 
   if (filters.budgetId) {
@@ -179,15 +172,15 @@ async function getExpenses(userId, filters = {}) {
   if (filters.from && filters.to) {
     where.expenseDate = {
       gte: new Date(filters.from),
-      lte: new Date(filters.to)
+      lte: new Date(filters.to),
     };
   }
 
   return prisma.expense.findMany({
     where,
     orderBy: {
-      expenseDate: "desc"
-    }
+      expenseDate: 'desc',
+    },
   });
 }
 
@@ -204,8 +197,8 @@ async function updateExpense(expenseId, data) {
       amount: data.amount,
       category: data.category,
       description: data.description,
-      expenseDate: new Date(data.expenseDate)
-    }
+      expenseDate: new Date(data.expenseDate),
+    },
   });
 }
 
@@ -216,10 +209,9 @@ async function updateExpense(expenseId, data) {
  */
 async function deleteExpense(expenseId) {
   return prisma.expense.delete({
-    where: { id: expenseId }
+    where: { id: expenseId },
   });
 }
-
 
 // =====================================================
 // Analytics Services
@@ -235,21 +227,20 @@ async function deleteExpense(expenseId) {
  * @returns {Array<Object>} Category totals
  */
 async function getExpenseTotalsByCategory(userId) {
-
   const expenses = await prisma.expense.findMany({
-    where: { userId }
+    where: { userId },
   });
 
   const totals = {};
 
-  expenses.forEach(e => {
+  expenses.forEach((e) => {
     const category = e.category;
     totals[category] = (totals[category] || 0) + Number(e.amount);
   });
 
   return Object.entries(totals).map(([category, total]) => ({
     category,
-    total
+    total,
   }));
 }
 
@@ -267,11 +258,10 @@ async function updateExpectedIncome(userId, amount) {
   return prisma.user.update({
     where: { id: userId },
     data: {
-      expectedIncome: amount
-    }
+      expectedIncome: amount,
+    },
   });
 }
-
 
 /**
  * Creates a new income entry.
@@ -281,37 +271,33 @@ async function createIncomeEntry(userId, data) {
     data: {
       amount: data.amount,
       note: data.note,
-      incomeDate: data.incomeDate
-        ? new Date(data.incomeDate)
-        : new Date(),
+      incomeDate: data.incomeDate ? new Date(data.incomeDate) : new Date(),
       user: {
-        connect: { id: userId }
-      }
-    }
+        connect: { id: userId },
+      },
+    },
   });
 }
-
 
 /**
  * Retrieves income entries for a user.
  * Supports optional date filtering.
  */
 async function getIncomeEntries(userId, filters = {}) {
-
   const where = { userId };
 
   if (filters.from && filters.to) {
     where.incomeDate = {
       gte: new Date(filters.from),
-      lte: new Date(filters.to)
+      lte: new Date(filters.to),
     };
   }
 
   return prisma.incomeEntry.findMany({
     where,
     orderBy: {
-      incomeDate: "desc"
-    }
+      incomeDate: 'desc',
+    },
   });
 }
 
@@ -321,12 +307,18 @@ async function getIncomeEntries(userId, filters = {}) {
 async function getExpectedIncome(userId) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { expectedIncome: true }
+    select: { expectedIncome: true },
   });
 
   return {
-    amount: user?.expectedIncome || 0
+    amount: user?.expectedIncome || 0,
   };
+}
+
+async function deleteIncomeEntry(incomeId) {
+  return prisma.incomeEntry.delete({
+    where: { id: incomeId },
+  });
 }
 
 // =====================================================
@@ -352,7 +344,8 @@ module.exports = {
   createIncomeEntry,
   getIncomeEntries,
   getExpectedIncome,
+  deleteIncomeEntry,
 
   // Analytics
-  getExpenseTotalsByCategory
+  getExpenseTotalsByCategory,
 };

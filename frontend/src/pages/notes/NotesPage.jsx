@@ -1,16 +1,29 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import background from '../../assets/bg.png';
 import AppLayout from '../../components/AppLayout';
 import ConfirmModal from '../../components/ui/ConfirmModal';
+import { useTheme } from '../../theme/ThemeContext';
 import NoteEditorPanel from './NoteEditorPanel';
 import NotesGrid from './NotesGrid';
 import NotesToolbar from './NotesToolbar';
 import { useNotes } from './useNotes';
-import { useTheme } from '../../theme/ThemeContext';
 
 export default function NotesPage() {
   const { theme } = useTheme();
-  const { notes, loading, error, setError, add, edit, remove } = useNotes();
+  const { notes, loading, error, setError, add, edit, remove, loadNotes } =
+    useNotes();
+
+  useEffect(() => {
+    function handleNotesUpdated() {
+      loadNotes({ silent: true });
+    }
+
+    window.addEventListener('notesUpdated', handleNotesUpdated);
+
+    return () => {
+      window.removeEventListener('notesUpdated', handleNotesUpdated);
+    };
+  }, [loadNotes]);
 
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
@@ -86,9 +99,14 @@ export default function NotesPage() {
           theme === 'dark'
             ? `radial-gradient(circle at 18% 14%, rgba(212, 178, 116, 0.08), transparent 20%), radial-gradient(circle at 82% 78%, rgba(145, 114, 72, 0.06), transparent 18%), repeating-linear-gradient(-18deg, rgba(255,248,228,0.015) 0 2px, rgba(255,248,228,0) 2px 13px), linear-gradient(180deg, #040506 0%, #0a0b0d 52%, #12100d 100%)`
             : `linear-gradient(180deg, rgba(255,253,249,0.5), rgba(247,241,225,0.72)), url(${background})`,
-        backgroundRepeat: theme === 'dark' ? 'no-repeat, no-repeat, repeat, no-repeat' : 'no-repeat, no-repeat',
-        backgroundSize: theme === 'dark' ? 'auto, auto, 220px 220px, cover' : 'auto, cover',
-        backgroundPosition: theme === 'dark' ? 'center, center' : 'center, center top',
+        backgroundRepeat:
+          theme === 'dark'
+            ? 'no-repeat, no-repeat, repeat, no-repeat'
+            : 'no-repeat, no-repeat',
+        backgroundSize:
+          theme === 'dark' ? 'auto, auto, 220px 220px, cover' : 'auto, cover',
+        backgroundPosition:
+          theme === 'dark' ? 'center, center' : 'center, center top',
       }}
     >
       <div className="sprout-page-wrap">
@@ -100,7 +118,8 @@ export default function NotesPage() {
                   <span className="sprout-page-kicker">Notes hub</span>
                   <h1 className="sprout-page-title">My Notes</h1>
                   <p className="sprout-page-description">
-                    A cleaner workspace for quick capture, loose ideas, and drafts that still feel pinned to paper.
+                    A cleaner workspace for quick capture, loose ideas, and
+                    drafts that still feel pinned to paper.
                   </p>
                 </div>
               </div>
