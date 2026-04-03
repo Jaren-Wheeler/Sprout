@@ -1,13 +1,13 @@
-import { useMemo, useState, useRef, useEffect } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import BudgetChart from './BudgetChart';
 import BudgetWorkspace from './BudgetWorkspace';
 
-import SummaryCard from './SummaryCard';
-import CategoryCard from './CategoryCard';
-import TransactionList from './TransactionList';
-import CategoryEditorModal from './CategoryEditorModal';
 import CategoryAddCard from './CategoryAddCard';
+import CategoryCard from './CategoryCard';
+import CategoryEditorModal from './CategoryEditorModal';
+import SummaryCard from './SummaryCard';
+import TransactionList from './TransactionList';
 
 export default function BudgetDashboard({
   budgets,
@@ -126,7 +126,8 @@ export default function BudgetDashboard({
             <span className="sprout-page-kicker">Financial snapshot</span>
             <h1 className="sprout-page-title">Budget</h1>
             <p className="sprout-page-description">
-              Track spending, compare categories, and keep your money view tidy without losing the handmade warmth.
+              Track spending, compare categories, and keep your money view tidy
+              without losing the handmade warmth.
             </p>
           </div>
         </div>
@@ -144,7 +145,9 @@ export default function BudgetDashboard({
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgba(74,51,32,0.48)]">
               Categories
             </p>
-            <h2 className="text-xl font-semibold text-[#5a3012]">Your budget spaces</h2>
+            <h2 className="text-xl font-semibold text-[#5a3012]">
+              Your budget spaces
+            </h2>
           </div>
         </div>
 
@@ -175,14 +178,18 @@ export default function BudgetDashboard({
       <section className="grid gap-6 xl:grid-cols-[1.05fr_1.2fr]">
         <div className="sprout-surface p-5 md:p-6">
           <div className="mb-4">
-            <h2 className="text-xl font-semibold text-[#5a3012]">Category breakdown</h2>
+            <h2 className="text-xl font-semibold text-[#5a3012]">
+              Category breakdown
+            </h2>
           </div>
           <BudgetChart categoryStats={categoryStats} />
         </div>
 
         <div className="sprout-surface p-5 md:p-6">
           <div className="mb-4">
-            <h2 className="text-xl font-semibold text-[#5a3012]">Manage budgets and expenses</h2>
+            <h2 className="text-xl font-semibold text-[#5a3012]">
+              Manage budgets and expenses
+            </h2>
           </div>
           <BudgetWorkspace
             categories={budgets}
@@ -192,7 +199,7 @@ export default function BudgetDashboard({
         </div>
       </section>
 
-      <TransactionList transactions={transactions} />
+      <TransactionList transactions={transactions} refreshData={refreshData} />
 
       {editingCategory && (
         <CategoryEditorModal

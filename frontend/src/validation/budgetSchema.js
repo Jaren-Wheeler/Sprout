@@ -1,31 +1,35 @@
 import { z } from 'zod';
+import { parseCurrencyInput } from '../utils/format';
 
 export const incomeSchema = z.object({
   income: z
     .string()
     .trim()
     .min(1, 'Monthly income is required')
-    .refine((val) => !isNaN(Number(val)), {
+    .refine((val) => !isNaN(parseCurrencyInput(val)), {
       message: 'Income must be a valid number',
     })
-    .refine((val) => Number(val) > 0, {
+    .refine((val) => parseCurrencyInput(val) > 0, {
       message: 'Income must be greater than 0',
     }),
 });
 
 export const categorySchema = z.object({
   name: z
-  .string()
-  .trim()
-  .min(1, 'Category name is required')
-  .max(30, 'Max 30 characters')
-  .regex(/^[A-Za-z &]+$/, 'Letters, spaces, and & only'),
+    .string()
+    .trim()
+    .min(1, 'Category name is required')
+    .max(30, 'Max 30 characters')
+    .regex(/^[A-Za-z &]+$/, 'Letters, spaces, and & only'),
 
   limitAmount: z
     .string()
     .trim()
     .min(1, 'Amount required')
-    .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+    .refine((val) => !isNaN(parseCurrencyInput(val)), {
+      message: 'Enter a valid amount',
+    })
+    .refine((val) => parseCurrencyInput(val) > 0, {
       message: 'Enter a valid amount greater than 0',
     }),
 });
@@ -43,15 +47,14 @@ export const transactionSchema = z
       .string()
       .trim()
       .min(1, 'Amount is required')
-      .refine((val) => !isNaN(Number(val)), {
+      .refine((val) => !isNaN(parseCurrencyInput(val)), {
         message: 'Must be a valid number',
       })
-      .refine((val) => Number(val) > 0, {
+      .refine((val) => parseCurrencyInput(val) > 0, {
         message: 'Must be greater than 0',
       }),
 
     categoryId: z.string().optional(),
-
     type: z.enum(['expense', 'income']),
   })
   .superRefine((data, ctx) => {

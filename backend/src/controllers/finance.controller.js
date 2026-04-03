@@ -1,5 +1,4 @@
-const financeService = require("../services/finance.service");
-
+const financeService = require('../services/finance.service');
 
 // =====================================================
 // Finance Controller
@@ -8,7 +7,6 @@ const financeService = require("../services/finance.service");
 // management. Delegates business logic to the
 // finance service layer and manages responses.
 // =====================================================
-
 
 // =====================================================
 // Budget Controllers
@@ -26,11 +24,10 @@ async function createBudget(req, res) {
 
     const budget = await financeService.createBudget(userId, {
       name,
-      limitAmount
+      limitAmount,
     });
 
     res.status(201).json(budget);
-
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -49,7 +46,6 @@ async function getBudgets(req, res) {
     const budgets = await financeService.getBudgets(userId);
 
     res.json(budgets);
-
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -67,11 +63,10 @@ async function updateBudget(req, res) {
 
     const updated = await financeService.updateBudget(id, {
       name,
-      limitAmount
+      limitAmount,
     });
 
     res.json(updated);
-
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -89,7 +84,6 @@ async function deleteBudget(req, res) {
     const deleted = await financeService.deleteBudget(id);
 
     res.json(deleted);
-
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -108,17 +102,14 @@ async function getBudgetById(req, res) {
     const budget = await financeService.getBudgetById(id, userId);
 
     if (!budget) {
-      return res.status(404).json({ error: "Budget not found" });
+      return res.status(404).json({ error: 'Budget not found' });
     }
 
     res.json(budget);
-
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 }
-
-
 
 // =====================================================
 // Expense Controllers
@@ -136,7 +127,6 @@ async function createExpense(req, res) {
     const expense = await financeService.createExpense(userId, req.body);
 
     res.status(201).json(expense);
-
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -155,7 +145,6 @@ async function getExpenses(req, res) {
     const expenses = await financeService.getExpenses(userId, req.query);
 
     res.json(expenses);
-
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -173,7 +162,6 @@ async function updateExpense(req, res) {
     const updated = await financeService.updateExpense(id, req.body);
 
     res.json(updated);
-
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -191,12 +179,10 @@ async function deleteExpense(req, res) {
     const deleted = await financeService.deleteExpense(id);
 
     res.json(deleted);
-
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 }
-
 
 // =====================================================
 // Analytics Controllers
@@ -214,7 +200,6 @@ async function getCategoryTotals(req, res) {
     const totals = await financeService.getExpenseTotalsByCategory(userId);
 
     res.json(totals);
-
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -236,12 +221,10 @@ async function updateExpectedIncome(req, res) {
     const updated = await financeService.updateExpectedIncome(userId, amount);
 
     res.json(updated);
-
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 }
-
 
 /**
  * Creates a new income entry.
@@ -254,12 +237,10 @@ async function createIncomeEntry(req, res) {
     const income = await financeService.createIncomeEntry(userId, req.body);
 
     res.status(201).json(income);
-
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 }
-
 
 /**
  * Retrieves income entries for the authenticated user.
@@ -272,7 +253,6 @@ async function getIncomeEntries(req, res) {
     const income = await financeService.getIncomeEntries(userId, req.query);
 
     res.json(income);
-
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -289,13 +269,22 @@ async function getExpectedIncome(req, res) {
     const income = await financeService.getExpectedIncome(userId);
 
     res.json(income);
-
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 }
 
+async function deleteIncomeEntry(req, res) {
+  try {
+    const { id } = req.params;
 
+    const deleted = await financeService.deleteIncomeEntry(id);
+
+    res.json(deleted);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
 
 // =====================================================
 // Exports
@@ -320,7 +309,8 @@ module.exports = {
   createIncomeEntry,
   getIncomeEntries,
   getExpectedIncome,
+  deleteIncomeEntry,
 
   // Analytics
-  getCategoryTotals
+  getCategoryTotals,
 };

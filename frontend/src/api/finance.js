@@ -1,5 +1,5 @@
 //frontend/src/api/finance.js
-import { apiFetch } from "./client";
+import { apiFetch } from './client';
 
 // =====================================================
 // Finance API Module
@@ -11,7 +11,7 @@ import { apiFetch } from "./client";
  * Fetch all budgets for the logged in user
  */
 export const getBudgets = () => {
-  return apiFetch("/api/finance/budgets");
+  return apiFetch('/api/finance/budgets');
 };
 
 /**
@@ -21,9 +21,9 @@ export const getBudgets = () => {
  * @param {number} data.limitAmount
  */
 export const createBudget = (data) => {
-  return apiFetch("/api/finance/budgets", {
-    method: "POST",
-    body: JSON.stringify(data)
+  return apiFetch('/api/finance/budgets', {
+    method: 'POST',
+    body: JSON.stringify(data),
   });
 };
 
@@ -41,8 +41,8 @@ export const getBudgetById = (id) => {
  */
 export const updateBudget = (id, data) => {
   return apiFetch(`/api/finance/budgets/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(data)
+    method: 'PUT',
+    body: JSON.stringify(data),
   });
 };
 
@@ -50,17 +50,17 @@ export const updateBudget = (id, data) => {
  * Create a new expense
  */
 export const createExpense = (data) => {
-  return apiFetch("/api/finance/expenses", {
-    method: "POST",
-    body: JSON.stringify(data)
+  return apiFetch('/api/finance/expenses', {
+    method: 'POST',
+    body: JSON.stringify(data),
   });
 };
 
 /**
- * Fetch expenses 
+ * Fetch expenses
  * Example: getExpenses("?budgetId=123")
  */
-export const getExpenses = (query = "") => {
+export const getExpenses = (query = '') => {
   return apiFetch(`/api/finance/expenses${query}`);
 };
 
@@ -71,8 +71,8 @@ export const getExpenses = (query = "") => {
  */
 export const updateExpense = (id, data) => {
   return apiFetch(`/api/finance/expenses/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(data)
+    method: 'PUT',
+    body: JSON.stringify(data),
   });
 };
 
@@ -82,7 +82,13 @@ export const updateExpense = (id, data) => {
  */
 export const deleteExpense = (id) => {
   return apiFetch(`/api/finance/expenses/${id}`, {
-    method: "DELETE"
+    method: 'DELETE',
+  });
+};
+
+export const deleteIncome = (id) => {
+  return apiFetch(`/api/finance/income/${id}`, {
+    method: 'DELETE',
   });
 };
 
@@ -91,7 +97,7 @@ export const deleteExpense = (id) => {
  */
 export const deleteBudget = (id) => {
   return apiFetch(`/api/finance/budgets/${id}`, {
-    method: "DELETE"
+    method: 'DELETE',
   });
 };
 
@@ -100,7 +106,7 @@ export const deleteBudget = (id) => {
  * @returns {Promise<Array<{ category: string, total: number }>}
  */
 export const getCategoryTotals = () => {
-  return apiFetch("/api/finance/analytics/categories");
+  return apiFetch('/api/finance/analytics/categories');
 };
 
 // =====================================================
@@ -112,12 +118,11 @@ export const getCategoryTotals = () => {
  * @param {number} amount
  */
 export const updateExpectedIncome = (amount) => {
-  return apiFetch("/api/finance/income/expected", {
-    method: "PATCH",
-    body: JSON.stringify({ amount })
+  return apiFetch('/api/finance/income/expected', {
+    method: 'PATCH',
+    body: JSON.stringify({ amount }),
   });
 };
-
 
 /**
  * Create a new income entry
@@ -127,19 +132,18 @@ export const updateExpectedIncome = (amount) => {
  * @param {string|Date} [data.incomeDate]
  */
 export const createIncomeEntry = (data) => {
-  return apiFetch("/api/finance/income", {
-    method: "POST",
-    body: JSON.stringify(data)
+  return apiFetch('/api/finance/income', {
+    method: 'POST',
+    body: JSON.stringify(data),
   });
 };
-
 
 /**
  * Fetch income entries
  * @param {string} query Optional query string
  * Example: getIncomeEntries("?from=2026-02-01&to=2026-02-29")
  */
-export const getIncomeEntries = (query = "") => {
+export const getIncomeEntries = (query = '') => {
   return apiFetch(`/api/finance/income${query}`);
 };
 
@@ -147,6 +151,5 @@ export const getIncomeEntries = (query = "") => {
  * Fetch expected monthly income baseline
  */
 export const getExpectedIncome = () => {
-  return apiFetch("/api/finance/income/expected");
+  return apiFetch('/api/finance/income/expected');
 };
-

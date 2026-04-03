@@ -46,6 +46,9 @@ function AppSprout() {
     } else if (location.pathname === '/diet') {
       reply = await sendChatMessage(message);
       window.dispatchEvent(new Event('dietDataUpdated'));
+    } else if (location.pathname === '/notes') {
+      reply = await sendChatMessage(message);
+      window.dispatchEvent(new Event('notesUpdated'));
     } else {
       reply = await sendChatMessage(message);
     }

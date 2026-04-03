@@ -3,7 +3,7 @@ export default function CategoryAddCard({ onClick }) {
     <div
       onClick={onClick}
       className="
-        min-w-[260px] max-w-[260px]
+        min-w-[300px] max-w-[300px] min-h-[130px]
         sprout-add-card p-4
       "
     >
