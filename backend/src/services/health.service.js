@@ -1,6 +1,22 @@
 const prisma = require('../clients/prisma.client');
 const { MealType } = require('@prisma/client');
 
+function normalizeMealType(meal) {
+  const normalized = String(meal || '').trim().toUpperCase();
+
+  if (normalized === 'SNACK') return 'SNACKS';
+  if (normalized === 'SNACKS') return 'SNACKS';
+  if (normalized === 'BREAKFAST') return 'BREAKFAST';
+  if (normalized === 'LUNCH') return 'LUNCH';
+  if (normalized === 'DINNER') return 'DINNER';
+
+  return normalized;
+}
+
+function normalizeDietName(name) {
+  return String(name || '').trim();
+}
+
 // =====================================================
 // Health Service
 // =====================================================
@@ -88,6 +104,7 @@ const updateFitnessInfo = async (userId, data) => {
 
   return created;
 };
+
 /**
  * Get the weight history of the user
  */
@@ -104,15 +121,33 @@ const getWeightHistory = async (userId) => {
  * Create diet template
  */
 const createDiet = async (userId, name, description) => {
-  if (!name) {
+  const normalizedName = normalizeDietName(name);
+
+  if (!normalizedName) {
     const err = new Error('Diet name is required');
     err.status = 400;
     throw err;
   }
 
+  const existingDiet = await prisma.diet.findFirst({
+    where: {
+      userId,
+      name: {
+        equals: normalizedName,
+        mode: 'insensitive',
+      },
+    },
+  });
+
+  if (existingDiet) {
+    const err = new Error(`A diet named "${normalizedName}" already exists.`);
+    err.status = 409;
+    throw err;
+  }
+
   return prisma.diet.create({
     data: {
-      name,
+      name: normalizedName,
       description: description || null,
       user: {
         connect: { id: userId },
@@ -156,8 +191,6 @@ const addDietItem = async (dietId, data) => {
     carbs,
     fat,
     sugar,
-    quantity,
-    unit,
     loggedAt,
   } = data;
 
@@ -167,7 +200,9 @@ const addDietItem = async (dietId, data) => {
     throw err;
   }
 
-  if (!Object.values(MealType).includes(meal)) {
+  const normalizedMeal = normalizeMealType(meal);
+
+  if (!Object.values(MealType).includes(normalizedMeal)) {
     const err = new Error('Invalid meal type.');
     err.status = 400;
     throw err;
@@ -176,14 +211,12 @@ const addDietItem = async (dietId, data) => {
   return prisma.dietItem.create({
     data: {
       name,
-      meal,
+      meal: normalizedMeal,
       calories,
       protein,
       carbs,
       fat,
       sugar,
-      quantity: quantity ?? 1,
-      unit: unit ?? 'g',
       loggedAt: loggedAt ? new Date(loggedAt) : new Date(),
       diet: {
         connect: { id: dietId },
@@ -210,6 +243,40 @@ const getDietItems = async (dietId) => {
   return prisma.dietItem.findMany({
     where: { dietId },
     orderBy: { loggedAt: 'desc' },
+  });
+};
+
+const updateDietItem = async (dietId, itemId, data) => {
+  const item = await prisma.dietItem.findUnique({
+    where: { id: itemId },
+  });
+
+  if (!item || item.dietId !== dietId) {
+    const err = new Error('Diet item not found');
+    err.status = 404;
+    throw err;
+  }
+
+  const nextMeal =
+    data.meal !== undefined ? normalizeMealType(data.meal) : item.meal;
+
+  if (!Object.values(MealType).includes(nextMeal)) {
+    const err = new Error('Invalid meal type.');
+    err.status = 400;
+    throw err;
+  }
+
+  return prisma.dietItem.update({
+    where: { id: itemId },
+    data: {
+      name: data.name !== undefined ? data.name : item.name,
+      meal: nextMeal,
+      calories: data.calories !== undefined ? data.calories : item.calories,
+      protein: data.protein !== undefined ? data.protein : item.protein,
+      carbs: data.carbs !== undefined ? data.carbs : item.carbs,
+      fat: data.fat !== undefined ? data.fat : item.fat,
+      sugar: data.sugar !== undefined ? data.sugar : item.sugar,
+    },
   });
 };
 
@@ -243,11 +310,11 @@ const addPresetItem = async (
   protein,
   carbs,
   fat,
-  sugar,
-  quantity,
-  unit
+  sugar
 ) => {
-  if (!Object.values(MealType).includes(meal)) {
+  const normalizedMeal = normalizeMealType(meal);
+
+  if (!Object.values(MealType).includes(normalizedMeal)) {
     const err = new Error('Invalid meal type.');
     err.status = 400;
     throw err;
@@ -256,14 +323,12 @@ const addPresetItem = async (
   return prisma.presetMealItems.create({
     data: {
       name,
-      meal,
+      meal: normalizedMeal,
       calories,
       protein,
       carbs,
       fat,
       sugar,
-      quantity: quantity ?? 1,
-      unit: unit ?? 'g',
       diet: {
         connect: { id: dietId },
       },
@@ -288,6 +353,7 @@ module.exports = {
   deleteDiet,
   addDietItem,
   getDietItems,
+  updateDietItem,
   deleteDietItem,
   getPresetItems,
   addPresetItem,

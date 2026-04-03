@@ -83,6 +83,7 @@ export default function useDiet() {
       (item) => new Date(item.loggedAt).toDateString() === day
     );
   }, [dietItems, selectedDate]);
+
   /*
   --------------------------------------------------
   Calculate daily macro totals
@@ -134,42 +135,129 @@ export default function useDiet() {
 
   /*
   --------------------------------------------------
+  Shared reload helpers
+  --------------------------------------------------
+  */
+
+  async function loadDiets() {
+    try {
+      const data = await getDiets();
+      setDiets(data || []);
+    } catch (err) {
+      console.error('Failed to load diets', err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function loadPresetsForDiet(dietId) {
+    if (!dietId) {
+      setPresets([]);
+      return;
+    }
+
+    try {
+      setPresetsLoading(true);
+      const data = await getPresetItems(dietId);
+      setPresets(data || []);
+    } catch (err) {
+      console.error('Failed to load presets', err);
+      setPresets([]);
+    } finally {
+      setPresetsLoading(false);
+    }
+  }
+
+  async function loadItemsForDiet(dietId) {
+    if (!dietId) {
+      setDietItems([]);
+      return;
+    }
+
+    try {
+      const items = await getDietItems(dietId);
+      setDietItems(items || []);
+    } catch (err) {
+      console.error('Failed to load diet items', err);
+      setDietItems([]);
+    }
+  }
+
+  async function loadStats() {
+    try {
+      const info = await getFitnessInfo();
+      setStats(info || null);
+    } catch (err) {
+      console.error('Failed to fetch stats');
+    }
+  }
+
+  async function loadWeightHistory() {
+    try {
+      const data = await getWeightHistory();
+      setWeightHistory(data || []);
+    } catch (err) {
+      console.error('Failed to load weight history');
+    }
+  }
+
+  async function refreshDietData() {
+    try {
+      const dietsData = await getDiets();
+      const nextDiets = dietsData || [];
+      setDiets(nextDiets);
+
+      let nextSelectedDiet = null;
+
+      if (selectedDiet?.id) {
+        nextSelectedDiet =
+          nextDiets.find((d) => d.id === selectedDiet.id) || null;
+      }
+
+      if (!nextSelectedDiet) {
+        const savedId = localStorage.getItem('selectedDietId');
+
+        if (savedId) {
+          nextSelectedDiet =
+            nextDiets.find((d) => String(d.id) === savedId) || null;
+        }
+      }
+
+      if (!nextSelectedDiet && nextDiets.length > 0) {
+        nextSelectedDiet = nextDiets[0];
+      }
+
+      setSelectedDiet(nextSelectedDiet);
+
+      if (!nextSelectedDiet) {
+        setDietItems([]);
+        setPresets([]);
+        localStorage.removeItem('selectedDietId');
+      } else {
+        await Promise.all([
+          loadItemsForDiet(nextSelectedDiet.id),
+          loadPresetsForDiet(nextSelectedDiet.id),
+        ]);
+      }
+
+      await Promise.all([loadStats(), loadWeightHistory()]);
+    } catch (err) {
+      console.error('Failed to refresh diet data', err);
+    }
+  }
+
+  /*
+  --------------------------------------------------
   Load diets/Presets
   --------------------------------------------------
   */
 
   useEffect(() => {
-    async function load() {
-      try {
-        const data = await getDiets();
-        setDiets(data || []);
-      } catch (err) {
-        console.error('Failed to load diets', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    load();
+    loadDiets();
   }, []);
 
   useEffect(() => {
-    async function loadPresets() {
-      if (!selectedDiet?.id) return;
-
-      try {
-        setPresetsLoading(true);
-        const data = await getPresetItems(selectedDiet.id);
-        setPresets(data || []);
-      } catch (err) {
-        console.error('Failed to load presets', err);
-        setPresets([]);
-      } finally {
-        setPresetsLoading(false);
-      }
-    }
-
-    loadPresets();
+    loadPresetsForDiet(selectedDiet?.id);
   }, [selectedDiet]);
 
   /*
@@ -199,23 +287,12 @@ export default function useDiet() {
   --------------------------------------------------
   Load diet items
   Ensures state change when user selects a different
-  diet 
+  diet
   --------------------------------------------------
   */
 
   useEffect(() => {
-    async function loadItems() {
-      if (!selectedDiet?.id) return;
-
-      try {
-        const items = await getDietItems(selectedDiet.id);
-        setDietItems(items || []);
-      } catch (err) {
-        console.error('Failed to load diet items', err);
-      }
-    }
-
-    loadItems();
+    loadItemsForDiet(selectedDiet?.id);
   }, [selectedDiet]);
 
   /*
@@ -225,15 +302,6 @@ export default function useDiet() {
   */
 
   useEffect(() => {
-    async function loadStats() {
-      try {
-        const info = await getFitnessInfo();
-        setStats(info || null);
-      } catch (err) {
-        console.error('Failed to fetch stats');
-      }
-    }
-
     loadStats();
   }, []);
 
@@ -244,17 +312,26 @@ export default function useDiet() {
   */
 
   useEffect(() => {
-    async function loadWeightHistory() {
-      try {
-        const data = await getWeightHistory();
-        setWeightHistory(data || []);
-      } catch (err) {
-        console.error('Failed to load weight history');
-      }
-    }
-
     loadWeightHistory();
   }, []);
+
+  /*
+  --------------------------------------------------
+  Refresh after chatbot-driven Diet updates
+  --------------------------------------------------
+  */
+
+  useEffect(() => {
+    function handleDietDataUpdated() {
+      refreshDietData();
+    }
+
+    window.addEventListener('dietDataUpdated', handleDietDataUpdated);
+
+    return () => {
+      window.removeEventListener('dietDataUpdated', handleDietDataUpdated);
+    };
+  }, [selectedDiet]);
 
   /*
   --------------------------------------------------
@@ -291,6 +368,7 @@ export default function useDiet() {
       return remaining;
     });
   }
+
   /*
   --------------------------------------------------
   Diet item actions
@@ -361,6 +439,7 @@ export default function useDiet() {
     const updatedHistory = await getWeightHistory();
     setWeightHistory(updatedHistory);
   }
+
   /*
   --------------------------------------------------
   Preset actions

@@ -11,6 +11,7 @@ const actionRouter = require("../chatbot/actionRouter");
 
 const conversations = new Map();
 const pendingActions = new Map();
+const recentHealthContext = new Map();
 const MAX_HISTORY = 20;
 const WEEKDAY_NAMES = [
   "sunday",
@@ -436,7 +437,6 @@ function buildIsoDateFromNaturalInput(value, context = {}) {
   );
   if (monthDateMatch) {
     const [, monthName, dayText, explicitYear] = monthDateMatch;
-    const monthIndex = WEEKDAY_NAMES.indexOf(monthName.toLowerCase());
     const fallbackYear = now.getFullYear();
     const year = explicitYear ? Number(explicitYear) : fallbackYear;
 
@@ -864,6 +864,153 @@ function buildPendingDeleteEventFromActionReply(replyContent = "", userId = "") 
   };
 }
 
+function parseDeleteDietChoiceFromMessage(message = "", candidates = []) {
+  const rawText = String(message || "").trim();
+  const text = rawText.toLowerCase();
+
+  if (!text || !Array.isArray(candidates) || candidates.length === 0) {
+    return null;
+  }
+
+  const normalizedChoices = candidates.map((candidate, index) => {
+    const createdAtDate = new Date(candidate.createdAt);
+
+    const display = Number.isNaN(createdAtDate.getTime())
+      ? candidate.name
+      : `${candidate.name} — created ${createdAtDate.toLocaleString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true
+        })}`;
+
+    return {
+      ...candidate,
+      choiceNumber: index + 1,
+      display
+    };
+  });
+
+  const exactNumberMatch = text.match(/^\s*(\d+)\s*$/);
+  if (exactNumberMatch) {
+    const index = Number(exactNumberMatch[1]) - 1;
+    if (index >= 0 && index < normalizedChoices.length) {
+      return normalizedChoices[index];
+    }
+  }
+
+  const numberedDisplayMatch = text.match(/^\s*(\d+)\.\s*(.+)\s*$/);
+  if (numberedDisplayMatch) {
+    const index = Number(numberedDisplayMatch[1]) - 1;
+    if (index >= 0 && index < normalizedChoices.length) {
+      return normalizedChoices[index];
+    }
+  }
+
+  const exactDisplayMatch = normalizedChoices.find(
+    (candidate) => candidate.display.toLowerCase() === text
+  );
+  if (exactDisplayMatch) {
+    return exactDisplayMatch;
+  }
+
+  return null;
+}
+
+function shouldTrackPendingDeleteDiet(replyContent = "") {
+  const text = String(replyContent).trim();
+
+  return /^I found multiple diets named ".+"\.\sWhich one would you like to delete\?/i.test(
+    text
+  );
+}
+
+function buildPendingDeleteDietFromActionReply(replyContent = "", userId = "") {
+  const text = String(replyContent).trim();
+  const nameMatch = text.match(/^I found multiple diets named "(.+?)"\./i);
+
+  if (!nameMatch?.[1]) {
+    return null;
+  }
+
+  return {
+    name: "delete_diet",
+    params: {
+      name: nameMatch[1]
+    },
+    missingFields: ["choice"],
+    meta: {
+      needsResolution: true,
+      userId
+    }
+  };
+}
+
+async function hydratePendingDeleteDietCandidates(pending, user) {
+  if (!pending?.params?.name) {
+    return pending;
+  }
+
+  const healthService = require("./health.service");
+
+  const diets = await healthService.getDiets(user.id);
+
+  const matches = diets
+    .filter(
+      (diet) =>
+        diet.name &&
+        diet.name.toLowerCase() === pending.params.name.toLowerCase()
+    )
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .map((diet, index) => ({
+      id: diet.id,
+      name: diet.name,
+      createdAt: diet.createdAt,
+      choiceNumber: index + 1
+    }));
+
+  return {
+    ...pending,
+    meta: {
+      ...(pending.meta || {}),
+      candidates: matches
+    }
+  };
+}
+
+function shouldTrackPendingUpdateFood(replyContent = "") {
+  const text = String(replyContent).trim();
+
+  return /^I found multiple items named "(.+?)" in the "(.+?)" diet\. Please specify the meal\.$/i.test(
+    text
+  );
+}
+
+function buildPendingUpdateFoodFromActionReply(replyContent = "", params = {}) {
+  const text = String(replyContent).trim();
+  const match = text.match(
+    /^I found multiple items named "(.+?)" in the "(.+?)" diet\. Please specify the meal\.$/i
+  );
+
+  if (!match) {
+    return null;
+  }
+
+  const [, nameFromReply, dietNameFromReply] = match;
+
+  return {
+    name: "update_food",
+    params: {
+      ...params,
+      dietName: params.dietName || dietNameFromReply,
+      name: params.name || nameFromReply
+    },
+    missingFields: ["meal"]
+  };
+}
+
 /**
  * ============================================================================
  * PENDING EXPENSE HELPERS
@@ -1034,6 +1181,54 @@ function sanitizeIncomeAction(ai, latestUserMessage = "") {
   };
 }
 
+function normalizeDietMealValue(value = "") {
+  const normalized = normalizeText(value);
+
+  const mealMap = {
+    breakfast: "BREAKFAST",
+    lunch: "LUNCH",
+    dinner: "DINNER",
+    snack: "SNACKS",
+    snacks: "SNACKS"
+  };
+
+  return mealMap[normalized] || value;
+}
+
+function normalizeOptionalNumber(value) {
+  if (typeof value === "string") {
+    const normalized = Number(value.replace(/[$,]/g, "").trim());
+    if (Number.isFinite(normalized)) {
+      return normalized;
+    }
+  }
+
+  return value;
+}
+
+function sanitizeHealthAction(ai) {
+  if (ai?.name !== "log_food" && ai?.name !== "create_preset_meal") {
+    return ai;
+  }
+
+  const params = { ...(ai.params || {}) };
+
+  if (params.meal) {
+    params.meal = normalizeDietMealValue(params.meal);
+  }
+
+  params.calories = normalizeOptionalNumber(params.calories);
+  params.protein = normalizeOptionalNumber(params.protein);
+  params.carbs = normalizeOptionalNumber(params.carbs);
+  params.fat = normalizeOptionalNumber(params.fat);
+  params.sugar = normalizeOptionalNumber(params.sugar);
+
+  return {
+    ...ai,
+    params
+  };
+}
+
 function sanitizeSchedulerAction(ai, latestUserMessage = "", context = {}) {
   if (ai?.name !== "create_event" && ai?.name !== "delete_event") {
     return ai;
@@ -1094,278 +1289,779 @@ function sanitizeSchedulerAction(ai, latestUserMessage = "", context = {}) {
   };
 }
 
-/**
- * ============================================================================
- * MESSAGE SHAPE / RESET HELPERS
- * ============================================================================
- */
-
-function looksLikeIncomeStart(userMessage) {
-  if (!userMessage) return false;
-
-  const text = normalizeText(userMessage);
-  return INCOME_KEYWORDS.some((keyword) => text.includes(keyword));
+function getRecentHealthContext(userId) {
+  return recentHealthContext.get(userId) || {};
 }
 
-function looksLikeFreshExpenseStart(userMessage) {
-  if (!userMessage) return false;
+function setRecentHealthContext(userId, updates = {}) {
+  const current = getRecentHealthContext(userId);
 
-  const text = userMessage.trim().toLowerCase();
-
-  return (
-    /\bspent\b/.test(text) ||
-    /\bexpense\b/.test(text) ||
-    /\blog\b/.test(text) ||
-    /\badd\b/.test(text) ||
-    /\$\s*\d+/.test(text) ||
-    /\b\d+(\.\d+)?\b/.test(text)
-  );
-}
-
-function shouldResetPendingExpense(pending, latestUserMessage) {
-  if (!pending || pending.name !== "add_expense") return false;
-  if (!latestUserMessage) return false;
-
-  const text = latestUserMessage.trim();
-  if (!text) return false;
-
-  const firstMissing = pending.missingFields?.[0];
-
-  if (
-    firstMissing === "description" ||
-    firstMissing === "category" ||
-    firstMissing === "expenseDate" ||
-    firstMissing === "amount"
-  ) {
-    const shortReply = text.split(/\s+/).length <= 4;
-    const explicitDate = buildIsoDateFromNaturalInput(text);
-
-    if (firstMissing === "expenseDate" && explicitDate) {
-      return false;
-    }
-
-    if (!looksLikeFreshExpenseStart(text) && shortReply) {
-      return false;
-    }
-  }
-
-  return looksLikeFreshExpenseStart(text);
-}
-
-function looksLikeFreshSchedulerStart(userMessage) {
-  const text = String(userMessage || "").trim().toLowerCase();
-
-  return (
-    /\b(schedule|book|create)\b/.test(text) ||
-    /\b(delete|remove)\b.*\b(event|appointment|meeting|interview|class|shift|call)\b/.test(
-      text
-    )
-  );
-}
-
-function shouldResetPendingEvent(pending, latestUserMessage) {
-  if (!pending || pending.name !== "create_event") return false;
-  if (!latestUserMessage) return false;
-
-  const nextField = pending.missingFields?.[0];
-
-  if (nextField === "startTime" && parseSchedulerTimeFromText(latestUserMessage)) {
-    return false;
-  }
-
-  if (
-    nextField === "startTime" &&
-    latestUserMessage.trim().split(/\s+/).length <= 4
-  ) {
-    return false;
-  }
-
-  return looksLikeFreshSchedulerStart(latestUserMessage);
+  recentHealthContext.set(userId, {
+    ...current,
+    ...updates
+  });
 }
 
 /**
  * ============================================================================
- * ACTION HISTORY HELPERS
+ * DETERMINISTIC HEALTH HELPERS
  * ============================================================================
  */
 
-function buildActionHistoryEntry(ai) {
+function extractOptionalMacroValues(text = "") {
+  const source = String(text || "");
+  const proteinMatch = source.match(/(\d+(?:\.\d+)?)\s*protein\b/i);
+  const carbsMatch = source.match(/(\d+(?:\.\d+)?)\s*carbs?\b/i);
+  const fatMatch = source.match(/(\d+(?:\.\d+)?)\s*fat\b/i);
+  const sugarMatch = source.match(/(\d+(?:\.\d+)?)\s*sugar\b/i);
+
   return {
-    role: "assistant",
-    content: JSON.stringify({
-      type: "action_result",
-      status: "completed",
-      name: ai.name,
-      params: ai.params || {}
-    })
+    protein: proteinMatch ? Number(proteinMatch[1]) : undefined,
+    carbs: carbsMatch ? Number(carbsMatch[1]) : undefined,
+    fat: fatMatch ? Number(fatMatch[1]) : undefined,
+    sugar: sugarMatch ? Number(sugarMatch[1]) : undefined
   };
 }
 
-/**
- * ============================================================================
- * DETERMINISTIC EXTRACTION HELPERS
- * ============================================================================
- */
+function extractDirectFoodCorrection(message = "") {
+  const text = String(message).trim();
 
-function extractAmountFromMessage(message = "") {
-  const cleaned = String(message).replace(/,/g, "");
-  const match = cleaned.match(/\$?\s*(\d+(?:\.\d{1,2})?)/);
-  if (!match) return null;
+  const calorieOnlyMatch = text.match(
+    /^(?:actually|instead|change that to|make that)\s+(?:to\s+)?(\d+(?:\.\d+)?)\s+calories?[.!?]?$/i
+  );
+  if (calorieOnlyMatch?.[1]) {
+    return {
+      calories: Number(calorieOnlyMatch[1])
+    };
+  }
 
-  const amount = Number(match[1]);
-  return Number.isFinite(amount) && amount > 0 ? amount : null;
+  const sentenceMatch = text.match(
+    /^(?:actually|instead)[,]?\s*(?:change|make)\s+that\s+to\s+(\d+(?:\.\d+)?)\s+calories?[.!?]?$/i
+  );
+  if (sentenceMatch?.[1]) {
+    return {
+      calories: Number(sentenceMatch[1])
+    };
+  }
+
+  return null;
 }
 
-function extractRawSpendingTerm(message = "") {
+function extractDirectEditFoodCalories(message = "") {
   const text = String(message).trim();
 
   const patterns = [
-    /\bspent\s+\$?\s*\d+(?:\.\d{1,2})?\s+on\s+(.+?)(?:\s+(today|yesterday))?$/i,
-    /\badd\s+\$?\s*\d+(?:\.\d{1,2})?\s+(?:for|on)\s+(.+?)(?:\s+(today|yesterday))?$/i,
-    /\blog\s+\$?\s*\d+(?:\.\d{1,2})?\s+(?:for|on)\s+(.+?)(?:\s+(today|yesterday))?$/i
+    /^(?:edit|change|update)\s+(.+?)\s+calories?\s+(?:to|into)\s+(\d+(?:\.\d+)?)(?:\s+for\s+(breakfast|lunch|dinner|snack|snacks))?[.!?]?$/i,
+    /^(?:edit|change|update)\s+the\s+calories?\s+for\s+(.+?)\s+(?:to|into)\s+(\d+(?:\.\d+)?)(?:\s+for\s+(breakfast|lunch|dinner|snack|snacks))?[.!?]?$/i,
+    /^(?:make|set)\s+(.+?)\s+(\d+(?:\.\d+)?)\s+calories?(?:\s+for\s+(breakfast|lunch|dinner|snack|snacks))?[.!?]?$/i
   ];
 
   for (const pattern of patterns) {
     const match = text.match(pattern);
-    if (match && match[1]) {
-      return match[1].trim();
+    if (match?.[1] && match?.[2]) {
+      return {
+        name: stripTrailingPunctuation(match[1]),
+        calories: Number(match[2]),
+        meal: match[3] ? normalizeDietMealValue(match[3]) : undefined
+      };
     }
   }
 
   return null;
 }
 
-function extractRawIncomeNote(message = "") {
+function extractDirectChangeFitnessInfo(message = "") {
+  const text = String(message).trim();
+
+  if (!text) return null;
+  if (/^add my fitness info/i.test(text)) return null;
+
+  const looksLikeFitnessUpdate =
+    /\b(edit|update|change)\b/i.test(text) ||
+    /\bfitness info\b/i.test(text) ||
+    /\bcurrent weight\b/i.test(text) ||
+    /\bgoal weight\b/i.test(text) ||
+    /\bcalorie goal\b/i.test(text);
+
+  if (!looksLikeFitnessUpdate) {
+    return null;
+  }
+
+  const params = {};
+
+  const currentWeightMatch = text.match(
+    /\bcurrent weight(?:\s+is|\s+to)?\s+(\d+(?:\.\d+)?)\b/i
+  );
+  if (currentWeightMatch) {
+    params.currentWeight = Number(currentWeightMatch[1]);
+  }
+
+  const goalWeightMatch = text.match(
+    /\bgoal weight(?:\s+is|\s+to)?\s+(\d+(?:\.\d+)?)\b/i
+  );
+  if (goalWeightMatch) {
+    params.goalWeight = Number(goalWeightMatch[1]);
+  }
+
+  const calorieGoalMatch = text.match(
+    /\bcalorie goal(?:\s+is|\s+to)?\s+(\d+(?:\.\d+)?)\b/i
+  );
+  if (calorieGoalMatch) {
+    params.calorieGoal = Number(calorieGoalMatch[1]);
+  }
+
+  return Object.keys(params).length > 0 ? params : null;
+}
+
+function extractDirectDeleteDiet(message = "") {
   const text = String(message).trim();
 
   const patterns = [
-    /\bearned\s+(?:extra\s+)?income\s+of\s+\$?\s*\d+(?:\.\d{1,2})?(?:\s+(today|yesterday))?$/i,
-    /\bearned\s+\$?\s*\d+(?:\.\d{1,2})?\s+(.+?)(?:\s+(today|yesterday))?$/i,
-    /\bgot paid\s+\$?\s*\d+(?:\.\d{1,2})?(?:\s+(today|yesterday))?$/i,
-    /\breceived\s+\$?\s*\d+(?:\.\d{1,2})?\s+(.+?)(?:\s+(today|yesterday))?$/i,
-    /\bmade\s+\$?\s*\d+(?:\.\d{1,2})?\s+from\s+(.+?)(?:\s+(today|yesterday))?$/i,
-    /\badd income\s+\$?\s*\d+(?:\.\d{1,2})?\s+(.+?)(?:\s+(today|yesterday))?$/i,
-    /\blog income\s+\$?\s*\d+(?:\.\d{1,2})?\s+(.+?)(?:\s+(today|yesterday))?$/i
+    /^(?:delete|remove)\s+(?:a\s+|the\s+)?diet\s+(?:called|named)\s+(.+?)[.!?]?$/i,
+    /^(?:delete|remove)\s+my\s+(.+?)\s+diet[.!?]?$/i,
+    /^(?:delete|remove)\s+(.+?)\s+diet[.!?]?$/i
   ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match?.[1]) {
+      return {
+        name: stripTrailingPunctuation(match[1])
+      };
+    }
+  }
+
+  return null;
+}
+
+
+function extractDirectCreateDiet(message = "") {
+  const text = String(message).trim();
+
+  const patterns = [
+    /^create\s+(?:a\s+)?diet\s+(?:called|named|name)\s+(.+?)(?:\s+with\s+(.+))?[.!?]?$/i,
+    /^make\s+(?:a\s+)?new\s+diet\s+(?:called|named)\s+(.+?)(?:\s+with\s+(.+))?[.!?]?$/i,
+    /^start\s+(?:a\s+)?new\s+diet\s+(?:called|named)\s+(.+?)(?:\s+with\s+(.+))?[.!?]?$/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match?.[1]) {
+      return {
+        name: stripTrailingPunctuation(match[1]),
+        description: match[2]
+          ? stripTrailingPunctuation(match[2])
+          : undefined
+      };
+    }
+  }
+
+  return null;
+}
+
+function isCreateDietStarter(message = "") {
+  const text = String(message).trim();
+  return (
+    /^i want to create a diet[.!?]?$/i.test(text) ||
+    /^create\s+(?:a\s+)?diet[.!?]?$/i.test(text) ||
+    /^make\s+(?:a\s+)?new\s+diet[.!?]?$/i.test(text)
+  );
+}
+
+function getMissingDietFields(params = {}) {
+  const missing = [];
+
+  if (!params.name || !String(params.name).trim()) {
+    missing.push("name");
+  }
+
+  return missing;
+}
+
+function getNextMissingDietQuestion() {
+  return "What should the name of the diet be?";
+}
+
+function fillPendingDietField(pending, userReply) {
+  const value = String(userReply || "").trim();
+  if (!value) return pending;
+
+  if (!pending.params?.name) {
+    pending.params.name = stripTrailingPunctuation(value);
+  }
+
+  pending.missingFields = getMissingDietFields(pending.params);
+  return pending;
+}
+
+function extractContextualLogFood(message = "", recent = {}) {
+  const text = String(message).trim();
+  if (!text) return null;
+
+  const carryDietName = recent.dietName;
+  const carryMeal = recent.meal;
+
+  const foodMealCaloriesMatch = text.match(
+    /^(?:also\s+)?(?:add|log)\s+(.+?)\s+for\s+(breakfast|lunch|dinner|snack|snacks)\s+with\s+(\d+(?:\.\d+)?)\s+calories?(.*)$/i
+  );
 
   if (
-    /\bearned\s+(?:extra\s+)?income\s+of\s+\$?\s*\d+(?:\.\d{1,2})?/i.test(text)
+    foodMealCaloriesMatch?.[1] &&
+    foodMealCaloriesMatch?.[2] &&
+    foodMealCaloriesMatch?.[3]
   ) {
-    return "extra income";
+    const name = stripTrailingPunctuation(foodMealCaloriesMatch[1])
+      .replace(/\btoo\b$/i, "")
+      .trim();
+    const meal = normalizeDietMealValue(foodMealCaloriesMatch[2]);
+    const calories = Number(foodMealCaloriesMatch[3]);
+    const tail = foodMealCaloriesMatch[4] || "";
+    const macros = extractOptionalMacroValues(tail);
+
+    return {
+      ...(carryDietName ? { dietName: carryDietName } : {}),
+      meal,
+      name,
+      calories,
+      ...macros
+    };
   }
 
-  if (/\bgot paid\s+\$?\s*\d+(?:\.\d{1,2})?/i.test(text)) {
-    return "paycheck";
+  const withCaloriesMatch = text.match(
+    /^(?:also\s+)?(?:add|log)\s+(.+?)\s+with\s+(\d+(?:\.\d+)?)\s+calories?(.*)$/i
+  );
+
+  if (withCaloriesMatch?.[1] && withCaloriesMatch?.[2]) {
+    const name = stripTrailingPunctuation(withCaloriesMatch[1])
+      .replace(/\btoo\b$/i, "")
+      .trim();
+    const calories = Number(withCaloriesMatch[2]);
+    const tail = withCaloriesMatch[3] || "";
+    const macros = extractOptionalMacroValues(tail);
+
+    return {
+      ...(carryDietName ? { dietName: carryDietName } : {}),
+      ...(carryMeal ? { meal: carryMeal } : {}),
+      name,
+      calories,
+      ...macros
+    };
   }
 
-  for (const pattern of patterns) {
-    const match = text.match(pattern);
-    if (match && match[1]) {
-      return match[1].trim();
-    }
+  const addTooMatch = text.match(
+    /^(?:also\s+)?(?:add|log)\s+(.+?)\s+too[.!?]?$/i
+  );
+  if (addTooMatch?.[1]) {
+    return {
+      ...(carryDietName ? { dietName: carryDietName } : {}),
+      ...(carryMeal ? { meal: carryMeal } : {}),
+      name: stripTrailingPunctuation(addTooMatch[1]).trim()
+    };
   }
 
-  if (/\bbonus\b/i.test(text)) return "bonus";
-  if (/\brefund\b/i.test(text)) return "refund";
-  if (/\breimbursement\b/i.test(text)) return "reimbursement";
-  if (/\bpaycheck\b/i.test(text)) return "paycheck";
-  if (/\bsalary\b/i.test(text)) return "salary";
-  if (/\bfreelance\b/i.test(text)) return "freelance";
-  if (/\bcommission\b/i.test(text)) return "commission";
-  if (/\bincome\b/i.test(text)) return "income";
-
-  return "income";
-}
-
-/**
- * ============================================================================
- * DETERMINISTIC NOTES HELPERS
- * ============================================================================
- */
-
-function extractDirectCreateNote(message = "") {
-  const text = String(message).trim();
-
-  const patterns = [
-    /\bcreate\s+a\s+note\s+called\s+(.+?)\s+with\s+(.+)$/i,
-    /\bcreate\s+a\s+note\s+named\s+(.+?)\s+with\s+(.+)$/i,
-    /\bsave\s+a\s+note\s+called\s+(.+?)\s+with\s+(.+)$/i,
-    /\bmake\s+a\s+note\s+titled\s+(.+?)\s+with\s+(.+)$/i
-  ];
-
-  for (const pattern of patterns) {
-    const match = text.match(pattern);
-    if (match?.[1] && match?.[2]) {
-      return {
-        title: stripTrailingPunctuation(match[1]),
-        content: stripTrailingPunctuation(match[2])
-      };
-    }
+  if (/^same diet and same meal[.!?]?$/i.test(text)) {
+    return {
+      ...(carryDietName ? { dietName: carryDietName } : {}),
+      ...(carryMeal ? { meal: carryMeal } : {})
+    };
   }
 
-  return null;
-}
-
-function extractDirectReplaceNoteUpdate(message = "") {
-  const text = String(message).trim();
-
-  const patterns = [
-    /\bupdate\s+my\s+note\s+(.+?)\s+and\s+change\s+the\s+content\s+to\s+(.+)$/i,
-    /\bedit\s+my\s+note\s+(.+?)\s+and\s+replace\s+the\s+content\s+with\s+(.+)$/i
-  ];
-
-  for (const pattern of patterns) {
-    const match = text.match(pattern);
-    if (match?.[1] && match?.[2]) {
-      return {
-        title: stripTrailingPunctuation(match[1]),
-        content: stripTrailingPunctuation(match[2]),
-        mode: "replace"
-      };
-    }
+  if (/^use the same diet as before[.!?]?$/i.test(text)) {
+    return carryDietName
+      ? {
+          dietName: carryDietName
+        }
+      : null;
   }
 
   return null;
 }
 
-function extractDirectRenameNote(message = "") {
+function extractDirectLogFood(message = "") {
   const text = String(message).trim();
 
   const patterns = [
-    /\brename\s+my\s+note\s+(.+?)\s+to\s+(.+)$/i,
-    /\bchange\s+the\s+title\s+of\s+my\s+note\s+(.+?)\s+to\s+(.+)$/i
+    /^(?:log|add)\s+(.+?)\s+with\s+(\d+(?:\.\d+)?)\s+calories?\s+to\s+(.+?)\s+for\s+(breakfast|lunch|dinner|snack|snacks)(.*)$/i,
+    /^(?:log|add)\s+(.+?)\s+to\s+(.+?)\s+for\s+(breakfast|lunch|dinner|snack|snacks)\s+with\s+(\d+(?:\.\d+)?)\s+calories?(.*)$/i,
+    /^(?:log|add)\s+(.+?)\s+for\s+(breakfast|lunch|dinner|snack|snacks)\s+to\s+(.+?)\s+with\s+(\d+(?:\.\d+)?)\s+calories?(.*)$/i
   ];
 
-  for (const pattern of patterns) {
+  for (let index = 0; index < patterns.length; index += 1) {
+    const pattern = patterns[index];
     const match = text.match(pattern);
-    if (match?.[1] && match?.[2]) {
-      return {
-        title: stripTrailingPunctuation(match[1]),
-        newTitle: stripTrailingPunctuation(match[2])
-      };
+    if (!match) continue;
+
+    let name;
+    let dietName;
+    let meal;
+    let calories;
+    let tail;
+
+    if (index === 0) {
+      name = stripTrailingPunctuation(match[1]);
+      calories = Number(match[2]);
+      dietName = stripTrailingPunctuation(match[3]);
+      meal = normalizeDietMealValue(match[4]);
+      tail = match[5] || "";
+    } else if (index === 1) {
+      name = stripTrailingPunctuation(match[1]);
+      dietName = stripTrailingPunctuation(match[2]);
+      meal = normalizeDietMealValue(match[3]);
+      calories = Number(match[4]);
+      tail = match[5] || "";
+    } else {
+      name = stripTrailingPunctuation(match[1]);
+      meal = normalizeDietMealValue(match[2]);
+      dietName = stripTrailingPunctuation(match[3]);
+      calories = Number(match[4]);
+      tail = match[5] || "";
     }
+
+    const macros = extractOptionalMacroValues(tail);
+
+    return { dietName, name, meal, calories, ...macros };
   }
 
   return null;
 }
 
-function extractDirectAppendNote(message = "") {
+function extractPartialLogFood(message = "") {
+  const text = String(message).trim();
+
+  let match = text.match(/^log food to\s+(.+?)[.!?]?$/i);
+  if (match?.[1]) {
+    return {
+      dietName: stripTrailingPunctuation(match[1])
+    };
+  }
+
+  match = text.match(
+    /^(?:also\s+)?(?:add|log)\s+(.+?)\s+with\s+(\d+(?:\.\d+)?)\s+calories\s+to\s+(.+?)[.!?]?$/i
+  );
+  if (match?.[1] && match?.[2] && match?.[3]) {
+    const macros = extractOptionalMacroValues(text);
+
+    return {
+      name: stripTrailingPunctuation(match[1]),
+      calories: Number(match[2]),
+      dietName: stripTrailingPunctuation(match[3]),
+      ...macros
+    };
+  }
+
+  match = text.match(/^(?:also\s+)?(?:add|log)\s+(.+?)\s+to\s+(.+?)[.!?]?$/i);
+  if (match?.[1] && match?.[2]) {
+    const leftSide = stripTrailingPunctuation(match[1]);
+    const embeddedMeal = leftSide.match(
+      /^(.*?)\s+for\s+(breakfast|lunch|dinner|snack|snacks)$/i
+    );
+
+    if (embeddedMeal?.[1] && embeddedMeal?.[2]) {
+      const macros = extractOptionalMacroValues(text);
+      const calorieMatch = text.match(/(\d+(?:\.\d+)?)\s*calories?/i);
+
+      return {
+        name: stripTrailingPunctuation(embeddedMeal[1]),
+        meal: normalizeDietMealValue(embeddedMeal[2]),
+        calories: calorieMatch?.[1] ? Number(calorieMatch[1]) : undefined,
+        dietName: stripTrailingPunctuation(match[2]),
+        ...macros
+      };
+    }
+
+    return {
+      name: leftSide,
+      dietName: stripTrailingPunctuation(match[2])
+    };
+  }
+
+  match = text.match(
+    /^(?:also\s+)?(?:add|log)\s+(.+?)\s+for\s+(breakfast|lunch|dinner|snack|snacks)\s+with\s+(\d+(?:\.\d+)?)\s+calories?(.*)$/i
+  );
+  if (match?.[1] && match?.[2] && match?.[3]) {
+    const macros = extractOptionalMacroValues(match[4] || "");
+
+    return {
+      name: stripTrailingPunctuation(match[1]),
+      meal: normalizeDietMealValue(match[2]),
+      calories: Number(match[3]),
+      ...macros
+    };
+  }
+
+  match = text.match(
+    /^(?:also\s+)?(?:add|log)\s+(.+?)\s+with\s+(\d+(?:\.\d+)?)\s+calories?(.*)$/i
+  );
+  if (match?.[1] && match?.[2]) {
+    const macros = extractOptionalMacroValues(match[3] || "");
+
+    return {
+      name: stripTrailingPunctuation(match[1]),
+      calories: Number(match[2]),
+      ...macros
+    };
+  }
+
+  match = text.match(/^(?:also\s+)?(?:add|log)\s+(.+?)\s+too[.!?]?$/i);
+  if (match?.[1]) {
+    return {
+      name: stripTrailingPunctuation(match[1])
+    };
+  }
+
+  return null;
+}
+
+function getMissingLogFoodFields(params = {}) {
+  const missing = [];
+
+  if (!params.dietName || !String(params.dietName).trim()) {
+    missing.push("dietName");
+  }
+
+  if (!params.meal || !String(params.meal).trim()) {
+    missing.push("meal");
+  }
+
+  if (!params.name || !String(params.name).trim()) {
+    missing.push("name");
+  }
+
+  if (!Number.isFinite(params.calories)) {
+    missing.push("calories");
+  }
+
+  return missing;
+}
+
+function getNextMissingLogFoodQuestion(params = {}) {
+  if (!params.dietName) {
+    return "Which diet should this food be logged to?";
+  }
+
+  if (!params.meal && !params.name) {
+    return "What food item do you want to log, and for which meal?";
+  }
+
+  if (!params.meal && params.name) {
+    return `What meal should I log the ${params.name} under?`;
+  }
+
+  if (params.meal && !params.name) {
+    return `What food item and its calorie content would you like to log for ${String(
+      params.meal
+    ).toLowerCase()}?`;
+  }
+
+  if (params.meal && params.name && !Number.isFinite(params.calories)) {
+    return `What is the calorie content for the ${params.name} you want to log for ${String(
+      params.meal
+    ).toLowerCase()}?`;
+  }
+
+  return "What food item do you want to log, and for which meal?";
+}
+
+function parseFoodNameAndCalories(value = "") {
+  const text = String(value).trim();
+
+  const match = text.match(/^(.+?)\s+(\d+(?:\.\d+)?)\s*calories?[.!?]?$/i);
+  if (!match) return null;
+
+  return {
+    name: stripTrailingPunctuation(match[1]),
+    calories: Number(match[2])
+  };
+}
+
+function fillPendingLogFoodField(pending, userReply) {
+  const value = String(userReply || "").trim();
+  if (!value) return pending;
+
+  const mealCandidate = normalizeDietMealValue(value);
+  const isMealOnly = ["BREAKFAST", "LUNCH", "DINNER", "SNACKS"].includes(
+    mealCandidate
+  );
+
+  if (!pending.params.dietName) {
+    const recent = pending.recentContext || {};
+
+    if (/^same diet(?:\s+as\s+before)?[.!?]?$/i.test(value) && recent.dietName) {
+      pending.params.dietName = recent.dietName;
+      pending.missingFields = getMissingLogFoodFields(pending.params);
+      return pending;
+    }
+
+    const sameDietOnlyMatch = value.match(
+      /^(?:use\s+)?same diet(?:\s+as\s+before)?(?:\s+and\s+same meal)?[.!?]?$/i
+    );
+    if (sameDietOnlyMatch && recent.dietName) {
+      pending.params.dietName = recent.dietName;
+
+      if (!pending.params.meal && recent.meal) {
+        pending.params.meal = recent.meal;
+      }
+
+      pending.missingFields = getMissingLogFoodFields(pending.params);
+      return pending;
+    }
+
+    const replyAsPartialFood = extractPartialLogFood(value);
+    if (
+      replyAsPartialFood &&
+      (replyAsPartialFood.name ||
+        replyAsPartialFood.meal ||
+        Number.isFinite(replyAsPartialFood.calories))
+    ) {
+      if (!pending.params.name && replyAsPartialFood.name) {
+        pending.params.name = replyAsPartialFood.name;
+      }
+
+      if (!pending.params.meal && replyAsPartialFood.meal) {
+        pending.params.meal = replyAsPartialFood.meal;
+      }
+
+      if (
+        !Number.isFinite(pending.params.calories) &&
+        Number.isFinite(replyAsPartialFood.calories)
+      ) {
+        pending.params.calories = replyAsPartialFood.calories;
+      }
+
+      if (
+        pending.params.protein === undefined &&
+        replyAsPartialFood.protein !== undefined
+      ) {
+        pending.params.protein = replyAsPartialFood.protein;
+      }
+
+      if (
+        pending.params.carbs === undefined &&
+        replyAsPartialFood.carbs !== undefined
+      ) {
+        pending.params.carbs = replyAsPartialFood.carbs;
+      }
+
+      if (
+        pending.params.fat === undefined &&
+        replyAsPartialFood.fat !== undefined
+      ) {
+        pending.params.fat = replyAsPartialFood.fat;
+      }
+
+      if (
+        pending.params.sugar === undefined &&
+        replyAsPartialFood.sugar !== undefined
+      ) {
+        pending.params.sugar = replyAsPartialFood.sugar;
+      }
+
+      pending.missingFields = getMissingLogFoodFields(pending.params);
+      return pending;
+    }
+
+    const cleanedDietName = stripTrailingPunctuation(value)
+      .replace(/^use\s+/i, "")
+      .replace(/^the diet\s+/i, "")
+      .replace(/^diet\s+/i, "")
+      .trim();
+
+    pending.params.dietName = cleanedDietName;
+    pending.missingFields = getMissingLogFoodFields(pending.params);
+    return pending;
+  }
+
+  if (!pending.params.meal && isMealOnly) {
+    pending.params.meal = mealCandidate;
+    pending.missingFields = getMissingLogFoodFields(pending.params);
+    return pending;
+  }
+
+  const partialFood = extractPartialLogFood(value);
+  if (partialFood) {
+    if (!pending.params.name && partialFood.name) {
+      pending.params.name = partialFood.name;
+    }
+
+    if (!pending.params.meal && partialFood.meal) {
+      pending.params.meal = partialFood.meal;
+    }
+
+    if (
+      !Number.isFinite(pending.params.calories) &&
+      Number.isFinite(partialFood.calories)
+    ) {
+      pending.params.calories = partialFood.calories;
+    }
+
+    if (
+      pending.params.protein === undefined &&
+      partialFood.protein !== undefined
+    ) {
+      pending.params.protein = partialFood.protein;
+    }
+
+    if (pending.params.carbs === undefined && partialFood.carbs !== undefined) {
+      pending.params.carbs = partialFood.carbs;
+    }
+
+    if (pending.params.fat === undefined && partialFood.fat !== undefined) {
+      pending.params.fat = partialFood.fat;
+    }
+
+    if (pending.params.sugar === undefined && partialFood.sugar !== undefined) {
+      pending.params.sugar = partialFood.sugar;
+    }
+
+    pending.missingFields = getMissingLogFoodFields(pending.params);
+    return pending;
+  }
+
+  const nameAndCalories = parseFoodNameAndCalories(value);
+
+  if (!pending.params.name && nameAndCalories?.name) {
+    pending.params.name = nameAndCalories.name;
+  }
+
+  if (
+    !Number.isFinite(pending.params.calories) &&
+    Number.isFinite(nameAndCalories?.calories)
+  ) {
+    pending.params.calories = nameAndCalories.calories;
+  }
+
+  if (!pending.params.name && !nameAndCalories) {
+    const mealFirstMatch = value.match(
+      /^(breakfast|lunch|dinner|snack|snacks)\s*,?\s+(.+)$/i
+    );
+
+    if (mealFirstMatch?.[1] && mealFirstMatch?.[2]) {
+      pending.params.meal = normalizeDietMealValue(mealFirstMatch[1]);
+
+      const cleanedName = stripTrailingPunctuation(mealFirstMatch[2])
+        .replace(
+          /\s+with\s+\d+(?:\.\d+)?\s+calories?(?:\s+and\s+.*)?$/i,
+          ""
+        )
+        .trim();
+
+      pending.params.name = cleanedName;
+      pending.missingFields = getMissingLogFoodFields(pending.params);
+      return pending;
+    }
+
+    const foodFirstMatch = value.match(
+      /^(.+?)\s*,\s*(breakfast|lunch|dinner|snack|snacks)$/i
+    );
+
+    if (foodFirstMatch?.[1] && foodFirstMatch?.[2]) {
+      pending.params.name = stripTrailingPunctuation(foodFirstMatch[1]);
+      pending.params.meal = normalizeDietMealValue(foodFirstMatch[2]);
+      pending.missingFields = getMissingLogFoodFields(pending.params);
+      return pending;
+    }
+
+    const cleanedName = stripTrailingPunctuation(value)
+      .replace(/^(?:also\s+)?(?:add|log)\s+/i, "")
+      .replace(
+        /\s+for\s+(breakfast|lunch|dinner|snack|snacks)\b.*$/i,
+        ""
+      )
+      .replace(/\s+with\s+\d+(?:\.\d+)?\s+calories?(?:\s+and\s+.*)?$/i, "")
+      .replace(/\s+too$/i, "")
+      .trim();
+
+    pending.params.name = cleanedName || stripTrailingPunctuation(value);
+  }
+
+  if (!pending.params.meal && !isMealOnly) {
+    const embeddedMeal = value.match(
+      /\b(breakfast|lunch|dinner|snack|snacks)\b/i
+    );
+    if (embeddedMeal?.[1]) {
+      pending.params.meal = normalizeDietMealValue(embeddedMeal[1]);
+    }
+  }
+
+  if (!Number.isFinite(pending.params.calories)) {
+    const calorieOnlyMatch = value.match(/(\d+(?:\.\d+)?)\s*calories?/i);
+    if (calorieOnlyMatch?.[1]) {
+      pending.params.calories = Number(calorieOnlyMatch[1]);
+    }
+  }
+
+  const macros = extractOptionalMacroValues(value);
+  if (pending.params.protein === undefined && macros.protein !== undefined) {
+    pending.params.protein = macros.protein;
+  }
+  if (pending.params.carbs === undefined && macros.carbs !== undefined) {
+    pending.params.carbs = macros.carbs;
+  }
+  if (pending.params.fat === undefined && macros.fat !== undefined) {
+    pending.params.fat = macros.fat;
+  }
+  if (pending.params.sugar === undefined && macros.sugar !== undefined) {
+    pending.params.sugar = macros.sugar;
+  }
+
+  if (
+    pending.params.name &&
+    pending.params.meal &&
+    typeof pending.params.name === "string"
+  ) {
+    const normalizedMealText = String(pending.params.meal).toLowerCase();
+    pending.params.name = pending.params.name
+      .replace(new RegExp(`,?\\s*${normalizedMealText}$`, "i"), "")
+      .replace(/\s+for$/i, "")
+      .trim();
+  }
+
+  pending.missingFields = getMissingLogFoodFields(pending.params);
+  return pending;
+}
+
+function extractDirectCreatePresetMeal(message = "") {
   const text = String(message).trim();
 
   const patterns = [
-    /\badd\s+(.+?)\s+to\s+my\s+note\s+(.+)$/i,
-    /\bappend\s+(.+?)\s+to\s+my\s+note\s+(.+)$/i
+    /^(?:create|add|save)\s+(?:a\s+)?preset\s+meal\s+in\s+(.+?)\s+called\s+(.+?)\s+for\s+(breakfast|lunch|dinner|snack|snacks)\s+with\s+(\d+(?:\.\d+)?)\s+calories?(.*)$/i,
+    /^(?:create|add|save)\s+(?:a\s+)?preset\s+meal\s+called\s+(.+?)\s+in\s+(.+?)\s+for\s+(breakfast|lunch|dinner|snack|snacks)\s+with\s+(\d+(?:\.\d+)?)\s+calories?(.*)$/i
   ];
 
-  for (const pattern of patterns) {
+  for (let index = 0; index < patterns.length; index += 1) {
+    const pattern = patterns[index];
     const match = text.match(pattern);
-    if (match?.[1] && match?.[2]) {
-      return {
-        title: stripTrailingPunctuation(match[2]),
-        content: stripTrailingPunctuation(match[1]),
-        mode: "append"
-      };
+    if (!match) continue;
+
+    let dietName;
+    let name;
+    let meal;
+    let calories;
+    let tail;
+
+    if (index === 0) {
+      dietName = stripTrailingPunctuation(match[1]);
+      name = stripTrailingPunctuation(match[2]);
+      meal = normalizeDietMealValue(match[3]);
+      calories = Number(match[4]);
+      tail = match[5] || "";
+    } else {
+      name = stripTrailingPunctuation(match[1]);
+      dietName = stripTrailingPunctuation(match[2]);
+      meal = normalizeDietMealValue(match[3]);
+      calories = Number(match[4]);
+      tail = match[5] || "";
     }
+
+    const macros = extractOptionalMacroValues(tail);
+
+    return {
+      dietName,
+      name,
+      meal,
+      calories,
+      ...macros
+    };
   }
 
   return null;
@@ -1664,6 +2360,336 @@ async function hydratePendingDeleteEventCandidates(pending, user) {
       candidates: matches
     }
   };
+}
+
+/**
+ * ============================================================================
+ * MESSAGE SHAPE / RESET HELPERS
+ * ============================================================================
+ */
+
+function looksLikeIncomeStart(userMessage) {
+  if (!userMessage) return false;
+
+  const text = normalizeText(userMessage);
+  return INCOME_KEYWORDS.some((keyword) => text.includes(keyword));
+}
+
+function looksLikeFreshExpenseStart(userMessage) {
+  if (!userMessage) return false;
+
+  const text = userMessage.trim().toLowerCase();
+
+  return (
+    /\bspent\b/.test(text) ||
+    /\bexpense\b/.test(text) ||
+    /\blog\b/.test(text) ||
+    /\badd\b/.test(text) ||
+    /\$\s*\d+/.test(text) ||
+    /\b\d+(\.\d+)?\b/.test(text)
+  );
+}
+
+
+
+function shouldResetPendingExpense(pending, latestUserMessage) {
+  if (!pending || pending.name !== "add_expense") return false;
+  if (!latestUserMessage) return false;
+
+  const text = latestUserMessage.trim();
+  if (!text) return false;
+
+  const firstMissing = pending.missingFields?.[0];
+
+  if (
+    firstMissing === "description" ||
+    firstMissing === "category" ||
+    firstMissing === "expenseDate" ||
+    firstMissing === "amount"
+  ) {
+    const shortReply = text.split(/\s+/).length <= 4;
+    const explicitDate = buildIsoDateFromNaturalInput(text);
+
+    if (firstMissing === "expenseDate" && explicitDate) {
+      return false;
+    }
+
+    if (!looksLikeFreshExpenseStart(text) && shortReply) {
+      return false;
+    }
+  }
+
+  return looksLikeFreshExpenseStart(text);
+}
+
+function looksLikeFreshSchedulerStart(userMessage) {
+  const text = String(userMessage || "").trim().toLowerCase();
+
+  return (
+    /\b(schedule|book|create)\b/.test(text) ||
+    /\b(delete|remove)\b.*\b(event|appointment|meeting|interview|class|shift|call)\b/.test(
+      text
+    )
+  );
+}
+
+function shouldResetPendingEvent(pending, latestUserMessage) {
+  if (!pending || pending.name !== "create_event") return false;
+  if (!latestUserMessage) return false;
+
+  const nextField = pending.missingFields?.[0];
+
+  if (nextField === "startTime" && parseSchedulerTimeFromText(latestUserMessage)) {
+    return false;
+  }
+
+  if (
+    nextField === "startTime" &&
+    latestUserMessage.trim().split(/\s+/).length <= 4
+  ) {
+    return false;
+  }
+
+  return looksLikeFreshSchedulerStart(latestUserMessage);
+}
+
+function shouldResetPendingLogFood(pending, latestUserMessage) {
+  if (!pending || pending.name !== "log_food") return false;
+  if (!latestUserMessage) return false;
+
+  const text = String(latestUserMessage).trim();
+  if (!text) return false;
+
+  const mealOnly = ["BREAKFAST", "LUNCH", "DINNER", "SNACKS"].includes(
+    normalizeDietMealValue(text)
+  );
+
+  if (mealOnly) return false;
+  if (/^\d+(?:\.\d+)?\s*calories?(?:\s+and\s+.*)?[.!?]?$/i.test(text)) return false;
+  if (/^same diet(?:\s+as\s+before)?[.!?]?$/i.test(text)) return false;
+  if (/^(?:use\s+)?same diet(?:\s+as\s+before)?(?:\s+and\s+same meal)?[.!?]?$/i.test(text)) {
+    return false;
+  }
+  if (/^same meal[.!?]?$/i.test(text)) return false;
+
+  if (extractDirectCreateDiet(text)) return true;
+  if (isCreateDietStarter(text)) return true;
+  if (extractDirectDeleteDiet(text)) return true;
+  if (extractDirectCreatePresetMeal(text)) return true;
+  if (extractDirectLogFood(text)) return true;
+
+  return false;
+}
+
+function shouldResetPendingUpdateFood(pending, latestUserMessage) {
+  if (!pending || pending.name !== "update_food") return false;
+  if (!latestUserMessage) return false;
+
+  const text = String(latestUserMessage).trim();
+  if (!text) return false;
+
+  const mealOnly = ["BREAKFAST", "LUNCH", "DINNER", "SNACKS"].includes(
+    normalizeDietMealValue(text)
+  );
+
+  if (mealOnly) return false;
+
+  if (extractDirectCreateDiet(text)) return true;
+  if (isCreateDietStarter(text)) return true;
+  if (extractDirectDeleteDiet(text)) return true;
+  if (extractDirectCreatePresetMeal(text)) return true;
+  if (extractDirectLogFood(text)) return true;
+  if (extractDirectEditFoodCalories(text)) return true;
+
+  return false;
+}
+
+/**
+ * ============================================================================
+ * ACTION HISTORY HELPERS
+ * ============================================================================
+ */
+
+function buildActionHistoryEntry(ai) {
+  return {
+    role: "assistant",
+    content: JSON.stringify({
+      type: "action_result",
+      status: "completed",
+      name: ai.name,
+      params: ai.params || {}
+    })
+  };
+}
+
+/**
+ * ============================================================================
+ * DETERMINISTIC EXTRACTION HELPERS
+ * ============================================================================
+ */
+
+function extractAmountFromMessage(message = "") {
+  const cleaned = String(message).replace(/,/g, "");
+  const match = cleaned.match(/\$?\s*(\d+(?:\.\d{1,2})?)/);
+  if (!match) return null;
+
+  const amount = Number(match[1]);
+  return Number.isFinite(amount) && amount > 0 ? amount : null;
+}
+
+function extractRawSpendingTerm(message = "") {
+  const text = String(message).trim();
+
+  const patterns = [
+    /\bspent\s+\$?\s*\d+(?:\.\d{1,2})?\s+on\s+(.+?)(?:\s+(today|yesterday))?$/i,
+    /\badd\s+\$?\s*\d+(?:\.\d{1,2})?\s+(?:for|on)\s+(.+?)(?:\s+(today|yesterday))?$/i,
+    /\blog\s+\$?\s*\d+(?:\.\d{1,2})?\s+(?:for|on)\s+(.+?)(?:\s+(today|yesterday))?$/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+
+  return null;
+}
+
+function extractRawIncomeNote(message = "") {
+  const text = String(message).trim();
+
+  const patterns = [
+    /\bearned\s+(?:extra\s+)?income\s+of\s+\$?\s*\d+(?:\.\d{1,2})?(?:\s+(today|yesterday))?$/i,
+    /\bearned\s+\$?\s*\d+(?:\.\d{1,2})?\s+(.+?)(?:\s+(today|yesterday))?$/i,
+    /\bgot paid\s+\$?\s*\d+(?:\.\d{1,2})?(?:\s+(today|yesterday))?$/i,
+    /\breceived\s+\$?\s*\d+(?:\.\d{1,2})?\s+(.+?)(?:\s+(today|yesterday))?$/i,
+    /\bmade\s+\$?\s*\d+(?:\.\d{1,2})?\s+from\s+(.+?)(?:\s+(today|yesterday))?$/i,
+    /\badd income\s+\$?\s*\d+(?:\.\d{1,2})?\s+(.+?)(?:\s+(today|yesterday))?$/i,
+    /\blog income\s+\$?\s*\d+(?:\.\d{1,2})?\s+(.+?)(?:\s+(today|yesterday))?$/i
+  ];
+
+  if (
+    /\bearned\s+(?:extra\s+)?income\s+of\s+\$?\s*\d+(?:\.\d{1,2})?/i.test(text)
+  ) {
+    return "extra income";
+  }
+
+  if (/\bgot paid\s+\$?\s*\d+(?:\.\d{1,2})?/i.test(text)) {
+    return "paycheck";
+  }
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+
+  if (/\bbonus\b/i.test(text)) return "bonus";
+  if (/\brefund\b/i.test(text)) return "refund";
+  if (/\breimbursement\b/i.test(text)) return "reimbursement";
+  if (/\bpaycheck\b/i.test(text)) return "paycheck";
+  if (/\bsalary\b/i.test(text)) return "salary";
+  if (/\bfreelance\b/i.test(text)) return "freelance";
+  if (/\bcommission\b/i.test(text)) return "commission";
+  if (/\bincome\b/i.test(text)) return "income";
+
+  return "income";
+}
+
+/**
+ * ============================================================================
+ * DETERMINISTIC NOTES HELPERS
+ * ============================================================================
+ */
+
+function extractDirectCreateNote(message = "") {
+  const text = String(message).trim();
+
+  const patterns = [
+    /\bcreate\s+a\s+note\s+called\s+(.+?)\s+with\s+(.+)$/i,
+    /\bcreate\s+a\s+note\s+named\s+(.+?)\s+with\s+(.+)$/i,
+    /\bsave\s+a\s+note\s+called\s+(.+?)\s+with\s+(.+)$/i,
+    /\bmake\s+a\s+note\s+titled\s+(.+?)\s+with\s+(.+)$/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match?.[1] && match?.[2]) {
+      return {
+        title: stripTrailingPunctuation(match[1]),
+        content: stripTrailingPunctuation(match[2])
+      };
+    }
+  }
+
+  return null;
+}
+
+function extractDirectReplaceNoteUpdate(message = "") {
+  const text = String(message).trim();
+
+  const patterns = [
+    /\bupdate\s+my\s+note\s+(.+?)\s+and\s+change\s+the\s+content\s+to\s+(.+)$/i,
+    /\bedit\s+my\s+note\s+(.+?)\s+and\s+replace\s+the\s+content\s+with\s+(.+)$/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match?.[1] && match?.[2]) {
+      return {
+        title: stripTrailingPunctuation(match[1]),
+        content: stripTrailingPunctuation(match[2]),
+        mode: "replace"
+      };
+    }
+  }
+
+  return null;
+}
+
+function extractDirectRenameNote(message = "") {
+  const text = String(message).trim();
+
+  const patterns = [
+    /\brename\s+my\s+note\s+(.+?)\s+to\s+(.+)$/i,
+    /\bchange\s+the\s+title\s+of\s+my\s+note\s+(.+?)\s+to\s+(.+)$/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match?.[1] && match?.[2]) {
+      return {
+        title: stripTrailingPunctuation(match[1]),
+        newTitle: stripTrailingPunctuation(match[2])
+      };
+    }
+  }
+
+  return null;
+}
+
+function extractDirectAppendNote(message = "") {
+  const text = String(message).trim();
+
+  const patterns = [
+    /\badd\s+(.+?)\s+to\s+my\s+note\s+(.+)$/i,
+    /\bappend\s+(.+?)\s+to\s+my\s+note\s+(.+)$/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match?.[1] && match?.[2]) {
+      return {
+        title: stripTrailingPunctuation(match[2]),
+        content: stripTrailingPunctuation(match[1]),
+        mode: "append"
+      };
+    }
+  }
+
+  return null;
 }
 
 /**
@@ -2010,6 +3036,12 @@ async function tryHandleDeterministicNotes(latestUserMessage, user, history) {
   return null;
 }
 
+/**
+ * ============================================================================
+ * DETERMINISTIC SCHEDULER HANDLERS
+ * ============================================================================
+ */
+
 async function tryHandleDeterministicScheduler(
   latestUserMessage,
   user,
@@ -2100,6 +3132,379 @@ async function tryHandleDeterministicScheduler(
 
 /**
  * ============================================================================
+ * DETERMINISTIC HEALTH HANDLERS
+ * ============================================================================
+ */
+
+async function tryHandleDeterministicHealth(latestUserMessage, user, history) {
+
+  const recent = getRecentHealthContext(user.id);
+
+const directFoodCorrection = extractDirectFoodCorrection(latestUserMessage);
+const directEditFoodCalories = extractDirectEditFoodCalories(latestUserMessage);
+
+if (
+  directFoodCorrection &&
+  recent?.lastAction === "log_food" &&
+  recent?.dietName &&
+  recent?.foodName
+) {
+  const ai = {
+    type: "action",
+    name: "update_food",
+    params: {
+      dietName: recent.dietName,
+      name: recent.foodName,
+      meal: recent.meal,
+      calories: directFoodCorrection.calories
+    }
+  };
+
+  const result = await actionRouter.execute(ai, user);
+
+  if (shouldTrackPendingUpdateFood(result?.content)) {
+    const pendingUpdateFood = buildPendingUpdateFoodFromActionReply(
+      result.content,
+      ai.params
+    );
+
+    if (pendingUpdateFood) {
+      pendingActions.set(user.id, pendingUpdateFood);
+    }
+
+    history.push(result);
+    return result;
+  }
+
+  if (result?.role === "assistant") {
+    setRecentHealthContext(user.id, {
+      lastAction: "update_food",
+      dietName: recent.dietName,
+      meal: recent.meal,
+      foodName: recent.foodName,
+      calories: directFoodCorrection.calories
+    });
+  }
+
+  history.push(buildActionHistoryEntry(ai));
+  return result;
+}
+
+if (
+  directEditFoodCalories &&
+  recent?.dietName
+) {
+  const ai = {
+    type: "action",
+    name: "update_food",
+    params: {
+      dietName: recent.dietName,
+      name: directEditFoodCalories.name,
+      ...(directEditFoodCalories.meal
+        ? { meal: directEditFoodCalories.meal }
+        : {}),
+      calories: directEditFoodCalories.calories
+    }
+  };
+
+  const result = await actionRouter.execute(ai, user);
+
+  if (shouldTrackPendingUpdateFood(result?.content)) {
+    const pendingUpdateFood = buildPendingUpdateFoodFromActionReply(
+      result.content,
+      ai.params
+    );
+
+    if (pendingUpdateFood) {
+      pendingActions.set(user.id, pendingUpdateFood);
+    }
+
+    history.push(result);
+    return result;
+  }
+
+  if (result?.role === "assistant") {
+    setRecentHealthContext(user.id, {
+      lastAction: "update_food",
+      dietName: recent.dietName,
+      foodName: directEditFoodCalories.name,
+      calories: directEditFoodCalories.calories
+    });
+  }
+
+  history.push(buildActionHistoryEntry(ai));
+  return result;
+}
+
+
+  const directChangeFitnessInfo = extractDirectChangeFitnessInfo(latestUserMessage);
+
+  if (directChangeFitnessInfo) {
+    const ai = {
+      type: "action",
+      name: "change_info",
+      params: directChangeFitnessInfo
+    };
+
+    const result = await actionRouter.execute(ai, user);
+    history.push(buildActionHistoryEntry(ai));
+    return result;
+  }
+
+  const directDeleteDiet = extractDirectDeleteDiet(latestUserMessage);
+
+  if (directDeleteDiet?.name) {
+    const ai = {
+      type: "action",
+      name: "delete_diet",
+      params: directDeleteDiet
+    };
+
+    const result = await actionRouter.execute(ai, user);
+
+    if (shouldTrackPendingDeleteDiet(result?.content)) {
+      let pendingDeleteDiet = buildPendingDeleteDietFromActionReply(
+        result.content,
+        user.id
+      );
+
+      if (pendingDeleteDiet) {
+        pendingDeleteDiet = await hydratePendingDeleteDietCandidates(
+          pendingDeleteDiet,
+          user
+        );
+        pendingActions.set(user.id, pendingDeleteDiet);
+      }
+
+      history.push(result);
+      return result;
+    }
+
+    history.push(buildActionHistoryEntry(ai));
+    return result;
+  }
+
+  const directCreateDiet = extractDirectCreateDiet(latestUserMessage);
+  if (directCreateDiet?.name) {
+    const ai = {
+      type: "action",
+      name: "create_diet",
+      params: {
+        name: directCreateDiet.name,
+        ...(directCreateDiet.description
+          ? { description: directCreateDiet.description }
+          : {})
+      }
+    };
+
+    const result = await actionRouter.execute(ai, user);
+
+    if (
+      result?.role === "assistant" &&
+      !/already exists/i.test(result.content || "")
+    ) {
+      setRecentHealthContext(user.id, {
+        lastAction: "create_diet",
+        dietName: ai.params.name
+      });
+    }
+
+    history.push(buildActionHistoryEntry(ai));
+    return result;
+  }
+
+  if (isCreateDietStarter(latestUserMessage)) {
+    const pending = {
+      name: "create_diet",
+      params: {},
+      missingFields: ["name"]
+    };
+
+    pendingActions.set(user.id, pending);
+
+    const reply = {
+      role: "assistant",
+      content: getNextMissingDietQuestion()
+    };
+
+    history.push(reply);
+    return reply;
+  }
+
+  const directLogFood = extractDirectLogFood(latestUserMessage);
+
+  if (
+    directLogFood?.dietName &&
+    directLogFood?.name &&
+    directLogFood?.meal &&
+    Number.isFinite(directLogFood?.calories)
+  ) {
+    const ai = {
+      type: "action",
+      name: "log_food",
+      params: directLogFood
+    };
+
+    const result = await actionRouter.execute(ai, user);
+
+    if (result?.role === "assistant") {
+      setRecentHealthContext(user.id, {
+        lastAction: "log_food",
+        dietName: ai.params?.dietName,
+        meal: ai.params?.meal,
+        foodName: ai.params?.name,
+        calories: ai.params?.calories
+      });
+    }
+
+    history.push(buildActionHistoryEntry(ai));
+    return result;
+  }
+
+  const contextualLogFood = extractContextualLogFood(latestUserMessage, recent);
+
+  if (contextualLogFood) {
+    const mergedParams = {
+      ...(contextualLogFood.dietName
+        ? { dietName: contextualLogFood.dietName }
+        : {}),
+      ...(contextualLogFood.meal ? { meal: contextualLogFood.meal } : {}),
+      ...(contextualLogFood.name ? { name: contextualLogFood.name } : {}),
+      ...(Number.isFinite(contextualLogFood.calories)
+        ? { calories: contextualLogFood.calories }
+        : {}),
+      ...(contextualLogFood.protein !== undefined
+        ? { protein: contextualLogFood.protein }
+        : {}),
+      ...(contextualLogFood.carbs !== undefined
+        ? { carbs: contextualLogFood.carbs }
+        : {}),
+      ...(contextualLogFood.fat !== undefined
+        ? { fat: contextualLogFood.fat }
+        : {}),
+      ...(contextualLogFood.sugar !== undefined
+        ? { sugar: contextualLogFood.sugar }
+        : {})
+    };
+
+    if (
+      mergedParams.dietName &&
+      mergedParams.name &&
+      mergedParams.meal &&
+      Number.isFinite(mergedParams.calories)
+    ) {
+      const ai = {
+        type: "action",
+        name: "log_food",
+        params: mergedParams
+      };
+
+      const result = await actionRouter.execute(ai, user);
+
+      if (result?.role === "assistant") {
+        setRecentHealthContext(user.id, {
+          lastAction: "log_food",
+          dietName: ai.params?.dietName,
+          meal: ai.params?.meal,
+          foodName: ai.params?.name,
+          calories: ai.params?.calories
+        });
+      }
+
+      history.push(buildActionHistoryEntry(ai));
+      return result;
+    }
+
+    const pending = {
+      name: "log_food",
+      params: mergedParams,
+      missingFields: getMissingLogFoodFields(mergedParams),
+      recentContext: recent
+    };
+
+    pendingActions.set(user.id, pending);
+
+    const reply = {
+      role: "assistant",
+      content: getNextMissingLogFoodQuestion(pending.params)
+    };
+
+    history.push(reply);
+    return reply;
+  }
+
+  const partialLogFood = extractPartialLogFood(latestUserMessage);
+
+  if (partialLogFood) {
+    const mergedPartial = {
+      ...(partialLogFood.dietName
+        ? { dietName: partialLogFood.dietName }
+        : recent?.dietName
+        ? { dietName: recent.dietName }
+        : {}),
+      ...(partialLogFood.meal
+        ? { meal: partialLogFood.meal }
+        : recent?.meal
+        ? { meal: recent.meal }
+        : {}),
+      ...(partialLogFood.name ? { name: partialLogFood.name } : {}),
+      ...(Number.isFinite(partialLogFood.calories)
+        ? { calories: partialLogFood.calories }
+        : {}),
+      ...(partialLogFood.protein !== undefined
+        ? { protein: partialLogFood.protein }
+        : {}),
+      ...(partialLogFood.carbs !== undefined
+        ? { carbs: partialLogFood.carbs }
+        : {}),
+      ...(partialLogFood.fat !== undefined ? { fat: partialLogFood.fat } : {}),
+      ...(partialLogFood.sugar !== undefined
+        ? { sugar: partialLogFood.sugar }
+        : {})
+    };
+
+    const pending = {
+      name: "log_food",
+      params: mergedPartial,
+      missingFields: getMissingLogFoodFields(mergedPartial),
+      recentContext: recent
+    };
+
+    pendingActions.set(user.id, pending);
+
+    const reply = {
+      role: "assistant",
+      content: getNextMissingLogFoodQuestion(pending.params)
+    };
+
+    history.push(reply);
+    return reply;
+  }
+
+  const directPresetMeal = extractDirectCreatePresetMeal(latestUserMessage);
+
+  if (
+    directPresetMeal?.dietName &&
+    directPresetMeal?.name &&
+    directPresetMeal?.meal &&
+    Number.isFinite(directPresetMeal?.calories)
+  ) {
+    const ai = {
+      type: "action",
+      name: "create_preset_meal",
+      params: directPresetMeal
+    };
+
+    const result = await actionRouter.execute(ai, user);
+    history.push(buildActionHistoryEntry(ai));
+    return result;
+  }
+
+  return null;
+}
+
+/**
+ * ============================================================================
  * MAIN ORCHESTRATION
  * ============================================================================
  *
@@ -2112,8 +3517,9 @@ async function tryHandleDeterministicScheduler(
  * 6. deterministic income parsing
  * 7. deterministic expense parsing
  * 8. deterministic notes parsing
- * 9. deterministic scheduler parsing
- * 10. OpenAI fallback
+ * 9. deterministic health parsing
+ * 10. deterministic scheduler parsing
+ * 11. OpenAI fallback
  */
 
 async function runChatbot(messages, user, context = {}) {
@@ -2142,7 +3548,6 @@ async function runChatbot(messages, user, context = {}) {
 
   /**
    * Stage 1: pending ambiguity continuation
-   * Preserve multi-turn ambiguity handling, including `supplies`.
    */
   if (pending?.type === "budget_ambiguity") {
     const resolvedParams = tryResolveAmbiguousPendingChoice(
@@ -2372,6 +3777,221 @@ async function runChatbot(messages, user, context = {}) {
   }
 
   /**
+   * Stage 5.25: pending delete-diet disambiguation
+   */
+  if (pending && pending.name === "delete_diet" && pending.meta?.needsResolution) {
+    const candidates = pending.meta?.candidates || [];
+    const resolvedCandidate = parseDeleteDietChoiceFromMessage(
+      latestUserMessage,
+      candidates
+    );
+
+    if (!resolvedCandidate) {
+      const options = candidates
+        .map((candidate, index) => {
+          const createdAtDate = new Date(candidate.createdAt);
+          const label = Number.isNaN(createdAtDate.getTime())
+            ? candidate.name
+            : `${candidate.name} — created ${createdAtDate.toLocaleString(
+                "en-US",
+                {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                  hour: "numeric",
+                  minute: "2-digit",
+                  hour12: true
+                }
+              )}`;
+
+          return `${index + 1}. ${label}`;
+        })
+        .join(" ");
+
+      const reply = {
+        role: "assistant",
+        content: `I found multiple diets named "${pending.params.name}". Which one would you like to delete? ${options}`
+      };
+
+      history.push(reply);
+      pendingActions.set(user.id, pending);
+      return replyCleanup(user.id, reply);
+    }
+
+    pendingActions.delete(user.id);
+
+    const healthService = require("./health.service");
+    await healthService.deleteDiet(resolvedCandidate.id);
+
+    const reply = {
+      role: "assistant",
+      content: `The diet "${resolvedCandidate.name}" has been deleted.`
+    };
+
+    history.push(reply);
+    return replyCleanup(user.id, reply);
+  }
+
+    /**
+   * Stage 5.5: pending health continuation
+   */
+  if (pending && pending.name === "create_diet") {
+    fillPendingDietField(pending, latestUserMessage);
+
+    if (pending.missingFields.length > 0) {
+      const reply = {
+        role: "assistant",
+        content: getNextMissingDietQuestion()
+      };
+
+      history.push(reply);
+      pendingActions.set(user.id, pending);
+      return replyCleanup(user.id, reply);
+    }
+
+    const ai = {
+      type: "action",
+      name: "create_diet",
+      params: pending.params
+    };
+
+    pendingActions.delete(user.id);
+
+    const result = await actionRouter.execute(ai, user);
+
+    if (
+      result?.role === "assistant" &&
+      !/already exists/i.test(result.content || "")
+    ) {
+      setRecentHealthContext(user.id, {
+        lastAction: "create_diet",
+        dietName: ai.params?.name || pending.params?.name
+      });
+    }
+
+    history.push(buildActionHistoryEntry(ai));
+    return replyCleanup(user.id, result);
+  }
+
+  if (shouldResetPendingLogFood(pending, latestUserMessage)) {
+    pendingActions.delete(user.id);
+    pending = null;
+  }
+
+  if (pending && pending.name === "log_food") {
+    fillPendingLogFoodField(pending, latestUserMessage);
+
+    if (pending.missingFields.length > 0) {
+      const reply = {
+        role: "assistant",
+        content: getNextMissingLogFoodQuestion(pending.params)
+      };
+
+      history.push(reply);
+      pendingActions.set(user.id, pending);
+      return replyCleanup(user.id, reply);
+    }
+
+    let ai = {
+      type: "action",
+      name: "log_food",
+      params: pending.params
+    };
+
+    ai = sanitizeHealthAction(ai);
+
+    pendingActions.delete(user.id);
+
+    const result = await actionRouter.execute(ai, user);
+
+    if (result?.role === "assistant") {
+      setRecentHealthContext(user.id, {
+        lastAction: "log_food",
+        dietName: ai.params?.dietName,
+        meal: ai.params?.meal,
+        foodName: ai.params?.name,
+        calories: ai.params?.calories
+      });
+    }
+
+    history.push(buildActionHistoryEntry(ai));
+    return replyCleanup(user.id, result);
+  }
+
+    if (shouldResetPendingUpdateFood(pending, latestUserMessage)) {
+    pendingActions.delete(user.id);
+    pending = null;
+  }
+  
+    if (pending && pending.name === "update_food") {
+    const mealCandidate = normalizeDietMealValue(latestUserMessage);
+
+    if (["BREAKFAST", "LUNCH", "DINNER", "SNACKS"].includes(mealCandidate)) {
+      pending.params.meal = mealCandidate;
+      pending.missingFields = [];
+    } else {
+      const embeddedMealMatch = String(latestUserMessage || "").match(
+        /\b(breakfast|lunch|dinner|snack|snacks)\b/i
+      );
+
+      if (embeddedMealMatch?.[1]) {
+        pending.params.meal = normalizeDietMealValue(embeddedMealMatch[1]);
+        pending.missingFields = [];
+      }
+    }
+
+    if (pending.missingFields.length > 0) {
+      const reply = {
+        role: "assistant",
+        content: "Please specify the meal."
+      };
+
+      history.push(reply);
+      pendingActions.set(user.id, pending);
+      return replyCleanup(user.id, reply);
+    }
+
+    let ai = {
+      type: "action",
+      name: "update_food",
+      params: pending.params
+    };
+
+    ai = sanitizeHealthAction(ai);
+
+    pendingActions.delete(user.id);
+
+    const result = await actionRouter.execute(ai, user);
+
+    if (shouldTrackPendingUpdateFood(result?.content)) {
+      const pendingUpdateFood = buildPendingUpdateFoodFromActionReply(
+        result.content,
+        ai.params
+      );
+
+      if (pendingUpdateFood) {
+        pendingActions.set(user.id, pendingUpdateFood);
+      }
+
+      history.push(result);
+      return replyCleanup(user.id, result);
+    }
+
+    if (result?.role === "assistant") {
+      setRecentHealthContext(user.id, {
+        lastAction: "update_food",
+        dietName: ai.params?.dietName,
+        meal: ai.params?.meal,
+        foodName: ai.params?.name,
+        calories: ai.params?.calories
+      });
+    }
+
+    history.push(buildActionHistoryEntry(ai));
+    return replyCleanup(user.id, result);
+  }
+
+  /**
    * Stage 6: deterministic income parsing
    */
   const deterministicIncomeResult = await tryHandleDeterministicIncome(
@@ -2411,7 +4031,20 @@ async function runChatbot(messages, user, context = {}) {
   }
 
   /**
-   * Stage 9: deterministic scheduler parsing
+   * Stage 9: deterministic health parsing
+   */
+  const deterministicHealthResult = await tryHandleDeterministicHealth(
+    latestUserMessage,
+    user,
+    history
+  );
+
+  if (deterministicHealthResult) {
+    return replyCleanup(user.id, deterministicHealthResult);
+  }
+
+  /**
+   * Stage 10: deterministic scheduler parsing
    */
   const deterministicSchedulerResult = await tryHandleDeterministicScheduler(
     latestUserMessage,
@@ -2425,7 +4058,7 @@ async function runChatbot(messages, user, context = {}) {
   }
 
   /**
-   * Stage 10: OpenAI fallback
+   * Stage 11: OpenAI fallback
    */
   const response = await openai.responses.create({
     model: "gpt-4o-mini",
@@ -2510,6 +4143,21 @@ async function runChatbot(messages, user, context = {}) {
       }
     }
 
+    if (shouldTrackPendingDeleteDiet(reply.content)) {
+      let pendingDeleteDiet = buildPendingDeleteDietFromActionReply(
+        reply.content,
+        user.id
+      );
+
+      if (pendingDeleteDiet) {
+        pendingDeleteDiet = await hydratePendingDeleteDietCandidates(
+          pendingDeleteDiet,
+          user
+        );
+        pendingActions.set(user.id, pendingDeleteDiet);
+      }
+    }
+
     history.push(reply);
     return replyCleanup(user.id, reply);
   }
@@ -2517,6 +4165,7 @@ async function runChatbot(messages, user, context = {}) {
   if (ai.type === "action") {
     ai = sanitizeExpenseAction(ai, latestUserMessage);
     ai = sanitizeIncomeAction(ai, latestUserMessage);
+    ai = sanitizeHealthAction(ai);
     ai = sanitizeSchedulerAction(ai, latestUserMessage, context);
 
     if (ai.name === "add_expense") {
@@ -2572,6 +4221,33 @@ async function runChatbot(messages, user, context = {}) {
       return replyCleanup(user.id, result);
     }
 
+    if (ai.name === "delete_diet") {
+      pendingActions.delete(user.id);
+
+      const result = await actionRouter.execute(ai, user);
+
+      if (shouldTrackPendingDeleteDiet(result?.content)) {
+        let pendingDeleteDiet = buildPendingDeleteDietFromActionReply(
+          result.content,
+          user.id
+        );
+
+        if (pendingDeleteDiet) {
+          pendingDeleteDiet = await hydratePendingDeleteDietCandidates(
+            pendingDeleteDiet,
+            user
+          );
+          pendingActions.set(user.id, pendingDeleteDiet);
+        }
+
+        history.push(result);
+        return replyCleanup(user.id, result);
+      }
+
+      history.push(buildActionHistoryEntry(ai));
+      return replyCleanup(user.id, result);
+    }
+
     if (ai.name === "create_event") {
       pendingActions.delete(user.id);
 
@@ -2600,6 +4276,77 @@ async function runChatbot(messages, user, context = {}) {
         history.push(reply);
         return replyCleanup(user.id, reply);
       }
+    }
+
+    if (ai.name === "create_diet") {
+      pendingActions.delete(user.id);
+
+      const result = await actionRouter.execute(ai, user);
+
+      if (
+        result?.role === "assistant" &&
+        !/already exists/i.test(result.content || "")
+      ) {
+        setRecentHealthContext(user.id, {
+          lastAction: "create_diet",
+          dietName: ai.params?.name || pending?.params?.name
+        });
+      }
+
+      history.push(buildActionHistoryEntry(ai));
+      return replyCleanup(user.id, result);
+    }
+
+    if (ai.name === "log_food") {
+      pendingActions.delete(user.id);
+
+      const result = await actionRouter.execute(ai, user);
+
+      if (result?.role === "assistant") {
+        setRecentHealthContext(user.id, {
+          lastAction: "log_food",
+          dietName: ai.params?.dietName,
+          meal: ai.params?.meal,
+          foodName: ai.params?.name,
+          calories: ai.params?.calories
+        });
+      }
+
+      history.push(buildActionHistoryEntry(ai));
+      return replyCleanup(user.id, result);
+    }
+
+        if (ai.name === "update_food") {
+      pendingActions.delete(user.id);
+
+      const result = await actionRouter.execute(ai, user);
+
+      if (shouldTrackPendingUpdateFood(result?.content)) {
+        const pendingUpdateFood = buildPendingUpdateFoodFromActionReply(
+          result.content,
+          ai.params
+        );
+
+        if (pendingUpdateFood) {
+          pendingActions.set(user.id, pendingUpdateFood);
+        }
+
+        history.push(result);
+        return replyCleanup(user.id, result);
+      }
+
+      if (result?.role === "assistant") {
+        setRecentHealthContext(user.id, {
+          lastAction: "update_food",
+          dietName: ai.params?.dietName,
+          meal: ai.params?.meal,
+          foodName: ai.params?.name,
+          calories: ai.params?.calories
+        });
+      }
+
+      history.push(buildActionHistoryEntry(ai));
+      return replyCleanup(user.id, result);
     }
 
     const result = await actionRouter.execute(ai, user);

@@ -43,6 +43,9 @@ function AppSprout() {
       });
 
       window.dispatchEvent(new Event('eventsUpdated'));
+    } else if (location.pathname === '/diet') {
+      reply = await sendChatMessage(message);
+      window.dispatchEvent(new Event('dietDataUpdated'));
     } else {
       reply = await sendChatMessage(message);
     }

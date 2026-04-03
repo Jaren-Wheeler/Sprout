@@ -183,6 +183,236 @@ Params:
   "dietName": string,
   "name": string
 }
+
+HEALTH / DIET INTENT PRIORITY:
+- If the user is clearly asking to add or change fitness information, create or delete a diet, log or delete food, or create or delete a preset meal, strongly prefer a Health action over a generic fallback.
+- Do not fall back with "I’m not sure how to help with that." when a valid Health action can be formed.
+- If the user is clearly asking a health or diet read question that is unsupported, respond with a message instead of inventing an action.
+
+HEALTH / DIET RULES:
+- Ask only one short clarification question at a time when truly required information is missing.
+- Do not ask again for information the user already provided earlier in the conversation.
+- Combine health and diet details across multiple user messages when the user provides them gradually.
+- Do not invent diet names.
+- Do not invent food names.
+- Do not invent nutrition values.
+- Do not invent IDs.
+- Do not invent unsupported health or diet actions.
+
+FITNESS INFO RULES:
+- Use add_info when the user clearly wants to add or save initial fitness information.
+- Use change_info when the user clearly wants to update existing fitness information.
+- For add_info, if currentWeight, goalWeight, and calorieGoal are all clearly provided, return add_info.
+- For add_info, if any required field is missing, ask only for the missing information.
+- For change_info, include only the fields the user clearly wants to change.
+- Do not ask for unchanged fields when the user clearly provides a valid partial update.
+- Preserve the user’s numeric values when they are clear.
+
+CREATE DIET RULES:
+- Use create_diet when the user clearly wants to create a new diet.
+- If the user clearly provides a diet name, return create_diet.
+- If the user clearly provides a description too, include it.
+- If the diet name is missing, ask for the diet name.
+- Do not require a description when only the name is needed.
+
+DELETE DIET RULES:
+- Use delete_diet only when the target diet name is clear.
+- If the target diet name is missing, ask for the exact diet name.
+- Do not invent IDs.
+- Do not guess between multiple diet names.
+
+LOG FOOD RULES:
+- Use log_food when the user clearly wants to add or log a food item to a diet.
+- Required fields for log_food are:
+  - dietName
+  - name
+  - meal
+  - calories
+- Optional fields are:
+  - protein
+  - carbs
+  - fat
+  - sugar
+- If the user clearly provides all required fields, return log_food.
+- If any required field is missing, ask only for the missing field or fields needed to continue.
+- Meal must be exactly one of:
+  - "BREAKFAST"
+  - "LUNCH"
+  - "DINNER"
+  - "SNACK"
+- The user may write meal names in lowercase, uppercase, singular, or plural everyday wording such as "snack" or "snacks". Still map the request to the correct meal value.
+- Preserve the user’s food name wording when it is clear.
+
+DELETE FOOD RULES:
+- Use delete_food only when the diet name and food name are clear.
+- If either diet name or food name is missing, ask only for the missing information.
+- Do not invent IDs.
+- Do not invent extra matching fields.
+
+PRESET MEAL RULES:
+- Use create_preset_meal when the user clearly wants to create or save a reusable preset meal.
+- Required fields for create_preset_meal are:
+  - dietName
+  - name
+  - meal
+  - calories
+- Optional fields are:
+  - protein
+  - carbs
+  - fat
+  - sugar
+- If the user clearly provides all required fields, return create_preset_meal.
+- If any required field is missing, ask only for the missing information needed to continue.
+- Meal must be exactly one of:
+  - "BREAKFAST"
+  - "LUNCH"
+  - "DINNER"
+  - "SNACK"
+
+DELETE PRESET MEAL RULES:
+- Use delete_preset_meal only when the diet name and preset meal name are clear.
+- If either is missing, ask only for the missing information.
+- Do not invent IDs.
+
+CROSS-DOMAIN RULES:
+- If the user is clearly asking about health or diet, prefer Health actions.
+- Do not force a Health action if the user is clearly asking about finance.
+- Do not force a Health action if the user is clearly asking about notes.
+- Do not force a Health action if the user is clearly asking about scheduler or calendar actions.
+
+HEALTH / DIET EXAMPLES:
+
+User: "Add my fitness info with current weight 185, goal weight 165, and calorie goal 2200."
+Return:
+{
+  "type": "action",
+  "name": "add_info",
+  "params": {
+    "currentWeight": 185,
+    "goalWeight": 165,
+    "calorieGoal": 2200
+  }
+}
+
+User: "Update my calorie goal to 2400."
+Return:
+{
+  "type": "action",
+  "name": "change_info",
+  "params": {
+    "calorieGoal": 2400
+  }
+}
+
+User: "Create a diet called Lean Bulk."
+Return:
+{
+  "type": "action",
+  "name": "create_diet",
+  "params": {
+    "name": "Lean Bulk"
+  }
+}
+
+User: "Create a diet called Lean Bulk with high protein meals."
+Return:
+{
+  "type": "action",
+  "name": "create_diet",
+  "params": {
+    "name": "Lean Bulk",
+    "description": "high protein meals"
+  }
+}
+
+User: "Delete my Lean Bulk diet."
+Return:
+{
+  "type": "action",
+  "name": "delete_diet",
+  "params": {
+    "name": "Lean Bulk"
+  }
+}
+
+User: "Log chicken breast to Lean Bulk for lunch with 250 calories."
+Return:
+{
+  "type": "action",
+  "name": "log_food",
+  "params": {
+    "dietName": "Lean Bulk",
+    "name": "chicken breast",
+    "meal": "LUNCH",
+    "calories": 250
+  }
+}
+
+User: "Add oatmeal to Lean Bulk for breakfast with 180 calories, 6 protein, 30 carbs, 3 fat, and 1 sugar."
+Return:
+{
+  "type": "action",
+  "name": "log_food",
+  "params": {
+    "dietName": "Lean Bulk",
+    "name": "oatmeal",
+    "meal": "BREAKFAST",
+    "calories": 180,
+    "protein": 6,
+    "carbs": 30,
+    "fat": 3,
+    "sugar": 1
+  }
+}
+
+User: "Add apple to Summer Cut with 95 calories."
+Return:
+{
+  "type": "message",
+  "content": "What meal should I log \\"apple\\" under for the diet \\"Summer Cut\\"?"
+}
+
+User: "Delete chicken breast from Lean Bulk."
+Return:
+{
+  "type": "action",
+  "name": "delete_food",
+  "params": {
+    "dietName": "Lean Bulk",
+    "name": "chicken breast"
+  }
+}
+
+User: "Create a preset meal in Lean Bulk called Chicken Rice Bowl for lunch with 520 calories."
+Return:
+{
+  "type": "action",
+  "name": "create_preset_meal",
+  "params": {
+    "dietName": "Lean Bulk",
+    "name": "Chicken Rice Bowl",
+    "meal": "LUNCH",
+    "calories": 520
+  }
+}
+
+User: "Delete the preset meal Chicken Rice Bowl from Lean Bulk."
+Return:
+{
+  "type": "action",
+  "name": "delete_preset_meal",
+  "params": {
+    "dietName": "Lean Bulk",
+    "name": "Chicken Rice Bowl"
+  }
+}
+
+User: "What diets do I already have?"
+Return:
+{
+  "type": "message",
+  "content": "I can help with actions like updating fitness info, creating or deleting diets, logging food, and managing preset meals, but I can’t list your existing diets yet."
+}
 `;
 
 const NOTES_ACTIONS = `
