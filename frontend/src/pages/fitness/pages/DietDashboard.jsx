@@ -84,9 +84,6 @@ export default function DietDashboard() {
                 <div>
                   <span className="sprout-page-kicker">Nutrition tracker</span>
                   <h1 className="sprout-page-title">Diet Journal</h1>
-                  <p className="sprout-page-description">
-                    Cleaner tracking for meals, macros, and progress, with a softer paper-board feel instead of a busy backdrop.
-                  </p>
                 </div>
               </div>
             </section>
