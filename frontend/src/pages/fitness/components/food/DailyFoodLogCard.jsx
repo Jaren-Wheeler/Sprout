@@ -7,7 +7,7 @@ import FoodItem from './FoodItem';
 import { format } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const MEALS = ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACKS'];
+const MEALS = ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK'];
 
 export default function DailyFoodLogCard({
   diet,
@@ -173,6 +173,5 @@ export default function DailyFoodLogCard({
         )}
       </div>
     </div>
-   
   );
 }
