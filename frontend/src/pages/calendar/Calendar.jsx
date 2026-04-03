@@ -68,9 +68,7 @@ export default function CalendarPage() {
                 <div className="max-w-xl">
                   <span className="sprout-page-kicker">Planning board</span>
                   <h1 className="sprout-page-title">Calendar</h1>
-                  <p className="sprout-page-description">
-                    Plan your days with clarity. No clutter. Just what matters.
-                  </p>
+                 
                 </div>
 
                 {/* RIGHT SIDE */}

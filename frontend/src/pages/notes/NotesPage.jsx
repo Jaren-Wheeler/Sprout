@@ -117,10 +117,6 @@ export default function NotesPage() {
                 <div>
                   <span className="sprout-page-kicker">Notes hub</span>
                   <h1 className="sprout-page-title">My Notes</h1>
-                  <p className="sprout-page-description">
-                    A cleaner workspace for quick capture, loose ideas, and
-                    drafts that still feel pinned to paper.
-                  </p>
                 </div>
               </div>
             </section>

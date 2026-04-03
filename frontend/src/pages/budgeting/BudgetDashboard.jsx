@@ -125,10 +125,6 @@ export default function BudgetDashboard({
           <div>
             <span className="sprout-page-kicker">Financial snapshot</span>
             <h1 className="sprout-page-title">Budget</h1>
-            <p className="sprout-page-description">
-              Track spending, compare categories, and keep your money view tidy
-              without losing the handmade warmth.
-            </p>
           </div>
         </div>
       </section>
