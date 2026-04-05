@@ -3,7 +3,18 @@ const userService = require("../services/user.service");
 const UserController = {
 
   async getProfile(req, res, next) {
-   
+    try {
+      const userId = req.params.id ?? req.session.userId;
+      const user = await userService.getProfile(userId);
+
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      res.json(user);
+    } catch (error) {
+      next(error);
+    }
   },
 
   async deleteProfile(req, res, next) {

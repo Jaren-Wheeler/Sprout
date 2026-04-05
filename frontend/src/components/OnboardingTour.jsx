@@ -10,6 +10,8 @@ export default function OnboardingTour({ user, onComplete, setUser}) {
 
     if (!user) return;
     if (user.hasSeenOnboarding) return;
+    const userKey = user.id ?? user.uid;
+    if (!userKey) return;
 
     const createStep = (title, text) => ({
       popover: {
@@ -100,9 +102,13 @@ export default function OnboardingTour({ user, onComplete, setUser}) {
       ],
 
      onDestroyed: async () => {
-      localStorage.setItem(`hasSeenOnboarding_${user.uid}`, "true");
+      localStorage.setItem(`hasSeenOnboarding_${userKey}`, "true");
 
-      await completeOnboarding();
+      try {
+        await completeOnboarding();
+      } catch (error) {
+        console.error("Failed to persist onboarding completion", error);
+      }
 
       if (setUser) {
         setUser(prev => ({
@@ -120,7 +126,7 @@ export default function OnboardingTour({ user, onComplete, setUser}) {
       driverObj.drive();
     }, 300);
 
-  }, [user]);
+  }, [user, onComplete, setUser]);
 
   return null;
 }

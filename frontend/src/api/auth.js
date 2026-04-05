@@ -44,7 +44,7 @@ export const loginUser = (email, password) => {
  * Marks onboarding as completed for the user.
  */
 export const completeOnboarding = () => {
-  return apiFetch('/api/user/onboarding-complete', {
+  return apiFetch('/api/users/onboarding-complete', {
     method: 'PATCH',
   });
 };

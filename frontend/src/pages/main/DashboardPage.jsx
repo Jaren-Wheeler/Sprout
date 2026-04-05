@@ -21,7 +21,14 @@ export default function DashboardPage({ user, setUser }) {
   useEffect(() => {
     if (!user) return;
 
-    const localKey = `hasSeenOnboarding_${user.uid}`;
+    const userKey = user.id ?? user.uid;
+
+    if (!userKey) {
+      setShowTour(false);
+      return;
+    }
+
+    const localKey = `hasSeenOnboarding_${userKey}`;
     const hasSeenLocal = localStorage.getItem(localKey);
 
     if (!user.hasSeenOnboarding && !hasSeenLocal) {
@@ -32,7 +39,8 @@ export default function DashboardPage({ user, setUser }) {
   }, [user]);
 
   const handleTourComplete = () => {
-    const localKey = `hasSeenOnboarding_${user.uid}`;
+    const userKey = user?.id ?? user?.uid;
+    const localKey = `hasSeenOnboarding_${userKey}`;
     localStorage.setItem(localKey, "true");
     setShowTour(false);
   };
