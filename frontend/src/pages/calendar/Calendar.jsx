@@ -17,8 +17,17 @@ export default function CalendarPage() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    function handleEventsUpdated() {
+    function handleEventsUpdated(event) {
       loadEvents();
+
+      const startTime = event?.detail?.startTime;
+      if (!startTime) return;
+
+      const nextDate = new Date(startTime);
+      if (Number.isNaN(nextDate.getTime())) return;
+
+      setSelectedDate(nextDate);
+      setCurrentMonth(nextDate);
     }
 
     window.addEventListener('eventsUpdated', handleEventsUpdated);

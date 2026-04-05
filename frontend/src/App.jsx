@@ -28,32 +28,34 @@ function AppSprout() {
     return null;
   }
 
+  function buildChatContext() {
+    const now = new Date();
+
+    return {
+      clientNowIso: now.toISOString(),
+      clientLocalDate: `${now.getFullYear()}-${String(
+        now.getMonth() + 1
+      ).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`,
+      clientTimezoneOffsetMinutes: now.getTimezoneOffset(),
+    };
+  }
+
   async function handleSend(message) {
-    let reply;
+    const response = await sendChatMessage(message, buildChatContext());
 
-    if (location.pathname === '/calendar') {
-      const now = new Date();
-
-      reply = await sendChatMessage(message, {
-        clientNowIso: now.toISOString(),
-        clientLocalDate: `${now.getFullYear()}-${String(
-          now.getMonth() + 1
-        ).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`,
-        clientTimezoneOffsetMinutes: now.getTimezoneOffset(),
-      });
-
-      window.dispatchEvent(new Event('eventsUpdated'));
+    if (response?.featureUpdate?.feature === 'scheduler') {
+      window.dispatchEvent(
+        new CustomEvent('eventsUpdated', {
+          detail: response.featureUpdate,
+        })
+      );
     } else if (location.pathname === '/diet') {
-      reply = await sendChatMessage(message);
       window.dispatchEvent(new Event('dietDataUpdated'));
     } else if (location.pathname === '/notes') {
-      reply = await sendChatMessage(message);
       window.dispatchEvent(new Event('notesUpdated'));
-    } else {
-      reply = await sendChatMessage(message);
     }
 
-    return reply;
+    return response?.reply || 'Something went wrong.';
   }
 
   return <Sprout onSend={handleSend} />;

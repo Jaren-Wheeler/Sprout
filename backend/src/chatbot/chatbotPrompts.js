@@ -768,7 +768,7 @@ Params:
 }
 
 SCHEDULER INTENT PRIORITY:
-- If the user clearly asks to schedule, create, book, add, or delete a calendar event, meeting, or appointment, strongly prefer a Scheduler action over a generic fallback.
+- If the user clearly asks to schedule, create, book, add, log, remove, or delete a calendar event, meeting, or appointment, strongly prefer a Scheduler action over a generic fallback.
 - If the user clearly asks to schedule or delete an event, return the appropriate Scheduler action instead of a message.
 - Do not fall back with "I’m not sure how to help with that." when a valid Scheduler action can be formed.
 
@@ -793,6 +793,17 @@ Return:
   "params": {
     "title": "Team Meeting",
     "startTime": "tomorrow at 3 PM"
+  }
+}
+
+User: "Log an event called Team Meeting on Mar 2 at 3 PM."
+Return:
+{
+  "type": "action",
+  "name": "create_event",
+  "params": {
+    "title": "Team Meeting",
+    "startTime": "Mar 2 at 3 PM"
   }
 }
 
