@@ -60,6 +60,8 @@ const registerUser = async (fullName, email, password) => {
   return {
     id: user.id,
     email: user.email,
+    fullName: user.fullName,
+    hasSeenOnboarding: user.hasSeenOnboarding,
     createdAt: user.createdAt
   };
 };
@@ -99,6 +101,8 @@ const loginUser = async (email, password) => {
   return {
     id: user.id,
     email: user.email,
+    fullName: user.fullName,
+    hasSeenOnboarding: user.hasSeenOnboarding,
     createdAt: user.createdAt
   };
 };

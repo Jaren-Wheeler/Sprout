@@ -2,6 +2,9 @@
 const express = require('express');
 const router = express.Router();
 const UserController = require('../controllers/User.controller');
+const auth = require('../middleware/auth');
+
+router.use(auth);
 
 // This file should be for user profile functionality AFTER login. Login functionality handled by auth controller //
 
@@ -10,7 +13,7 @@ const UserController = require('../controllers/User.controller');
  * @desc Get logged-in user information
  * @access Private
  */
-router.get("/:id", UserController.getProfile);
+router.get("/me", UserController.getProfile);
 
 /**
  * @route DELETE api/scheduler/items/:id
@@ -32,6 +35,7 @@ router.put("/:id", UserController.editProfile);
  * @access Private
  */
 router.patch("/onboarding-complete", UserController.completeOnboarding);
+router.get("/:id", UserController.getProfile);
 
 
 module.exports = router;

@@ -67,7 +67,7 @@ export default function App() {
   useEffect(() => {
     async function loadUser() {
       try {
-        const data = await apiFetch('/api/user/me');
+        const data = await apiFetch('/api/users/me');
         setUser(data);
       } catch {
         setUser(null);
@@ -85,7 +85,7 @@ export default function App() {
         <Route path="/signup" element={<Signup setUser={setUser} />} />
         <Route
           path="/dashboard"
-          element={<DashboardPage user={user} setUser={user} />}
+          element={<DashboardPage user={user} setUser={setUser} />}
         />
         <Route path="/habitat" element={<Dashboard />} />
 

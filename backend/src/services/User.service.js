@@ -3,6 +3,18 @@
 const prisma = require("../clients/prisma.client");
 
 const userService = {
+  async getProfile(userId) {
+    return prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        hasSeenOnboarding: true,
+        createdAt: true,
+      },
+    });
+  },
 
   async completeOnboarding(userId) {
 
@@ -10,6 +22,13 @@ const userService = {
       where: { id: userId },
       data: {
         hasSeenOnboarding: true
+      },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        hasSeenOnboarding: true,
+        createdAt: true,
       }
     });
 
