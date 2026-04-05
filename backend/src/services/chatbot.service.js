@@ -2521,6 +2521,7 @@ function shouldResetPendingLogFood(pending, latestUserMessage) {
   if (extractDirectCreateDiet(text)) return true;
   if (isCreateDietStarter(text)) return true;
   if (extractDirectDeleteDiet(text)) return true;
+  if (looksLikeFreshSchedulerStart(text)) return true;
   if (extractDirectCreatePresetMeal(text)) return true;
   if (extractDirectLogFood(text)) return true;
 
@@ -2543,6 +2544,7 @@ function shouldResetPendingUpdateFood(pending, latestUserMessage) {
   if (extractDirectCreateDiet(text)) return true;
   if (isCreateDietStarter(text)) return true;
   if (extractDirectDeleteDiet(text)) return true;
+  if (looksLikeFreshSchedulerStart(text)) return true;
   if (extractDirectCreatePresetMeal(text)) return true;
   if (extractDirectLogFood(text)) return true;
   if (extractDirectEditFoodCalories(text)) return true;
