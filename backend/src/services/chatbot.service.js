@@ -22,6 +22,32 @@ const WEEKDAY_NAMES = [
   "friday",
   "saturday"
 ];
+const MONTH_NAME_TO_INDEX = {
+  january: 0,
+  jan: 0,
+  february: 1,
+  feb: 1,
+  march: 2,
+  mar: 2,
+  april: 3,
+  apr: 3,
+  may: 4,
+  june: 5,
+  jun: 5,
+  july: 6,
+  jul: 6,
+  august: 7,
+  aug: 7,
+  september: 8,
+  sept: 8,
+  sep: 8,
+  october: 9,
+  oct: 9,
+  november: 10,
+  nov: 10,
+  december: 11,
+  dec: 11
+};
 
 /**
  * ============================================================================
@@ -424,44 +450,48 @@ function buildIsoDateFromNaturalInput(value, context = {}) {
     return isoMatch[0];
   }
 
-  const slashMatch = lowered.match(/\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/);
+  const slashMatch = lowered.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/);
   if (slashMatch) {
-    const parsedSlash = new Date(slashMatch[0]);
-    if (!Number.isNaN(parsedSlash.getTime())) {
+    const month = Number(slashMatch[1]);
+    const day = Number(slashMatch[2]);
+    const explicitYear = slashMatch[3];
+    const year = explicitYear
+      ? explicitYear.length === 2
+        ? 2000 + Number(explicitYear)
+        : Number(explicitYear)
+      : now.getFullYear();
+
+    const parsedSlash = new Date(year, month - 1, day);
+    if (
+      !Number.isNaN(parsedSlash.getTime()) &&
+      parsedSlash.getFullYear() === year &&
+      parsedSlash.getMonth() === month - 1 &&
+      parsedSlash.getDate() === day
+    ) {
       return formatLocalDateIso(parsedSlash);
     }
   }
 
   const monthDateMatch = String(value).match(
-    /\b(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})(?:,\s*(\d{4}))?\b/i
+    /\b(january|jan|february|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)\s+(\d{1,2})(?:,\s*(\d{4}))?\b/i
   );
   if (monthDateMatch) {
     const [, monthName, dayText, explicitYear] = monthDateMatch;
     const fallbackYear = now.getFullYear();
     const year = explicitYear ? Number(explicitYear) : fallbackYear;
 
-    const monthMap = {
-      january: 0,
-      february: 1,
-      march: 2,
-      april: 3,
-      may: 4,
-      june: 5,
-      july: 6,
-      august: 7,
-      september: 8,
-      october: 9,
-      november: 10,
-      december: 11
-    };
-
     const parsedMonthDate = new Date(
       year,
-      monthMap[monthName.toLowerCase()],
+      MONTH_NAME_TO_INDEX[monthName.toLowerCase()],
       Number(dayText)
     );
 
-    if (!Number.isNaN(parsedMonthDate.getTime())) {
+    if (
+      !Number.isNaN(parsedMonthDate.getTime()) &&
+      parsedMonthDate.getFullYear() === year &&
+      parsedMonthDate.getMonth() === MONTH_NAME_TO_INDEX[monthName.toLowerCase()] &&
+      parsedMonthDate.getDate() === Number(dayText)
+    ) {
       return formatLocalDateIso(parsedMonthDate);
     }
   }
@@ -495,12 +525,12 @@ function userExplicitlyProvidedDate(message = "") {
     return true;
   }
 
-  if (/\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/.test(text)) {
+  if (/\b\d{1,2}\/\d{1,2}(?:\/\d{2,4})?\b/.test(text)) {
     return true;
   }
 
   if (
-    /\b(january|february|march|april|may|june|july|august|september|october|november|december|sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/.test(
+    /\b(january|jan|february|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec|sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/.test(
       text
     )
   ) {
@@ -563,13 +593,13 @@ function extractSchedulerDateReference(message = "") {
     return isoMatch[0];
   }
 
-  const slashMatch = lowered.match(/\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/);
+  const slashMatch = lowered.match(/\b\d{1,2}\/\d{1,2}(?:\/\d{2,4})?\b/);
   if (slashMatch?.[0]) {
     return slashMatch[0];
   }
 
   const monthMatch = text.match(
-    /\b(?:january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2}(?:,\s*\d{4})?\b/i
+    /\b(?:january|jan|february|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)\s+\d{1,2}(?:,\s*\d{4})?\b/i
   );
   if (monthMatch?.[0]) {
     return monthMatch[0];
@@ -647,10 +677,12 @@ function extractDirectCreateEvent(message = "", context = {}) {
   }
 
   const patterns = [
+    /^(?:log|add)\s+(?:an?\s+)?event\s+(?:called|named|titled)\s+(.+)$/i,
     /^create\s+(?:an?\s+)?event\s+(?:called|named|titled)\s+(.+)$/i,
     /^create\s+(?:an?\s+)?meeting\s+(?:called|named|titled)\s+(.+)$/i,
     /^create\s+(?:an?\s+)?appointment\s+(?:called|named|titled)\s+(.+)$/i,
     /^create\s+(?:an?\s+)?call\s+(?:called|named|titled)\s+(.+)$/i,
+    /^(?:log|add)\s+(?:an?\s+)?event\s+(.+)$/i,
     /^create\s+(?:an?\s+)?(.+?\bappointment)\s+for\s+me\s+(.+)$/i,
     /^create\s+(?:an?\s+)?event\s+(.+)$/i,
     /^create\s+(?:an?\s+)?meeting\s+(.+)$/i,
@@ -2427,10 +2459,24 @@ function looksLikeFreshSchedulerStart(userMessage) {
 
   return (
     /\b(schedule|book|create)\b/.test(text) ||
+    /\b(log|add)\b.*\b(event|appointment|meeting|interview|class|shift|call)\b/.test(
+      text
+    ) ||
     /\b(delete|remove)\b.*\b(event|appointment|meeting|interview|class|shift|call)\b/.test(
       text
     )
   );
+}
+
+function withFeatureUpdate(reply, featureUpdate) {
+  if (!reply || !featureUpdate) {
+    return reply;
+  }
+
+  return {
+    ...reply,
+    featureUpdate
+  };
 }
 
 function shouldResetPendingEvent(pending, latestUserMessage) {
@@ -3060,7 +3106,14 @@ async function tryHandleDeterministicScheduler(
       }
     };
 
-    const result = await actionRouter.execute(ai, user);
+    const result = withFeatureUpdate(
+      await actionRouter.execute(ai, user),
+      {
+        feature: "scheduler",
+        action: "create_event",
+        startTime: ai.params.startTime || null
+      }
+    );
     history.push(buildActionHistoryEntry(ai));
     return result;
   }
@@ -3517,8 +3570,8 @@ if (
  * 6. deterministic income parsing
  * 7. deterministic expense parsing
  * 8. deterministic notes parsing
- * 9. deterministic health parsing
- * 10. deterministic scheduler parsing
+ * 9. deterministic scheduler parsing
+ * 10. deterministic health parsing
  * 11. OpenAI fallback
  */
 
@@ -3652,7 +3705,10 @@ async function runChatbot(messages, user, context = {}) {
 
     pendingActions.delete(user.id);
 
-    const result = await actionRouter.execute(ai, user);
+    const result = withFeatureUpdate(
+      await actionRouter.execute(ai, user),
+      "scheduler"
+    );
     history.push(buildActionHistoryEntry(ai));
     return replyCleanup(user.id, result);
   }
@@ -3767,10 +3823,14 @@ async function runChatbot(messages, user, context = {}) {
     const schedulerService = require("./scheduler.service");
     await schedulerService.deleteEvent(user.id, resolvedCandidate.id);
 
-    const reply = {
+    const reply = withFeatureUpdate({
       role: "assistant",
       content: `The event "${resolvedCandidate.title}" has been deleted.`
-    };
+    }, {
+      feature: "scheduler",
+      action: "delete_event",
+      eventId: resolvedCandidate.id
+    });
 
     history.push(reply);
     return replyCleanup(user.id, reply);
@@ -4031,20 +4091,7 @@ async function runChatbot(messages, user, context = {}) {
   }
 
   /**
-   * Stage 9: deterministic health parsing
-   */
-  const deterministicHealthResult = await tryHandleDeterministicHealth(
-    latestUserMessage,
-    user,
-    history
-  );
-
-  if (deterministicHealthResult) {
-    return replyCleanup(user.id, deterministicHealthResult);
-  }
-
-  /**
-   * Stage 10: deterministic scheduler parsing
+   * Stage 9: deterministic scheduler parsing
    */
   const deterministicSchedulerResult = await tryHandleDeterministicScheduler(
     latestUserMessage,
@@ -4055,6 +4102,19 @@ async function runChatbot(messages, user, context = {}) {
 
   if (deterministicSchedulerResult) {
     return replyCleanup(user.id, deterministicSchedulerResult);
+  }
+
+  /**
+   * Stage 10: deterministic health parsing
+   */
+  const deterministicHealthResult = await tryHandleDeterministicHealth(
+    latestUserMessage,
+    user,
+    history
+  );
+
+  if (deterministicHealthResult) {
+    return replyCleanup(user.id, deterministicHealthResult);
   }
 
   /**
@@ -4218,7 +4278,13 @@ async function runChatbot(messages, user, context = {}) {
       }
 
       history.push(buildActionHistoryEntry(ai));
-      return replyCleanup(user.id, result);
+      return replyCleanup(
+        user.id,
+        withFeatureUpdate(result, {
+          feature: "scheduler",
+          action: "delete_event"
+        })
+      );
     }
 
     if (ai.name === "delete_diet") {
@@ -4276,6 +4342,17 @@ async function runChatbot(messages, user, context = {}) {
         history.push(reply);
         return replyCleanup(user.id, reply);
       }
+
+      const result = withFeatureUpdate(
+        await actionRouter.execute(ai, user),
+        {
+          feature: "scheduler",
+          action: "create_event",
+          startTime: params.startTime || null
+        }
+      );
+      history.push(buildActionHistoryEntry(ai));
+      return replyCleanup(user.id, result);
     }
 
     if (ai.name === "create_diet") {
