@@ -45,8 +45,11 @@ async function getFoodDetails(fdcId) {
   });
 
   if (cached) {
+    console.log('CACHE HIT:', fdcId);
     return cached;
   }
+
+  console.log('FETCHING FROM USDA:', fdcId);
 
   const res = await usdaClient.get(`/food/${fdcId}`);
 
