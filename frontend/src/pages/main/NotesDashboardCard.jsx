@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
-import DashboardCard from "./DashboardCard";
-import DashboardEmptyState from "./DashboardEmptyState";
+import { useEffect, useState } from 'react';
+import DashboardCard from './DashboardCard';
+import DashboardEmptyState from './DashboardEmptyState';
 
-import { getNotes } from "../../api/notes";
+import { getNotes } from '../../api/notes';
 
 export default function NotesDashboardCard() {
-
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -15,7 +14,6 @@ export default function NotesDashboardCard() {
 
   async function loadNotes() {
     try {
-
       const data = await getNotes();
 
       // newest first
@@ -24,9 +22,8 @@ export default function NotesDashboardCard() {
       );
 
       setNotes(sorted);
-
     } catch (err) {
-      console.error("Notes dashboard error:", err);
+      console.error('Notes dashboard error:', err);
     } finally {
       setLoading(false);
     }
@@ -51,10 +48,10 @@ export default function NotesDashboardCard() {
   const previewNotes = notes.slice(0, 4);
 
   const colors = [
-    "bg-[rgba(255,243,191,0.9)] border-[rgba(224,190,78,0.62)]",
-    "bg-[rgba(252,239,199,0.88)] border-[rgba(214,177,98,0.52)]",
-    "bg-[rgba(251,236,209,0.88)] border-[rgba(209,163,110,0.48)]",
-    "bg-[rgba(255,245,205,0.92)] border-[rgba(226,192,86,0.56)]"
+    'bg-[rgba(255,243,191,0.9)] border-[rgba(224,190,78,0.62)]',
+    'bg-[rgba(252,239,199,0.88)] border-[rgba(214,177,98,0.52)]',
+    'bg-[rgba(251,236,209,0.88)] border-[rgba(209,163,110,0.48)]',
+    'bg-[rgba(255,245,205,0.92)] border-[rgba(226,192,86,0.56)]',
   ];
 
   return (
@@ -65,7 +62,7 @@ export default function NotesDashboardCard() {
             key={note.id}
             className={`flex min-h-[86px] items-center justify-center rounded-xl border px-3 py-2 text-center text-sm font-medium text-[#6a3914] shadow-[0_10px_18px_rgba(90,48,18,0.08)] ${colors[index % colors.length]}`}
           >
-            <span className="line-clamp-2">{note.title || "Untitled"}</span>
+            <span className="line-clamp-2">{note.title || 'Untitled'}</span>
           </div>
         ))}
       </div>
