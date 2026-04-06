@@ -686,25 +686,21 @@ html.dark {
     scrollbar-width: none;
   }
 
-  .carousel-fade::before,
-  .carousel-fade::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 50px;
-    pointer-events: none;
-    z-index: 5;
-  }
-
-  .carousel-fade::before {
-    left: 0;
-    background: linear-gradient(to right, #f3eed9, transparent);
-  }
-
-  .carousel-fade::after {
-    right: 0;
-    background: linear-gradient(to left, #f3eed9, transparent);
+  .carousel-fade {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0px,
+      black 20px,
+      black calc(100% - 20px),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0px,
+      black 20px,
+      black calc(100% - 20px),
+      transparent 100%
+    );
   }
 }
 
