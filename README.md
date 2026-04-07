@@ -11,8 +11,8 @@ Sprout is a personal productivity and life management application designed to he
 
 1. Clone the Repository
 ```bash
-git clone <repository-url>
-cd <project-folder>
+git clone https://github.com/Jaren-Wheeler/Sprout.git
+cd Sprout
 ```
 
 2. Start the Database Using Docker
